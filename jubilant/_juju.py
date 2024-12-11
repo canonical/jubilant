@@ -4,7 +4,8 @@ import subprocess
 import time
 import typing
 
-from ._errors import RunError
+from ._errors import CLIError, WaitError
+from ._helpers import any_error
 from ._types import Status
 
 
@@ -33,7 +34,7 @@ class Juju:
                 [self.juju_bin, *args], check=True, capture_output=True, encoding='UTF-8'
             )
         except subprocess.CalledProcessError as e:
-            raise RunError(e.returncode, e.cmd, e.stdout, e.stderr) from None
+            raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
         return process.stdout
 
     def add_model(
@@ -117,28 +118,57 @@ class Juju:
         result = json.loads(stdout)
         return Status.from_dict(result)
 
-    def wait_status(
+    def wait(
         self,
-        ready_func: typing.Callable[[Status], bool],
+        ready: typing.Callable[[Status], bool],
         *,
         model: str | None = None,
-        timeout: float = 10 * 60,
-        delay: float = 1,
+        # TODO: should this callable raise instead? maybe better errors
+        error: typing.Callable[[Status], bool] = any_error,
+        delay: float = 1.0,
+        timeout: float = 10 * 60.0,
         successes: int = 3,
     ) -> Status:
-        """TODO."""
-        start = time.time()
+        """Wait until ``ready(status)`` returns true, *successes* times in a row.
+
+        This fetches the Juju status repeatedly (waiting *delay* seconds between each call),
+        and returns the last status after the *ready* callable returns true a number
+        of times in a row (*successes* times).
+
+        Args:
+            ready: Callable that takes a :class:`Status` object and returns true when the wait
+                should be considered ready. It needs to return true *successes* times in a row
+                before ``wait`` returns.
+            model: Juju model name. Overrides ``self.model`` if that is set.
+            error: Callable that takes a :class:`Status` object and returns true when ``wait``
+                should raise an error (*WaitError*).
+            delay: Delay in seconds between status calls.
+            timeout: Overall timeout; *TimeoutError* is raised when this is reached.
+            successes: Number of times *ready* must return true for ``wait`` to succeed.
+
+        Raises:
+            TimeoutError: If the *timeout* is reached.
+            WaitError: If the *error* callable returns true.
+        """
         success_count = 0
-        this_status = None
-        while time.time() - start < timeout:
-            this_status = self.status(model=model)
-            #        logger.info('wait_status: %s', this_status)  # TODO: ensure better debugging
-            print('TODO wait_status', this_status)
-            if ready_func(this_status):
+        status = None
+        start = time.monotonic()
+
+        while time.monotonic() - start < timeout:
+            status = self.status(model=model)
+            # TODO: ensure better debugging, eg: log when status changed
+            print('TODO wait', status)
+
+            if error(status):
+                raise WaitError(f'error function ({error}) returned false, last status:\n{status}')
+
+            if ready(status):
                 success_count += 1
                 if success_count >= successes:
-                    return this_status
+                    return status
             else:
                 success_count = 0
+
             time.sleep(delay)
-        raise Exception(f'timed out after {timeout}, last status:\n{this_status}')
+
+        raise TimeoutError(f'timed out after {timeout}, last status:\n{status}')

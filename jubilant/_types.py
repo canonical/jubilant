@@ -15,8 +15,20 @@ class StatusInfoContents:
 
 
 @dataclasses.dataclass
+class UnitStatus:
+    workload_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+
+    @classmethod
+    def from_dict(cls, d):
+        self = cls()
+        self.workload_status = StatusInfoContents.from_dict(d.get('workload-status') or {})
+        return self
+
+
+@dataclasses.dataclass
 class ApplicationStatus:
     application_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d):
@@ -40,4 +52,9 @@ class Status:
         }
         return self
 
-    # TODO: helper methods
+    def is_app_active(self, app_name: str):
+        """Report whether the application status for *app_name* is "active"."""
+        app_status = self.applications.get(app_name)
+        if app_status is None:
+            return False
+        return app_status.application_status.current == 'active'
