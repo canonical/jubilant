@@ -3,7 +3,8 @@ import logging
 import os
 import subprocess
 import time
-import typing
+from collections.abc import Callable
+from typing import Any
 
 from ._errors import CLIError, WaitError
 from ._helpers import any_error
@@ -42,13 +43,13 @@ class Juju:
 
     def add_model(
         self,
-        model_name: str,  # TODO: should this use self.model if set, and set it if not?
+        model: str,  # TODO: should this use self.model if set, and set it if not?
         *,
         controller: str | None = None,
-        config: dict[str, typing.Any] | None = None,  # TODO: is Any correct here?
+        config: dict[str, Any] | None = None,  # TODO: is Any correct here?
     ) -> None:
         """TODO."""
-        args = ['add-model', model_name]
+        args = ['add-model', model]
 
         if controller is not None:
             args.extend(['--controller', controller])
@@ -60,32 +61,32 @@ class Juju:
 
     def destroy_model(
         self,
-        model_name: str,
+        model: str,
         *,
         force=False,
     ):
         """TODO."""
-        args = ['destroy-model', model_name, '--no-prompt']
+        args = ['destroy-model', model, '--no-prompt']
         if force:
             args.append('--force')
         self.cli(*args)
 
     def deploy(
         self,
-        charm_name: str,
-        application_name: str | None = None,
+        charm: str,
+        application: str | None = None,
         *,
         model: str | None = None,
-        config: dict[str, typing.Any] | None = None,  # TODO: is Any correct here?
+        config: dict[str, Any] | None = None,  # TODO: is Any correct here?
         num_units: int = 1,
         resources: dict[str, str] | None = None,
         trust: bool = False,
         # TODO: include all the arguments we think people we use
     ) -> None:
         """TODO."""
-        args = ['deploy', charm_name]
-        if application_name is not None:
-            args.append(application_name)
+        args = ['deploy', charm]
+        if application is not None:
+            args.append(application)
 
         if model is None:
             model = self.model
@@ -123,10 +124,10 @@ class Juju:
 
     def wait(
         self,
-        ready: typing.Callable[[Status], bool],
+        ready: Callable[[Status], bool],
         *,
         model: str | None = None,
-        error: typing.Callable[[Status], bool] | None = any_error,
+        error: Callable[[Status], bool] | None = any_error,  # TODO: default to None?
         delay: float = 1.0,
         timeout: float = 3 * 60.0,  # TODO: make this a shorter default (but what?)
         successes: int = 3,
