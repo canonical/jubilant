@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import subprocess
 import time
@@ -7,6 +8,8 @@ import typing
 from ._errors import CLIError, WaitError
 from ._helpers import any_error
 from ._types import Status
+
+logger = logging.getLogger('jubilant')
 
 
 class Juju:
@@ -123,10 +126,9 @@ class Juju:
         ready: typing.Callable[[Status], bool],
         *,
         model: str | None = None,
-        # TODO: should this callable raise instead? maybe better errors
-        error: typing.Callable[[Status], bool] = any_error,
+        error: typing.Callable[[Status], bool] | None = any_error,
         delay: float = 1.0,
-        timeout: float = 10 * 60.0,
+        timeout: float = 3 * 60.0,  # TODO: make this a shorter default (but what?)
         successes: int = 3,
     ) -> Status:
         """Wait until ``ready(status)`` returns true, *successes* times in a row.
@@ -150,17 +152,19 @@ class Juju:
             TimeoutError: If the *timeout* is reached.
             WaitError: If the *error* callable returns true.
         """
-        success_count = 0
         status = None
+        success_count = 0
         start = time.monotonic()
 
         while time.monotonic() - start < timeout:
+            prev_status = status
             status = self.status(model=model)
-            # TODO: ensure better debugging, eg: log when status changed
-            print('TODO wait', status)
+            if status != prev_status:
+                logger.info('status changed:\n%s', status)
 
-            if error(status):
-                raise WaitError(f'error function ({error}) returned false, last status:\n{status}')
+            if error is not None and error(status):
+                msg = f'error function {error.__qualname__} returned false'
+                raise _exception_with_status(WaitError, msg, status)
 
             if ready(status):
                 success_count += 1
@@ -171,4 +175,15 @@ class Juju:
 
             time.sleep(delay)
 
-        raise TimeoutError(f'timed out after {timeout}, last status:\n{status}')
+        raise _exception_with_status(TimeoutError, f'timed out after {timeout}s', status)
+
+
+def _exception_with_status(exc_type: type[Exception], msg: str, status: Status | None):
+    if status is None:
+        return exc_type(msg)
+    if hasattr(exc_type, 'add_note'):
+        exc = exc_type(msg)
+        exc.add_note(str(status))
+        return exc
+    else:
+        return exc_type(msg + '\n' + str(status))

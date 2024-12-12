@@ -58,3 +58,5 @@ class Status:
         if app_status is None:
             return False
         return app_status.application_status.current == 'active'
+
+    # TODO: add a nice succinct __str__, similar to "juju status" text output
