@@ -2,3 +2,4 @@ __pycache__
 jubilant.egg-info
 /dist
 /SCRATCH.md
+/docs/_build
