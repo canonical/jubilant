@@ -132,11 +132,13 @@ class Juju:
         timeout: float = 3 * 60.0,  # TODO: make this a shorter default (but what?)
         successes: int = 3,
     ) -> Status:
-        """Wait until ``ready(status)`` returns true, *successes* times in a row.
+        """Wait until ``ready(status)`` returns true.
 
         This fetches the Juju status repeatedly (waiting *delay* seconds between each call),
-        and returns the last status after the *ready* callable returns true a number
-        of times in a row (*successes* times).
+        and returns the last status after the *ready* callable returns true for *successes*
+        times in a row.
+
+        TODO: examples
 
         Args:
             ready: Callable that takes a :class:`Status` object and returns true when the wait
@@ -144,10 +146,10 @@ class Juju:
                 before ``wait`` returns.
             model: Juju model name. Overrides ``self.model`` if that is set.
             error: Callable that takes a :class:`Status` object and returns true when ``wait``
-                should raise an error (*WaitError*).
+                should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
-            timeout: Overall timeout; *TimeoutError* is raised when this is reached.
-            successes: Number of times *ready* must return true for ``wait`` to succeed.
+            timeout: Overall timeout; :class:`TimeoutError` is raised when this is reached.
+            successes: Number of times *ready* must return true for the wait to succeed.
 
         Raises:
             TimeoutError: If the *timeout* is reached.

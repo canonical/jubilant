@@ -6,6 +6,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 project = 'jubilant'
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
 templates_path = ['_templates']
 html_theme = 'sphinx_rtd_theme'
