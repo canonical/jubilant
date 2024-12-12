@@ -92,8 +92,8 @@ def any_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
 def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
     if apps is None:
         apps = list(status.applications.keys())
-    for app_name in apps:
-        app_info = status.applications.get(app_name)
+    for app in apps:
+        app_info = status.applications.get(app)
         if app_info is None:
             return False
         if app_info.application_status.current != expected:
@@ -107,8 +107,8 @@ def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None)
 def _any_status_is(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
     if apps is None:
         apps = list(status.applications.keys())
-    for app_name in apps:
-        app_info = status.applications.get(app_name)
+    for app in apps:
+        app_info = status.applications.get(app)
         if app_info is None:
             continue
         if app_info.application_status.current == expected:
