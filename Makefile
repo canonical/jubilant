@@ -8,6 +8,12 @@ help:
 .PHONY: all
 all: fmt lint static unit
 
+# Build documentation
+.PHONY: docs
+docs:
+	uv export --group docs >docs/requirements.txt
+	uv run --group docs sphinx-build docs/ docs/_build/html
+
 # Format the Python code
 .PHONY: fmt
 fmt:
