@@ -43,7 +43,7 @@ class Juju:
 
     def add_model(
         self,
-        model: str,  # TODO: should this use self.model if set, and set it if not?
+        model: str,
         *,
         controller: str | None = None,
         config: dict[str, Any] | None = None,  # TODO: is Any correct here?
@@ -58,6 +58,12 @@ class Juju:
                 args.extend(['--config', f'{k}={v}'])
 
         self.cli(*args)
+        self.model = model
+
+    def switch(self, model: str):
+        """TODO."""
+        self.cli('switch', model)
+        self.model = model
 
     def destroy_model(
         self,
@@ -70,13 +76,13 @@ class Juju:
         if force:
             args.append('--force')
         self.cli(*args)
+        self.model = None
 
     def deploy(
         self,
         charm: str,
         application: str | None = None,
         *,
-        model: str | None = None,
         config: dict[str, Any] | None = None,  # TODO: is Any correct here?
         num_units: int = 1,
         resources: dict[str, str] | None = None,
@@ -87,11 +93,8 @@ class Juju:
         args = ['deploy', charm]
         if application is not None:
             args.append(application)
-
-        if model is None:
-            model = self.model
-        if model is not None:
-            args.extend(['--model', model])
+        if self.model is not None:
+            args.extend(['--model', self.model])
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', f'{k}={v}'])
@@ -105,18 +108,11 @@ class Juju:
 
         self.cli(*args)
 
-    def status(
-        self,
-        *,
-        model: str | None = None,
-    ) -> Status:
+    def status(self) -> Status:
         """TODO."""
         args = ['status', '--format', 'json']
-
-        if model is None:
-            model = self.model
-        if model is not None:
-            args.extend(['--model', model])
+        if self.model is not None:
+            args.extend(['--model', self.model])
 
         stdout = self.cli(*args)
         result = json.loads(stdout)
@@ -126,7 +122,6 @@ class Juju:
         self,
         ready: Callable[[Status], bool],
         *,
-        model: str | None = None,
         error: Callable[[Status], bool] | None = any_error,  # TODO: default to None?
         delay: float = 1.0,
         timeout: float = 3 * 60.0,  # TODO: make this a shorter default (but what?)
@@ -144,7 +139,6 @@ class Juju:
             ready: Callable that takes a :class:`Status` object and returns true when the wait
                 should be considered ready. It needs to return true *successes* times in a row
                 before ``wait`` returns.
-            model: Juju model name. Overrides ``self.model`` if that is set.
             error: Callable that takes a :class:`Status` object and returns true when ``wait``
                 should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
@@ -161,7 +155,7 @@ class Juju:
 
         while time.monotonic() - start < timeout:
             prev_status = status
-            status = self.status(model=model)
+            status = self.status()
             if status != prev_status:
                 logger.info('status changed:\n%s', status)
 
