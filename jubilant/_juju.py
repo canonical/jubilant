@@ -20,9 +20,11 @@ class Juju:
         self,
         *,
         model: str | None = None,
+        wait_timeout: float = 3 * 60.0,  # TODO: what should the default be?
         juju_bin: os.PathLike | None = None,
     ):
         self.model = model
+        self.wait_timeout = wait_timeout
         self.juju_bin = juju_bin or 'juju'
 
     def __repr__(self):
@@ -124,7 +126,7 @@ class Juju:
         *,
         error: Callable[[Status], bool] | None = any_error,  # TODO: default to None?
         delay: float = 1.0,
-        timeout: float = 3 * 60.0,  # TODO: make this a shorter default (but what?)
+        timeout: float | None = None,
         successes: int = 3,
     ) -> Status:
         """Wait until ``ready(status)`` returns true.
@@ -143,12 +145,16 @@ class Juju:
                 should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
             timeout: Overall timeout; :class:`TimeoutError` is raised when this is reached.
+                If not specified, uses the *wait_timeout* specified when the instance was created.
             successes: Number of times *ready* must return true for the wait to succeed.
 
         Raises:
             TimeoutError: If the *timeout* is reached.
             WaitError: If the *error* callable returns true.
         """
+        if timeout is None:
+            timeout = self.wait_timeout
+
         status = None
         success_count = 0
         start = time.monotonic()
