@@ -19,7 +19,7 @@ def all_error(status: Status, apps: Iterable[str] | None = None) -> bool:
 
     TODO: Args
     """
-    return _any_status_is('error', status, apps)
+    return _all_statuses_are('error', status, apps)
 
 
 def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
@@ -27,7 +27,7 @@ def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
 
     TODO: Args
     """
-    return _any_status_is('blocked', status, apps)
+    return _all_statuses_are('blocked', status, apps)
 
 
 def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
@@ -35,7 +35,7 @@ def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
 
     TODO: Args
     """
-    return _any_status_is('maintenance', status, apps)
+    return _all_statuses_are('maintenance', status, apps)
 
 
 def all_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
@@ -43,7 +43,7 @@ def all_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
 
     TODO: Args
     """
-    return _any_status_is('waiting', status, apps)
+    return _all_statuses_are('waiting', status, apps)
 
 
 def any_active(status: Status, apps: Iterable[str] | None = None) -> bool:
@@ -116,5 +116,4 @@ def _any_status_is(expected: str, status: Status, apps: Iterable[str] | None) ->
         for unit_info in app_info.units.values():
             if unit_info.workload_status.current == expected:
                 return True
-        # TODO: what about juju_status (agent status)?
     return False
