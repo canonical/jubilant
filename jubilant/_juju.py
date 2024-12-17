@@ -21,7 +21,7 @@ class Juju:
         *,
         model: str | None = None,
         wait_timeout: float = 3 * 60.0,  # TODO: what should the default be?
-        juju_bin: os.PathLike | None = None,
+        juju_bin: str | os.PathLike | None = None,
     ):
         self.model = model
         self.wait_timeout = wait_timeout
@@ -82,7 +82,7 @@ class Juju:
 
     def deploy(
         self,
-        charm: str,
+        charm: str | os.PathLike,
         application: str | None = None,
         *,
         config: dict[str, Any] | None = None,  # TODO: is Any correct here?
