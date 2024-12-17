@@ -7,7 +7,6 @@ from collections.abc import Callable
 from typing import Any
 
 from ._errors import CLIError, WaitError
-from ._helpers import any_error
 from ._types import Status
 
 logger = logging.getLogger('jubilant')
@@ -124,7 +123,7 @@ class Juju:
         self,
         ready: Callable[[Status], bool],
         *,
-        error: Callable[[Status], bool] | None = any_error,  # TODO: default to None?
+        error: Callable[[Status], bool] | None = None,
         delay: float = 1.0,
         timeout: float | None = None,
         successes: int = 3,
