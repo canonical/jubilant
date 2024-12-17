@@ -2,7 +2,7 @@ import subprocess
 
 
 class CLIError(subprocess.CalledProcessError):
-    """Subclass of CalledProcessError that includes stdout/stderr in the string."""
+    """Subclass of CalledProcessError that includes stdout and stderr in the __str__."""
 
     def __str__(self):
         s = super().__str__()
