@@ -11,7 +11,7 @@ def juju():
     j.destroy_model('tt')
 
 
-def test_deploy(juju):
+def test_deploy(juju: jubilant.Juju):
     juju.deploy('snappass-test')
 
-    juju.wait(lambda status: status.is_app_active('snappass-test'))
+    juju.wait(lambda status: status.applications['snappass-test'].is_active)
