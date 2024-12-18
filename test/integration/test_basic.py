@@ -14,4 +14,4 @@ def juju():
 def test_deploy(juju: jubilant.Juju):
     juju.deploy('snappass-test')
 
-    juju.wait(lambda status: status.applications['snappass-test'].is_active)
+    juju.wait(lambda status: status.apps['snappass-test'].is_active)

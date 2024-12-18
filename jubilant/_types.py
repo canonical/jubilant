@@ -52,54 +52,52 @@ class UnitStatus:
 
 @dataclasses.dataclass
 class ApplicationStatus:
-    application_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    app_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
     units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d):
         self = cls()
-        self.application_status = StatusInfoContents.from_dict(d.get('application-status') or {})
+        self.app_status = StatusInfoContents.from_dict(d.get('application-status') or {})
         return self
 
     @property
     def is_active(self) -> bool:
         """Report whether the application status for this app is "active"."""
-        return self.application_status.current == 'active'
+        return self.app_status.current == 'active'
 
     @property
     def is_blocked(self) -> bool:
         """Report whether the application status for this app is "blocked"."""
-        return self.application_status.current == 'blocked'
+        return self.app_status.current == 'blocked'
 
     @property
     def is_error(self) -> bool:
         """Report whether the application status for this app is "error"."""
-        return self.application_status.current == 'error'
+        return self.app_status.current == 'error'
 
     @property
     def is_maintenance(self) -> bool:
         """Report whether the application status for this app is "maintenance"."""
-        return self.application_status.current == 'maintenance'
+        return self.app_status.current == 'maintenance'
 
     @property
     def is_waiting(self) -> bool:
         """Report whether the application status for this app is "waiting"."""
-        return self.application_status.current == 'waiting'
+        return self.app_status.current == 'waiting'
 
 
 @dataclasses.dataclass
 class Status:
     # TODO: Ideally we can generate the list of fields from the Go source in Juju:
     # cmd/juju/status/formatted.go
-    applications: dict[str, ApplicationStatus] = dataclasses.field(default_factory=dict)
+    apps: dict[str, ApplicationStatus] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d):
         self = cls()
-        applications = d.get('applications') or {}
-        self.applications = {
-            name: ApplicationStatus.from_dict(status) for name, status in applications.items()
-        }
+        apps = d.get('applications') or {}
+        self.apps = {name: ApplicationStatus.from_dict(status) for name, status in apps.items()}
         return self
 
     # TODO: add a nice succinct __str__, similar to "juju status" text output

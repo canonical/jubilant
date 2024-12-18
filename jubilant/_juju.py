@@ -82,7 +82,7 @@ class Juju:
     def deploy(
         self,
         charm: str | os.PathLike,
-        application: str | None = None,
+        app: str | None = None,
         *,
         config: dict[str, Any] | None = None,  # TODO: is Any correct here?
         num_units: int = 1,
@@ -92,8 +92,8 @@ class Juju:
     ) -> None:
         """TODO."""
         args = ['deploy', charm]
-        if application is not None:
-            args.append(application)
+        if app is not None:
+            args.append(app)
         if self.model is not None:
             args.extend(['--model', self.model])
         if config is not None:
