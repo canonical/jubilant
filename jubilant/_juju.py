@@ -32,9 +32,9 @@ class Juju:
             args.append(f'model={self.model!r}')
         return f'Juju({", ".join(args)})'
 
-    def cli(self, *args: str, model_arg: bool = True) -> str:
+    def cli(self, *args: str, include_model: bool = True) -> str:
         """."""
-        if model_arg and self.model is not None:
+        if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
         try:
             process = subprocess.run(
@@ -60,12 +60,12 @@ class Juju:
             for k, v in config.items():
                 args.extend(['--config', f'{k}={v}'])
 
-        self.cli(*args, model_arg=False)
+        self.cli(*args, include_model=False)
         self.model = model
 
     def switch(self, model: str):
         """TODO."""
-        self.cli('switch', model, model_arg=False)
+        self.cli('switch', model, include_model=False)
         self.model = model
 
     def destroy_model(
@@ -78,7 +78,7 @@ class Juju:
         args = ['destroy-model', model, '--no-prompt']
         if force:
             args.append('--force')
-        self.cli(*args, model_arg=False)
+        self.cli(*args, include_model=False)
         self.model = None
 
     def deploy(
