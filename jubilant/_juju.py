@@ -84,9 +84,12 @@ class Juju:
         charm: str | os.PathLike,
         app: str | None = None,
         *,
+        base: str | None = None,
+        channel: str | None = None,
         config: dict[str, Any] | None = None,  # TODO: is Any correct here?
         num_units: int = 1,
         resources: dict[str, str] | None = None,
+        revision: int | None = None,
         trust: bool = False,
         # TODO: include all the arguments we think people we use
     ) -> None:
@@ -94,8 +97,14 @@ class Juju:
         args = ['deploy', charm]
         if app is not None:
             args.append(app)
+
         if self.model is not None:
             args.extend(['--model', self.model])
+
+        if base is not None:
+            args.extend(['--base', base])
+        if channel is not None:
+            args.extend(['--channel', channel])
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', f'{k}={v}'])
@@ -104,6 +113,8 @@ class Juju:
         if resources is not None:
             for k, v in resources.items():
                 args.extend(['--resource', f'{k}={v}'])
+        if revision is not None:
+            args.extend(['--revision', str(revision)])
         if trust:
             args.append('--trust')
 
