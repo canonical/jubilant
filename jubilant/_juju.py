@@ -32,8 +32,10 @@ class Juju:
             args.append(f'model={self.model!r}')
         return f'Juju({", ".join(args)})'
 
-    def cli(self, *args: str) -> str:
+    def cli(self, *args: str, model_arg: bool = True) -> str:
         """."""
+        if model_arg and self.model is not None:
+            args = (args[0], '--model', self.model) + args[1:]
         try:
             process = subprocess.run(
                 [self.juju_bin, *args], check=True, capture_output=True, encoding='UTF-8'
@@ -58,12 +60,12 @@ class Juju:
             for k, v in config.items():
                 args.extend(['--config', f'{k}={v}'])
 
-        self.cli(*args)
+        self.cli(*args, model_arg=False)
         self.model = model
 
     def switch(self, model: str):
         """TODO."""
-        self.cli('switch', model)
+        self.cli('switch', model, model_arg=False)
         self.model = model
 
     def destroy_model(
@@ -76,7 +78,7 @@ class Juju:
         args = ['destroy-model', model, '--no-prompt']
         if force:
             args.append('--force')
-        self.cli(*args)
+        self.cli(*args, model_arg=False)
         self.model = None
 
     def deploy(
@@ -97,9 +99,6 @@ class Juju:
         args = ['deploy', charm]
         if app is not None:
             args.append(app)
-
-        if self.model is not None:
-            args.extend(['--model', self.model])
 
         if base is not None:
             args.extend(['--base', base])
@@ -123,9 +122,6 @@ class Juju:
     def status(self) -> Status:
         """TODO."""
         args = ['status', '--format', 'json']
-        if self.model is not None:
-            args.extend(['--model', self.model])
-
         stdout = self.cli(*args)
         result = json.loads(stdout)
         return Status.from_dict(result)
