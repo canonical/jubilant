@@ -96,8 +96,12 @@ def any_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
 
 
 def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
+    if isinstance(apps, str | bytes):
+        raise TypeError('"apps" must be an iterable of names (like a list), not a string')
+
     if apps is None:
         apps = status.apps.keys()
+
     for app in apps:
         app_info = status.apps.get(app)
         if app_info is None:
@@ -111,8 +115,12 @@ def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None)
 
 
 def _any_status_is(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
+    if isinstance(apps, str | bytes):
+        raise TypeError('"apps" must be an iterable of names (like a list), not a string')
+
     if apps is None:
         apps = status.apps.keys()
+
     for app in apps:
         app_info = status.apps.get(app)
         if app_info is None:
