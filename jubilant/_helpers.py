@@ -2,6 +2,12 @@ from collections.abc import Iterable
 
 from ._types import Status
 
+# TODO: think further about how these should handle subordinate applications;
+#       they should probably automatically include subordinate status, but per
+#       Dima that might come from a different place in the status object, so not
+#       be handled automatically with the code below. See also:
+#       https://github.com/juju/python-libjuju/blob/138d8f9058e1023e01a01d587b81949433da61ce/tests/unit/data/subordinate-fullstatus.json
+
 
 def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
     """Report whether all applications or units in *status* are in "active" status.
