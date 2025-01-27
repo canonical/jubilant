@@ -72,7 +72,7 @@ class Juju:
             args.extend(['--controller', controller])
         if config is not None:
             for k, v in config.items():
-                args.extend(['--config', f'{k}={v}'])
+                args.extend(['--config', _format_config(k, v)])
 
         self.cli(*args, include_model=False)
         self.model = model
@@ -104,34 +104,56 @@ class Juju:
         charm: str | os.PathLike,
         app: str | None = None,
         *,
+        attach_storage: str | list[str] | None = None,
         base: str | None = None,
         channel: str | None = None,
         config: dict[str, bool | int | float | str] | None = None,
+        constraints: dict[str, str] | None = None,
+        force: bool = False,
         num_units: int = 1,
-        resources: dict[str, str] | None = None,
+        resource: dict[str, str] | None = None,
         revision: int | None = None,
+        storage: dict[str, str] | None = None,
+        to: str | list[str] | None = None,
         trust: bool = False,
-        # TODO: include all the arguments we think people will use
     ) -> None:
         """Deploy an application or bundle."""
         args = ['deploy', charm]
         if app is not None:
             args.append(app)
 
+        if attach_storage is not None:
+            if isinstance(attach_storage, str):
+                args.extend(['--attach-storage', attach_storage])
+            else:
+                args.extend(['--attach-storage', ','.join(attach_storage)])
         if base is not None:
             args.extend(['--base', base])
         if channel is not None:
             args.extend(['--channel', channel])
         if config is not None:
             for k, v in config.items():
-                args.extend(['--config', f'{k}={v}'])
+                args.extend(['--config', _format_config(k, v)])
+        if constraints is not None:
+            for k, v in constraints.items():
+                args.extend(['--constraints', f'{k}={v}'])
+        if force:
+            args.append('--force')
         if num_units != 1:
             args.extend(['--num-units', str(num_units)])
-        if resources is not None:
-            for k, v in resources.items():
+        if resource is not None:
+            for k, v in resource.items():
                 args.extend(['--resource', f'{k}={v}'])
         if revision is not None:
             args.extend(['--revision', str(revision)])
+        if storage is not None:
+            for k, v in storage.items():
+                args.extend(['--storage' f'{k}={v}'])
+        if to is not None:
+            if isinstance(to, str):
+                args.extend(['--to', to])
+            else:
+                args.extend(['--to', ','.join(to)])
         if trust:
             args.append('--trust')
 
@@ -226,3 +248,9 @@ def _exception_with_status(
         return exc
     else:
         return exc_type(msg + '\n' + str(status))
+
+
+def _format_config(k: str, v: bool | int | float | str) -> str:
+    if isinstance(v, bool):
+        v = 'true' if v else 'false'
+    return f'{k}={v}'
