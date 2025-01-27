@@ -89,8 +89,6 @@ class ApplicationStatus:
 
 @dataclasses.dataclass
 class Status:
-    # TODO: Ideally we can generate the list of fields from the Go source in Juju:
-    # cmd/juju/status/formatted.go
     apps: dict[str, ApplicationStatus] = dataclasses.field(default_factory=dict)
 
     @classmethod
@@ -99,5 +97,3 @@ class Status:
         apps = d.get('applications') or {}
         self.apps = {name: ApplicationStatus.from_dict(status) for name, status in apps.items()}
         return self
-
-    # TODO: add a nice succinct __str__, similar to "juju status" text output
