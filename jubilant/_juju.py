@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 from ._errors import CLIError, WaitError
 from ._types import Status
@@ -104,7 +104,7 @@ class Juju:
         charm: str | os.PathLike,
         app: str | None = None,
         *,
-        attach_storage: str | list[str] | None = None,
+        attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
         channel: str | None = None,
         config: dict[str, bool | int | float | str] | None = None,
@@ -114,10 +114,32 @@ class Juju:
         resource: dict[str, str] | None = None,
         revision: int | None = None,
         storage: dict[str, str] | None = None,
-        to: str | list[str] | None = None,
+        to: str | Iterable[str] | None = None,
         trust: bool = False,
     ) -> None:
-        """Deploy an application or bundle."""
+        """Deploy an application or bundle.
+
+        Args:
+            charm: Name of charm or bundle to deploy, or path to a local file (must start with
+                ``/`` or ``.``).
+            app: Optional application name within the model; defaults to the charm name.
+            attach_storage: Existing storage(s) to attach to the deployed unit, for example,
+                ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
+            base: The base on which to deploy, for example, ``ubuntu@22.04``.
+            channel: Channel to use when deploying from Charmhub, for example, ``latest/edge``.
+            config: Application configuration as key-value pairs, for example,
+                ``{'name': 'My Wiki'}``.
+            constraints: Hardware constraints for new machines, for example, ``{'mem': '8G'}``.
+            force: If true, bypass checks such as supported bases.
+            num_units: Number of units to deploy for principal charms.
+            resource: Specify named resources to use for deployment, for example:
+                ``{'bin': '/path/to/some/binary'}``.
+            revision: Charmhub revision number to deploy.
+            storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
+            to: Machine or container to deploy the unit in (bypasses constraints). For example,
+                to deploy to a new LXD container on machine 25, use ``lxd:25``.
+            trust: If true, allows charm to run hooks that require access to cloud credentials.
+        """
         args = ['deploy', charm]
         if app is not None:
             args.append(app)
