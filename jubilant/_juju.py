@@ -181,7 +181,7 @@ class Juju:
         if app is not None:
             args.append(app)
 
-        if attach_storage is not None:
+        if attach_storage:
             if isinstance(attach_storage, str):
                 args.extend(['--attach-storage', attach_storage])
             else:
@@ -208,7 +208,7 @@ class Juju:
         if storage is not None:
             for k, v in storage.items():
                 args.extend(['--storage' f'{k}={v}'])
-        if to is not None:
+        if to:
             if isinstance(to, str):
                 args.extend(['--to', to])
             else:
