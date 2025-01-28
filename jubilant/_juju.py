@@ -207,7 +207,7 @@ class Juju:
             args.extend(['--revision', str(revision)])
         if storage is not None:
             for k, v in storage.items():
-                args.extend(['--storage' f'{k}={v}'])
+                args.extend(['--storage', f'{k}={v}'])
         if to:
             if isinstance(to, str):
                 args.extend(['--to', to])
