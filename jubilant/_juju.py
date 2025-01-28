@@ -23,11 +23,23 @@ class Juju:
         juju.deploy('snappass-test')
 
     Args:
-        model: If specified, operate on this Juju model. If not specified, use the current model.
+        model: If specified, operate on this Juju model, otherwise use the current Juju model.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
-        cli_binary: Path to the Juju CLI binary. If not specified, assumes "juju" is in the PATH.
+        cli_binary: Path to the Juju CLI binary. If not specified, uses "juju" and assumes it is
+            in the PATH.
     """
+
+    model: str | None
+    """If not None, operate on this Juju model, otherwise use the current Juju model."""
+
+    wait_timeout: float
+    """The default timeout for :meth:`wait` (in seconds) if that method's *timeout* parameter is
+    not specified.
+    """
+
+    cli_binary: str
+    """Path to the Juju CLI binary. If None, uses "juju" and assumes it is in the PATH."""
 
     def __init__(
         self,
@@ -38,16 +50,24 @@ class Juju:
     ):
         self.model = model
         self.wait_timeout = wait_timeout
-        self.cli_binary = cli_binary or 'juju'
+        self.cli_binary = str(cli_binary or 'juju')
 
     def __repr__(self) -> str:
-        args = []
-        if self.model is not None:
-            args.append(f'model={self.model!r}')
+        args = [
+            f'model={self.model!r}',
+            f'wait_timeout={self.wait_timeout}',
+            f'cli_binary={self.cli_binary!r}',
+        ]
         return f'Juju({", ".join(args)})'
 
     def cli(self, *args: str, include_model: bool = True) -> str:
-        """."""
+        """Run a Juju CLI command and return its standard output.
+
+        Args:
+            args: Command-line arguments (excluding "juju").
+            include_model: If true and :attr:`model` is set, insert the ``--model`` argument
+                after the first argument in *args*.
+        """
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
         try:
@@ -65,7 +85,15 @@ class Juju:
         controller: str | None = None,
         config: dict[str, bool | int | float | str] | None = None,
     ) -> None:
-        """Add a named model and set this instance's model to it."""
+        """Add a named model and set this instance's model to it.
+
+        Args:
+            model: Name of model to add.
+            controller: Name of controller to operate in. If not specified, use the current
+                controller.
+            config: Model configuration as key-value pairs, for example,
+                ``{'image-stream': 'daily'}``.
+        """
         args = ['add-model', model]
 
         if controller is not None:
@@ -78,7 +106,12 @@ class Juju:
         self.model = model
 
     def switch(self, model: str) -> None:
-        """Switch to a named model and set this instance's model to it."""
+        """Switch to a named model and set this instance's model to it.
+
+        Args:
+            model: Name of model to switch to. This can be a model name, a controller name, or in
+                ``mycontroller:mymodel`` syntax.
+        """
         self.cli('switch', model, include_model=False)
         self.model = model
 
@@ -92,6 +125,10 @@ class Juju:
 
         Also sets this instance's :attr:`model` to None, meaning use the current Juju model for
         subsequent commands.
+
+        Args:
+            model: Name of model to destroy.
+            force: If true, force model destruction and ignore any errors.
         """
         args = ['destroy-model', model, '--no-prompt']
         if force:
