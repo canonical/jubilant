@@ -159,10 +159,11 @@ class AppStatus:
             raise StatusError(d['status-error'])
         return cls(
             charm=d['charm'],
-            base=FormattedBase.from_dict(d['base']) if 'base' in d else None,
             charm_origin=d['charm-origin'],
             charm_name=d['charm-name'],
             charm_rev=d['charm-rev'],
+            exposed=d['exposed'],
+            base=FormattedBase.from_dict(d['base']) if 'base' in d else None,
             charm_channel=d.get('charm-channel') or '',
             charm_version=d.get('charm-version') or '',
             charm_profile=d.get('charm-profile') or '',
@@ -170,7 +171,6 @@ class AppStatus:
             scale=d.get('scale') or 0,
             provider_id=d.get('provider-id') or '',
             address=d.get('address') or '',
-            exposed=d['exposed'],
             life=d.get('life') or '',
             app_status=(
                 StatusInfoContents.from_dict(d['application-status'])
@@ -270,9 +270,9 @@ class StorageInfo:
     def from_dict(cls, d: dict[str, Any]) -> StorageInfo:
         return cls(
             kind=d['kind'],
-            life=d.get('life') or '',
             status=EntityStatus.from_dict(d['status']),
             persistent=d['persistent'],
+            life=d.get('life') or '',
             attachments=(
                 StorageAttachments.from_dict(d['attachments']) if 'attachments' in d else None
             ),
@@ -324,7 +324,7 @@ class FilesystemAttachments:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FilesystemInfo:
-    Attachments: FilesystemAttachments
+    attachments: FilesystemAttachments
     size: int
 
     provider_id: str = ''
@@ -337,12 +337,12 @@ class FilesystemInfo:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> FilesystemInfo:
         return cls(
+            attachments=FilesystemAttachments.from_dict(d['Attachments']),
+            size=d['size'],
             provider_id=d.get('provider-id') or '',
             volume=d.get('volume') or '',
             storage=d.get('storage') or '',
-            Attachments=FilesystemAttachments.from_dict(d['Attachments']),
             pool=d.get('pool') or '',
-            size=d['size'],
             life=d.get('life') or '',
             status=EntityStatus.from_dict(d['status']) if 'status' in d else EntityStatus(),
         )
@@ -360,10 +360,10 @@ class VolumeAttachment:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> VolumeAttachment:
         return cls(
+            read_only=d['read-only'],
             device=d.get('device') or '',
             device_link=d.get('device-link') or '',
             bus_address=d.get('bus-address') or '',
-            read_only=d['read-only'],
             life=d.get('life') or '',
         )
 
@@ -412,6 +412,8 @@ class VolumeInfo:
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> VolumeInfo:
         return cls(
+            size=d['size'],
+            persistent=d['persistent'],
             provider_id=d.get('provider-id') or '',
             storage=d.get('storage') or '',
             attachments=(
@@ -422,8 +424,6 @@ class VolumeInfo:
             pool=d.get('pool') or '',
             hardware_id=d.get('hardware-id') or '',
             wwn=d.get('wwn') or '',
-            size=d['size'],
-            persistent=d['persistent'],
             life=d.get('life') or '',
             status=EntityStatus.from_dict(d['status']) if 'status' in d else EntityStatus(),
         )
@@ -497,10 +497,10 @@ class NetworkInterface:
         return cls(
             ip_addresses=d['ip-addresses'],
             mac_address=d['mac-address'],
+            is_up=d['is-up'],
             gateway=d.get('gateway') or '',
             dns_nameservers=d.get('dns-nameservers') or [],
             space=d.get('space') or '',
-            is_up=d['is-up'],
         )
 
 
@@ -590,8 +590,8 @@ class ModelStatus:
             type=d['type'],
             controller=d['controller'],
             cloud=d['cloud'],
-            region=d.get('region') or '',
             version=d['version'],
+            region=d.get('region') or '',
             upgrade_available=d.get('upgrade-available') or '',
             model_status=(
                 StatusInfoContents.from_dict(d['model-status'])
@@ -629,10 +629,10 @@ class OfferStatus:
             raise StatusError(d['status-error'])
         return cls(
             app=d['application'],
+            endpoints={k: RemoteEndpoint.from_dict(v) for k, v in d['endpoints'].items()},
             charm=d.get('charm') or '',
             total_connected_count=d.get('total-connected-count') or 0,
             active_connected_count=d.get('active-connected-count') or 0,
-            endpoints={k: RemoteEndpoint.from_dict(v) for k, v in d['endpoints'].items()},
         )
 
 
