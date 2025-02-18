@@ -6,7 +6,7 @@ import time
 from collections.abc import Callable, Iterable
 
 from ._errors import CLIError, WaitError
-from ._types import Status
+from .types import Status
 
 logger = logging.getLogger('jubilant')
 

@@ -14,7 +14,7 @@ from ._helpers import (
     any_waiting,
 )
 from ._juju import Juju
-from ._types import Status
+from .types import Status
 
 __all__ = [
     'CLIError',

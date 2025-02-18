@@ -5,6 +5,35 @@ from __future__ import annotations
 import dataclasses
 from typing import Any
 
+__all__ = [
+    'AppStatus',
+    'AppStatusRelation',
+    'CombinedStorage',
+    'ControllerStatus',
+    'EntityStatus',
+    'FilesystemAttachment',
+    'FilesystemAttachments',
+    'FilesystemInfo',
+    'FormattedBase',
+    'LxdProfileContents',
+    'MachineStatus',
+    'ModelStatus',
+    'NetworkInterface',
+    'OfferStatus',
+    'RemoteAppStatus',
+    'RemoteEndpoint',
+    'Status',
+    'StatusError',
+    'StatusInfoContents',
+    'StorageAttachments',
+    'StorageInfo',
+    'UnitStatus',
+    'UnitStorageAttachment',
+    'VolumeAttachment',
+    'VolumeAttachments',
+    'VolumeInfo',
+]
+
 
 class StatusError(Exception):
     """Raised when "juju status" returns a status-error for certain types."""
