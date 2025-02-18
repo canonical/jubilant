@@ -706,6 +706,8 @@ class RemoteAppStatus:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Status:
+    """Parsed version of the status object returned by "juju status --format=json"."""
+
     model: ModelStatus
     machines: dict[str, MachineStatus]
     apps: dict[str, AppStatus]
