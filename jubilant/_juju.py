@@ -223,7 +223,7 @@ class Juju:
         args = ['status', '--format', 'json']
         stdout = self.cli(*args)
         result = json.loads(stdout)
-        return Status.from_dict(result)
+        return Status._from_dict(result)
 
     def wait(
         self,
