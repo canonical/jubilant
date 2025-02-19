@@ -5,7 +5,7 @@ import subprocess
 import time
 from collections.abc import Callable, Iterable
 
-from .types import Status
+from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
 

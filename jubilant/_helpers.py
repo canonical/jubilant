@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 
-from .types import Status
+from .statustypes import Status
 
 
 def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
