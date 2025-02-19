@@ -7,9 +7,9 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-    "pyright==1.1.390",
+    "pyright==1.1.394",
     "pytest==8.3.4",
-    "ruff==0.8.2",
+    "ruff==0.9.6",
 ]
 docs = [
     "sphinx==8.1.3",
