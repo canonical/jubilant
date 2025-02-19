@@ -5,10 +5,25 @@ import subprocess
 import time
 from collections.abc import Callable, Iterable
 
-from ._errors import CLIError, WaitError
 from .types import Status
 
 logger = logging.getLogger('jubilant')
+
+
+class CLIError(subprocess.CalledProcessError):
+    """Subclass of CalledProcessError that includes stdout and stderr in the __str__."""
+
+    def __str__(self):
+        s = super().__str__()
+        if self.stdout:
+            s += '\nStdout:\n' + self.stdout
+        if self.stderr:
+            s += '\nStderr:\n' + self.stderr
+        return s
+
+
+class WaitError(Exception):
+    """Raised when :meth:`Juju.wait`'s "error" callable returns False."""
 
 
 class Juju:

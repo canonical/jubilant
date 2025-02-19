@@ -14,6 +14,11 @@ docs:
 	uv export --group docs >docs/requirements.txt
 	uv run --group docs sphinx-build docs/ docs/_build/html
 
+# Fix linting issues
+.PHONY: fix
+fix:
+	uv run ruff check --fix
+
 # Format the Python code
 .PHONY: fmt
 fmt:

@@ -1,7 +1,6 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI for integration testing."""
 
 from . import types
-from ._errors import CLIError, WaitError
 from ._helpers import (
     all_active,
     all_blocked,
@@ -14,7 +13,7 @@ from ._helpers import (
     any_maintenance,
     any_waiting,
 )
-from ._juju import Juju
+from ._juju import CLIError, Juju, WaitError
 from .types import Status
 
 __all__ = [
