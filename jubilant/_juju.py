@@ -7,7 +7,7 @@ from collections.abc import Callable, Iterable
 
 from .statustypes import Status
 
-logger =  logging.getLogger('jubilant')
+logger = logging.getLogger('jubilant')
 
 
 class CLIError(subprocess.CalledProcessError):
@@ -73,9 +73,9 @@ class Juju:
             f'wait_timeout={self.wait_timeout}',
             f'cli_binary={self.cli_binary!r}',
         ]
-        return 'Juju({", ".join(args)})'
+        return f'Juju({", ".join(args)})'
 
-    def cli(self, *args: str, include_model: bool = True) -> bytes:
+    def cli(self, *args: str, include_model: bool = True) -> str:
         """Run a Juju CLI command and return its standard output.
 
         Args:
