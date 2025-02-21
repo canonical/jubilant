@@ -33,7 +33,7 @@ integration:
 .PHONY: lint
 lint:
 	uv run ruff check
-	uv run ruff format --check
+	uv run ruff format --diff
 
 # Check static types
 .PHONY: static
