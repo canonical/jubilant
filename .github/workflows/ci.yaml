@@ -1,4 +1,4 @@
-name: Unit tests
+name: Jubilant CI
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - name: Run static type checks
         run: make static
 
-  test:
+  unit:
     runs-on: ubuntu-latest
 
     strategy:
