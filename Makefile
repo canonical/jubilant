@@ -20,8 +20,8 @@ fix:
 	uv run ruff check --fix
 
 # Format the Python code
-.PHONY: fmt
-fmt:
+.PHONY: format
+format:
 	uv run ruff format
 
 # Run integration tests (slow, require real Juju)
