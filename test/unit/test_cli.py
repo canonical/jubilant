@@ -28,6 +28,14 @@ def test_error(run: mocks.Run):
     assert exc.cmd == ['juju', 'error']
     assert exc.stdout == 'OUT'
     assert exc.stderr == 'ERR'
+    assert (
+        str(exc)
+        == """Command '['juju', 'error']' returned non-zero exit status 3.
+Stdout:
+OUT
+Stderr:
+ERR"""
+    )
 
 
 def test_include_model_no_model(run: mocks.Run):
