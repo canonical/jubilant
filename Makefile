@@ -6,7 +6,7 @@ help:
 
 # Run all quick, local commands
 .PHONY: all
-all: fmt lint static unit
+all: format lint static unit
 
 # Build documentation
 .PHONY: docs

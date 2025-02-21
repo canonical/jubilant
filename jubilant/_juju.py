@@ -60,7 +60,7 @@ class Juju:
         self,
         *,
         model: str | None = None,
-        wait_timeout: float = 3 * 60.0,
+        wait_timeout: float = 3 * 60,
         cli_binary: str | os.PathLike | None = None,
     ):
         self.model = model
@@ -87,7 +87,7 @@ class Juju:
             args = (args[0], '--model', self.model) + args[1:]
         try:
             process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='UTF-8'
+                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
@@ -134,7 +134,7 @@ class Juju:
         self,
         model: str,
         *,
-        force=False,
+        force: bool = False,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
