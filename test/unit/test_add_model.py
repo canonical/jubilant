@@ -12,7 +12,7 @@ def test_defaults(run: mocks.Run):
     assert juju.model == 'new'
 
 
-def test_args(run: mocks.Run):
+def test_all_args(run: mocks.Run):
     run.handle(
         [
             'juju',
