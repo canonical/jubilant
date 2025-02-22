@@ -11,3 +11,4 @@ def run() -> Generator[mocks.Run, None, None]:
     run_mock = mocks.Run()
     with unittest.mock.patch('subprocess.run', run_mock):
         yield run_mock
+    assert run_mock.call_count >= 1, 'subprocess.run not called'
