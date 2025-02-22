@@ -20,7 +20,7 @@ def test_init_args():
 def test_repr_defaults():
     juju = jubilant.Juju()
 
-    assert repr(juju) == "Juju(model=None, wait_timeout=180, cli_binary='juju')"
+    assert repr(juju) == "Juju(model=None, wait_timeout=180.0, cli_binary='juju')"
 
 
 def test_repr_args():

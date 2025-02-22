@@ -47,3 +47,20 @@ class Run:
             stdout=stdout,
             stderr=stderr,
         )
+
+
+class Time:
+    """Mock for time.monotonic and time.sleep.
+
+    This is very simplistic: time.monotonic() starts out at 0, and every time
+    time.sleep(x) is called, it increases by x.
+    """
+
+    def __init__(self):
+        self._monotonic = 0
+
+    def monotonic(self) -> float:
+        return self._monotonic
+
+    def sleep(self, seconds: float):
+        self._monotonic += seconds
