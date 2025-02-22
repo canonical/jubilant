@@ -138,8 +138,8 @@ class Juju:
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
-        Also sets this instance's :attr:`model` to None, meaning use the current Juju model for
-        subsequent commands.
+        If the given model is this instance's model, also sets this instance's
+        :attr:`model` to None.
 
         Args:
             model: Name of model to destroy.
@@ -149,7 +149,8 @@ class Juju:
         if force:
             args.append('--force')
         self.cli(*args, include_model=False)
-        self.model = None
+        if model == self.model:
+            self.model = None
 
     def deploy(
         self,
