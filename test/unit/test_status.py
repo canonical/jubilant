@@ -29,26 +29,7 @@ MINIMAL_STATUS = jubilant.Status(
 )
 
 
-def test_minimal_no_model(run: mocks.Run):
-    run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
-
-    status = juju.status()
-
-    assert status == MINIMAL_STATUS
-
-
-def test_minimal_with_model(run: mocks.Run):
-    run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju(model='mdl')
-
-    status = juju.status()
-
-    assert status == MINIMAL_STATUS
-
-
-def test_real_status(run: mocks.Run):
-    status_json = """
+SNAPPASS_JSON = """
 {
     "model": {
         "name": "tt",
@@ -109,7 +90,28 @@ def test_real_status(run: mocks.Run):
     }
 }
 """
-    run.handle(['juju', 'status', '--format', 'json'], stdout=status_json)
+
+
+def test_minimal_no_model(run: mocks.Run):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
+    juju = jubilant.Juju()
+
+    status = juju.status()
+
+    assert status == MINIMAL_STATUS
+
+
+def test_minimal_with_model(run: mocks.Run):
+    run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
+    juju = jubilant.Juju(model='mdl')
+
+    status = juju.status()
+
+    assert status == MINIMAL_STATUS
+
+
+def test_real_status(run: mocks.Run):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=SNAPPASS_JSON)
     juju = jubilant.Juju()
 
     status = juju.status()
