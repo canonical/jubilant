@@ -5,6 +5,15 @@ from __future__ import annotations
 import dataclasses
 from typing import Any
 
+try:
+    # Real implementation lives in another file to avoid having to include and
+    # maintain this in the Juju code generator.
+    from . import _status
+except ImportError:
+    # So that this module can be imported outside this package (in the context
+    # of the Juju code generator).
+    _status = None
+
 __all__ = [
     'AppStatus',
     'AppStatusRelation',
@@ -742,3 +751,9 @@ class Status:
                 else ControllerStatus()
             ),
         )
+
+    def __str__(self):
+        """Return a "juju status"-style tabular representation of this status."""
+        if _status is None:
+            return super().__str__()
+        return _status._status_str(self)

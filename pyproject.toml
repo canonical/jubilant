@@ -113,6 +113,8 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 "test/*" = [
     # All documentation linting.
     "D",
+    # Line too long
+    "E501",
 ]
 
 [tool.pyright]
