@@ -1,8 +1,9 @@
 from collections.abc import Generator
 from unittest import mock
 
-import mocks
 import pytest
+
+from . import mocks
 
 
 @pytest.fixture

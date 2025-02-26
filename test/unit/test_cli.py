@@ -1,9 +1,10 @@
 import subprocess
 
-import mocks
 import pytest
 
 import jubilant
+
+from . import mocks
 
 
 def test_success(run: mocks.Run):

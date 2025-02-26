@@ -1,6 +1,6 @@
-import mocks
-
 import jubilant
+
+from . import mocks
 
 
 def test_destroy_this(run: mocks.Run):

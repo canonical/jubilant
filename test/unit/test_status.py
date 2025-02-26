@@ -1,7 +1,7 @@
-import mocks
-from fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
-
 import jubilant
+
+from . import mocks
+from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 
 def test_minimal_no_model(run: mocks.Run):

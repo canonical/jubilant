@@ -1,10 +1,11 @@
 import logging
 
-import mocks
 import pytest
-from fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
 
 import jubilant
+
+from . import mocks
+from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
 
 
 def test_ready_normal(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):

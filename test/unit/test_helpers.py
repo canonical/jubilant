@@ -3,9 +3,10 @@ import json
 from collections.abc import Callable
 
 import pytest
-from fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON
 
 import jubilant
+
+from .fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON
 
 
 @pytest.mark.parametrize(
