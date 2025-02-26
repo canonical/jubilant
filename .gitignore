@@ -5,3 +5,4 @@ jubilant.egg-info
 /docs/_build
 /.idea
 /t.py
+/.coverage

@@ -87,7 +87,7 @@ class Juju:
             args = (args[0], '--model', self.model) + args[1:]
         try:
             process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='UTF-8'
+                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
@@ -134,12 +134,12 @@ class Juju:
         self,
         model: str,
         *,
-        force=False,
+        force: bool = False,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
-        Also sets this instance's :attr:`model` to None, meaning use the current Juju model for
-        subsequent commands.
+        If the given model is this instance's model, also sets this instance's
+        :attr:`model` to None.
 
         Args:
             model: Name of model to destroy.
@@ -149,7 +149,8 @@ class Juju:
         if force:
             args.append('--force')
         self.cli(*args, include_model=False)
-        self.model = None
+        if model == self.model:
+            self.model = None
 
     def deploy(
         self,
@@ -279,8 +280,10 @@ class Juju:
             successes: Number of times *ready* must return true for the wait to succeed.
 
         Raises:
-            TimeoutError: If the *timeout* is reached.
-            WaitError: If the *error* callable returns True.
+            TimeoutError: If the *timeout* is reached. A string representation
+                of the last status, if any, is added as an exception note.
+            WaitError: If the *error* callable returns True. A string representation
+                of the last status is added as an exception note.
         """
         if timeout is None:
             timeout = self.wait_timeout
@@ -296,8 +299,9 @@ class Juju:
                 logger.info('status changed:\n%s', status)
 
             if error is not None and error(status):
-                msg = f'error function {error.__qualname__} returned false'
-                raise _exception_with_status(WaitError, msg, status)
+                exc = WaitError(f'error function {error.__qualname__} returned false')
+                exc.add_note(str(status))
+                raise exc
 
             if ready(status):
                 success_count += 1
@@ -308,20 +312,10 @@ class Juju:
 
             time.sleep(delay)
 
-        raise _exception_with_status(TimeoutError, f'timed out after {timeout}s', status)
-
-
-def _exception_with_status(
-    exc_type: type[Exception], msg: str, status: Status | None
-) -> Exception:
-    if status is None:
-        return exc_type(msg)
-    if hasattr(exc_type, 'add_note'):  # available in Python 3.11+ (PEP 678)
-        exc = exc_type(msg)
-        exc.add_note(str(status))
-        return exc
-    else:
-        return exc_type(msg + '\n' + str(status))
+        exc = TimeoutError(f'timed out after {timeout}s')
+        if status is not None:
+            exc.add_note(str(status))
+        raise exc
 
 
 def _format_config(k: str, v: bool | int | float | str) -> str:
