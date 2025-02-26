@@ -1,11 +1,10 @@
 import dataclasses
-from typing import Any
 
 _MAX_VALUE = 150
 _INDENT = 2
 
 
-def _dump(value: Any, indent='') -> str:
+def _dump(value: object, indent='') -> str:
     """Pretty-print a value with special cases for dataclasses, lists, and dicts.
 
     If the value fits on a single (long) line, use that. Otherwise, split onto
