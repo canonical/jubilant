@@ -11,7 +11,8 @@ logger = logging.getLogger('jubilant')
 
 
 class CLIError(subprocess.CalledProcessError):
-    """Subclass of :class:`CalledProcessError` that includes stdout and stderr in the :code:`__str__`."""
+    """Subclass of :class:`CalledProcessError` that includes stdout and stderr in the
+    :code:`__str__`."""
 
     def __str__(self):
         s = super().__str__()
@@ -41,8 +42,8 @@ class Juju:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
-        cli_binary: Path to the Juju CLI binary. If not specified, uses :code:`juju` and assumes it is
-            in the PATH.
+        cli_binary: Path to the Juju CLI binary. If not specified, uses :code:`juju` and assumes
+            it is in the PATH.
     """
 
     model: str | None
