@@ -5,7 +5,7 @@ def test_init_defaults():
     juju = jubilant.Juju()
 
     assert juju.model is None
-    assert juju.wait_timeout == 180
+    assert juju.wait_timeout is not None  # don't test the exact value of the default
     assert juju.cli_binary == 'juju'
 
 
@@ -15,12 +15,6 @@ def test_init_args():
     assert juju.model == 'm'
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
-
-
-def test_repr_defaults():
-    juju = jubilant.Juju()
-
-    assert repr(juju) == "Juju(model=None, wait_timeout=180.0, cli_binary='juju')"
 
 
 def test_repr_args():

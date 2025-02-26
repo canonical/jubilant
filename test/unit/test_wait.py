@@ -2,7 +2,7 @@ import logging
 
 import mocks
 import pytest
-from test_status import MINIMAL_JSON, MINIMAL_STATUS
+from fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
 
 import jubilant
 
