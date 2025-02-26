@@ -9,7 +9,7 @@ matrix:
         - .custom_wordlist.txt
       output: .sphinx/.wordlist.dic
     sources:
-      - _build/**/*.html
+      - _build/**/*.html|!_build/genindex/index.html
     pipeline:
       - pyspelling.filters.html:
           comments: false
@@ -28,3 +28,7 @@ matrix:
             - img
             - a.p-navigation__link
             - a.contributor
+            - span.pre
+            - .sig-object
+            - '#module-jubilant strong'
+            - '#module-jubilant a.reference'
