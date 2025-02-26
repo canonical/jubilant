@@ -5,6 +5,8 @@ from __future__ import annotations
 import dataclasses
 from typing import Any
 
+from . import _pretty
+
 __all__ = [
     'AppStatus',
     'AppStatusRelation',
@@ -742,3 +744,11 @@ class Status:
                 else ControllerStatus()
             ),
         )
+
+    def __repr__(self):
+        """Return a pretty-printed version of the status."""
+        return _pretty._dump(self)
+
+    def __str__(self):
+        """Return a pretty-printed version of the status."""
+        return repr(self)
