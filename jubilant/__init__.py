@@ -1,7 +1,7 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI for integration testing."""
 
 from . import statustypes
-from ._helpers import (
+from ._all_any import (
     all_active,
     all_blocked,
     all_error,
