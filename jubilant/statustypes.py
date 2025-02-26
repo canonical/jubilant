@@ -742,3 +742,39 @@ class Status:
                 else ControllerStatus()
             ),
         )
+
+    def __repr__(self):
+        return _dump_dataclass(self)
+
+
+def _dump_dataclass(dc: Any, indent='') -> str:
+    lines = []
+    sub_indent = indent + '    '
+    for field in dataclasses.fields(dc):
+        value = getattr(dc, field.name)
+        if field.default is not dataclasses.MISSING and value == field.default:
+            continue
+        if field.default_factory is not dataclasses.MISSING and value == field.default_factory():
+            continue
+        value_str = _dump_value(value, sub_indent)
+        lines.append(f'{sub_indent}{field.name}={value_str},')
+    if not lines:
+        return f'{dc.__class__.__name__}()'
+    lines_str = '\n'.join(lines)
+    return f'{dc.__class__.__name__}(\n{lines_str}{indent}\n{indent})'
+
+
+def _dump_value(value: Any, indent='') -> str:
+    if dataclasses.is_dataclass(value):
+        return _dump_dataclass(value, indent)
+    elif isinstance(value, dict):
+        if not value:
+            return '{}'
+        sub_indent = indent + '    '
+        lines = []
+        for k, v in sorted(value.items()):
+            v_str = _dump_value(v, sub_indent)
+            lines.append(f'{sub_indent}{k!r}: {v_str},')
+        return f'{{\n' + '\n'.join(lines) + f'\n{indent}}}'
+    else:
+        return repr(value)
