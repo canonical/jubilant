@@ -12,7 +12,8 @@ logger = logging.getLogger('jubilant')
 
 class CLIError(subprocess.CalledProcessError):
     """Subclass of :class:`CalledProcessError` that includes stdout and stderr in the
-    :code:`__str__`."""
+    :code:`__str__`.
+    """
 
     def __str__(self):
         s = super().__str__()
