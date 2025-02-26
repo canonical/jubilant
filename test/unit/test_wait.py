@@ -47,10 +47,10 @@ def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
 
-    status = juju.wait(lambda _: True, delay=0.5, successes=5)
+    status = juju.wait(lambda _: True, delay=0.75, successes=5)
 
     assert run.call_count == 5
-    assert time.monotonic() == 2.0
+    assert time.monotonic() == 3.0
     assert status == MINIMAL_STATUS
 
 
