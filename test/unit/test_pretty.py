@@ -22,7 +22,7 @@ def test_medium():
     status_repr = repr(status)
     assert (
         status_repr
-        == """
+        == """\
 Status(
   model=ModelStatus(
     name='tt',
@@ -59,8 +59,7 @@ Status(
     ),
   },
   controller=ControllerStatus(timestamp='12:04:55+13:00'),
-)
-"""[1:-1]
+)"""
     )
     assert str(status) == status_repr
     assert eval(status_repr, jubilant.statustypes.__dict__) == status
@@ -71,7 +70,7 @@ def test_large():
     status_repr = repr(status)
     assert (
         status_repr
-        == """
+        == """\
 Status(
   model=ModelStatus(
     name='tt',
@@ -137,8 +136,7 @@ Status(
     ),
   },
   controller=ControllerStatus(timestamp='17:00:33+13:00'),
-)
-"""[1:-1]
+)"""
     )
     assert str(status) == status_repr
     assert eval(status_repr, jubilant.statustypes.__dict__) == status
