@@ -1,22 +1,31 @@
 #
-name: Automatic doc checks
+name: Docs
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-
+  workflow_call:
   workflow_dispatch:
-    # Manual trigger
-
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  documentation-checks:
+  checks:
     uses: canonical/documentation-workflows/.github/workflows/documentation-checks.yaml@main
     with:
       working-directory: "docs"
       fetch-depth: 0
+
+  md-lint:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: DavidAnson/markdownlint-cli2-action@v16
+      with:
+        config: "docs/.sphinx/.markdownlint.json"
