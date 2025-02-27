@@ -3,7 +3,8 @@ import logging
 import os
 import subprocess
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
+from typing import overload
 
 from .statustypes import Status
 
@@ -23,7 +24,7 @@ class CLIError(subprocess.CalledProcessError):
 
 
 class WaitError(Exception):
-    """Raised when :meth:`Juju.wait`'s "error" callable returns False."""
+    """Raised when :meth:`Juju.wait`'s *error* callable returns False."""
 
 
 class Juju:
@@ -98,7 +99,7 @@ class Juju:
         model: str,
         *,
         controller: str | None = None,
-        config: dict[str, bool | int | float | str] | None = None,
+        config: Mapping[str, bool | int | float | str] | None = None,
     ) -> None:
         """Add a named model and set this instance's model to it.
 
@@ -160,13 +161,13 @@ class Juju:
         attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
         channel: str | None = None,
-        config: dict[str, bool | int | float | str] | None = None,
-        constraints: dict[str, str] | None = None,
+        config: Mapping[str, bool | int | float | str] | None = None,
+        constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
-        resource: dict[str, str] | None = None,
+        resource: Mapping[str, str] | None = None,
         revision: int | None = None,
-        storage: dict[str, str] | None = None,
+        storage: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
         trust: bool = False,
     ) -> None:
@@ -231,6 +232,43 @@ class Juju:
                 args.extend(['--to', ','.join(to)])
         if trust:
             args.append('--trust')
+
+        self.cli(*args)
+
+    @overload
+    def config(self, app: str) -> Mapping[str, bool | int | float | str]: ...
+
+    @overload
+    def config(self, app: str, values: Mapping[str, bool | int | float | str | None]) -> None: ...
+
+    def config(
+        self, app: str, values: Mapping[str, bool | int | float | str | None] | None = None
+    ) -> Mapping[str, bool | int | float | str] | None:
+        """Get or set the configuration of a deployed application.
+
+        If called with only the *app* argument, get the config and return it.
+        If called with the *values* argument, set the config values and return
+        ``None``.
+
+        Args:
+            app: Application name to get or set config for.
+            values: Mapping of config names to values. Reset values that are
+                ``None``.
+        """
+        if values is None:
+            stdout = self.cli('config', '--format', 'json', app)
+            result = json.loads(stdout)
+            return {k: v['value'] for k, v in result['settings'].items()}
+
+        reset = []
+        args = ['config', app]
+        for k, v in values.items():
+            if v is None:
+                reset.append(k)
+            else:
+                args.append(_format_config(k, v))
+        if reset:
+            args.extend(['--reset', ','.join(reset)])
 
         self.cli(*args)
 
