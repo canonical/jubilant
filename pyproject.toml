@@ -97,6 +97,9 @@ ignore = [
     "S603",
     # Starting a process with a partial executable path
     "S607",
+
+    # Use "type" keyword (Sphinx doesn't handle it yet)
+    "UP040",
 ]
 
 [tool.ruff.lint.pydocstyle]

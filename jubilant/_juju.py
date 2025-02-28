@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
@@ -25,6 +27,14 @@ class CLIError(subprocess.CalledProcessError):
 
 class WaitError(Exception):
     """Raised when :meth:`Juju.wait`'s *error* callable returns False."""
+
+
+class SecretURI(str):
+    """A string subclass that represents a secret URI ("secret:...")."""
+
+
+type ConfigValue = bool | int | float | str | SecretURI
+"""The possible types a charm config value can be."""
 
 
 class Juju:
@@ -99,7 +109,7 @@ class Juju:
         model: str,
         *,
         controller: str | None = None,
-        config: Mapping[str, bool | int | float | str] | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
     ) -> None:
         """Add a named model and set this instance's model to it.
 
@@ -161,7 +171,7 @@ class Juju:
         attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
         channel: str | None = None,
-        config: Mapping[str, bool | int | float | str] | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
@@ -236,14 +246,14 @@ class Juju:
         self.cli(*args)
 
     @overload
-    def config(self, app: str) -> Mapping[str, bool | int | float | str]: ...
+    def config(self, app: str) -> Mapping[str, ConfigValue]: ...
 
     @overload
-    def config(self, app: str, values: Mapping[str, bool | int | float | str | None]) -> None: ...
+    def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
 
     def config(
-        self, app: str, values: Mapping[str, bool | int | float | str | None] | None = None
-    ) -> Mapping[str, bool | int | float | str] | None:
+        self, app: str, values: Mapping[str, ConfigValue | None] | None = None
+    ) -> Mapping[str, ConfigValue] | None:
         """Get or set the configuration of a deployed application.
 
         If called with only the *app* argument, get the config and return it.
@@ -257,8 +267,12 @@ class Juju:
         """
         if values is None:
             stdout = self.cli('config', '--format', 'json', app)
-            result = json.loads(stdout)
-            return {k: v['value'] for k, v in result['settings'].items()}
+            all_config = json.loads(stdout)
+            result = {
+                k: SecretURI(v['value']) if v['type'] == 'secret' else v['value']
+                for k, v in all_config['settings'].items()
+            }
+            return result
 
         reset = []
         args = ['config', app]
@@ -356,7 +370,7 @@ class Juju:
         raise exc
 
 
-def _format_config(k: str, v: bool | int | float | str) -> str:
+def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'

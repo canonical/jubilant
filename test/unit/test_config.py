@@ -5,10 +5,11 @@ from . import mocks
 CONFIG_JSON = """
 {
     "settings": {
-        "booly": {"value": true},
-        "inty": {"value": 42},
-        "floaty": {"value": 7.5},
-        "stry": {"value": "A string."}
+        "booly": {"value": true, "type": "boolean"},
+        "inty": {"value": 42, "type": "int"},
+        "floaty": {"value": 7.5, "type": "float"},
+        "stry": {"value": "A string.", "type": "string"},
+        "secrety": {"value": "secret:abcd1234", "type": "secret"}
     }
 }
 """
@@ -19,7 +20,13 @@ def test_get(run: mocks.Run):
 
     juju = jubilant.Juju()
     values = juju.config('app1')
-    assert values == {'booly': True, 'inty': 42, 'floaty': 7.5, 'stry': 'A string.'}
+    assert values == {
+        'booly': True,
+        'inty': 42,
+        'floaty': 7.5,
+        'stry': 'A string.',
+        'secrety': jubilant.SecretURI('secret:abcd1234'),
+    }
 
 
 def test_get_with_model(run: mocks.Run):
@@ -29,14 +36,37 @@ def test_get_with_model(run: mocks.Run):
 
     juju = jubilant.Juju(model='mdl')
     values = juju.config('app1')
-    assert values == {'booly': True, 'inty': 42, 'floaty': 7.5, 'stry': 'A string.'}
+    assert values == {
+        'booly': True,
+        'inty': 42,
+        'floaty': 7.5,
+        'stry': 'A string.',
+        'secrety': jubilant.SecretURI('secret:abcd1234'),
+    }
 
 
 def test_set(run: mocks.Run):
-    run.handle(['juju', 'config', 'app2', 'booly=true', 'inty=42', 'floaty=7.5', 'stry=A string.'])
+    run.handle(
+        [
+            'juju',
+            'config',
+            'app2',
+            'booly=true',
+            'inty=42',
+            'floaty=7.5',
+            'stry=A string.',
+            'secrety=secret:foo',
+        ]
+    )
 
     juju = jubilant.Juju()
-    values = {'booly': True, 'inty': 42, 'floaty': 7.5, 'stry': 'A string.'}
+    values = {
+        'booly': True,
+        'inty': 42,
+        'floaty': 7.5,
+        'stry': 'A string.',
+        'secrety': jubilant.SecretURI('secret:foo'),
+    }
     retval = juju.config('app2', values)
     assert retval is None
 
