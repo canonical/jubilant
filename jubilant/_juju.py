@@ -246,13 +246,17 @@ class Juju:
         self.cli(*args)
 
     @overload
-    def config(self, app: str) -> Mapping[str, ConfigValue]: ...
+    def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
 
     @overload
     def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
 
     def config(
-        self, app: str, values: Mapping[str, ConfigValue | None] | None = None
+        self,
+        app: str,
+        values: Mapping[str, ConfigValue | None] | None = None,
+        *,
+        app_config: bool = False,
     ) -> Mapping[str, ConfigValue] | None:
         """Get or set the configuration of a deployed application.
 
@@ -264,13 +268,17 @@ class Juju:
             app: Application name to get or set config for.
             values: Mapping of config names to values. Reset values that are
                 ``None``.
+            app_config: When getting config, set this to True to get the
+                (poorly-named) "application-config" values instead of charm config.
         """
         if values is None:
             stdout = self.cli('config', '--format', 'json', app)
-            all_config = json.loads(stdout)
+            outer = json.loads(stdout)
+            inner = outer['application-config'] if app_config else outer['settings']
             result = {
                 k: SecretURI(v['value']) if v['type'] == 'secret' else v['value']
-                for k, v in all_config['settings'].items()
+                for k, v in inner.items()
+                if 'value' in v
             }
             return result
 

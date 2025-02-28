@@ -4,6 +4,10 @@ from . import mocks
 
 CONFIG_JSON = """
 {
+    "application-config": {
+      "juju-application-path": {"value": "/", "type": "string"},
+      "trust": {"value": false, "type": "bool"}
+    },
     "settings": {
         "booly": {"value": true, "type": "boolean"},
         "inty": {"value": 42, "type": "int"},
@@ -26,6 +30,17 @@ def test_get(run: mocks.Run):
         'floaty': 7.5,
         'stry': 'A string.',
         'secrety': jubilant.SecretURI('secret:abcd1234'),
+    }
+
+
+def test_get_app_config(run: mocks.Run):
+    run.handle(['juju', 'config', '--format', 'json', 'appc'], stdout=CONFIG_JSON)
+
+    juju = jubilant.Juju()
+    values = juju.config('appc', app_config=True)
+    assert values == {
+        'juju-application-path': '/',
+        'trust': False,
     }
 
 
