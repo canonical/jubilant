@@ -274,7 +274,7 @@ class Juju:
             }
             return result
 
-        reset = []
+        reset: list[str] = []
         args = ['config', app]
         for k, v in values.items():
             if v is None:
