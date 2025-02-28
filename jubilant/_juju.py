@@ -61,7 +61,7 @@ class Juju:
         *,
         model: str | None = None,
         wait_timeout: float = 3 * 60.0,
-        cli_binary: str | os.PathLike | None = None,
+        cli_binary: str | os.PathLike[str] | None = None,
     ):
         self.model = model
         self.wait_timeout = wait_timeout
@@ -154,7 +154,7 @@ class Juju:
 
     def deploy(
         self,
-        charm: str | os.PathLike,
+        charm: str | os.PathLike[str],
         app: str | None = None,
         *,
         attach_storage: str | Iterable[str] | None = None,
@@ -193,7 +193,7 @@ class Juju:
                 to deploy to a new LXD container on machine 25, use ``lxd:25``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
-        args = ['deploy', charm]
+        args = ['deploy', str(charm)]
         if app is not None:
             args.append(app)
 

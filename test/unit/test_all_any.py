@@ -1,6 +1,6 @@
 import copy
 import json
-from collections.abc import Callable
+from typing import Any
 
 import pytest
 
@@ -19,7 +19,7 @@ from .fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON
         jubilant.all_waiting,
     ],
 )
-def test_all_no_apps(all_func: Callable):
+def test_all_no_apps(all_func: Any):
     # Just like Python's all(), all_* helpers return True if no apps
     assert all_func(MINIMAL_STATUS)
     assert all_func(MINIMAL_STATUS, [])
@@ -35,7 +35,7 @@ def test_all_no_apps(all_func: Callable):
         jubilant.any_waiting,
     ],
 )
-def test_any_no_apps(any_func: Callable):
+def test_any_no_apps(any_func: Any):
     # Just like Python's any(), any_* helpers return False if no apps
     assert not any_func(MINIMAL_STATUS)
     assert not any_func(MINIMAL_STATUS, [])
@@ -51,7 +51,7 @@ def test_any_no_apps(any_func: Callable):
         (jubilant.all_waiting, 'waiting', 'error'),
     ],
 )
-def test_all_one_app(all_func: Callable, expected: str, unexpected: str):
+def test_all_one_app(all_func: Any, expected: str, unexpected: str):
     status_dict = json.loads(SNAPPASS_JSON)
     set_app_and_unit_status(status_dict, 'snappass-test', expected, expected)
     status = jubilant.Status._from_dict(status_dict)
@@ -81,7 +81,7 @@ def test_all_one_app(all_func: Callable, expected: str, unexpected: str):
         (jubilant.any_waiting, 'waiting', 'error'),
     ],
 )
-def test_any_one_app(any_func: Callable, expected: str, unexpected: str):
+def test_any_one_app(any_func: Any, expected: str, unexpected: str):
     status_dict = json.loads(SNAPPASS_JSON)
     set_app_and_unit_status(status_dict, 'snappass-test', expected, expected)
     status = jubilant.Status._from_dict(status_dict)
@@ -111,7 +111,7 @@ def test_any_one_app(any_func: Callable, expected: str, unexpected: str):
         (jubilant.all_waiting, 'waiting', 'error'),
     ],
 )
-def test_all_two_apps(all_func: Callable, expected: str, unexpected: str):
+def test_all_two_apps(all_func: Any, expected: str, unexpected: str):
     status_dict = json.loads(SNAPPASS_JSON)
     set_app_and_unit_status(status_dict, 'snappass-test', expected, expected)
     add_app(status_dict, 'snappass-test', 'app2')
@@ -144,7 +144,7 @@ def test_all_two_apps(all_func: Callable, expected: str, unexpected: str):
         (jubilant.any_waiting, 'waiting', 'error'),
     ],
 )
-def test_any_two_apps(any_func: Callable, expected: str, unexpected: str):
+def test_any_two_apps(any_func: Any, expected: str, unexpected: str):
     status_dict = json.loads(SNAPPASS_JSON)
     set_app_and_unit_status(status_dict, 'snappass-test', expected, expected)
     add_app(status_dict, 'snappass-test', 'app2')
@@ -182,7 +182,7 @@ def test_any_two_apps(any_func: Callable, expected: str, unexpected: str):
         jubilant.any_waiting,
     ],
 )
-def test_all_and_any_type_errors(func: Callable):
+def test_all_and_any_type_errors(func: Any):
     with pytest.raises(TypeError):
         func(MINIMAL_STATUS, apps='app')
     with pytest.raises(TypeError):
@@ -190,7 +190,7 @@ def test_all_and_any_type_errors(func: Callable):
 
 
 def set_app_and_unit_status(
-    status_dict: dict, app: str, app_status: str, unit_status: str, *, unit: int = 0
+    status_dict: dict[str, Any], app: str, app_status: str, unit_status: str, *, unit: int = 0
 ):
     """Set a status dict's app and unit status."""
     status_dict['applications'][app]['application-status']['current'] = app_status
@@ -199,7 +199,7 @@ def set_app_and_unit_status(
     )
 
 
-def add_app(status_dict: dict, src_app: str, dest_app: str):
+def add_app(status_dict: dict[str, Any], src_app: str, dest_app: str):
     """Add a new app named dest_app (with one unit) to status dict, based on src_app."""
     app = status_dict['applications'][src_app]
     unit = status_dict['applications'][src_app]['units'][f'{src_app}/0']

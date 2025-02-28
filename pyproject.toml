@@ -119,6 +119,8 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 include = ["jubilant/*.py", "test/unit/*.py", "test/integration/*.py"]
 pythonVersion = "3.12"
 pythonPlatform = "All"
+typeCheckingMode = "strict"
+reportPrivateUsage = false
 
 [tool.pytest.ini_options]
 pythonpath = [
