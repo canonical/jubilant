@@ -2,9 +2,15 @@ import json
 import logging
 import os
 import subprocess
+import tempfile
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any, overload
 
+import yaml
+
+from . import ActionError
+from ._actions import ActionResult
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
@@ -234,10 +240,93 @@ class Juju:
 
         self.cli(*args)
 
+    @overload
+    def run(
+        self, unit: str, action: str, params: Mapping[str, Any] | None = None
+    ) -> ActionResult: ...
+
+    @overload
+    def run(
+        self,
+        unit: list[str] | tuple[str, ...],
+        action: str,
+        params: Mapping[str, Any] | None = None,
+    ) -> dict[str, ActionResult]: ...
+
+    def run(
+        self,
+        unit: str | list[str] | tuple[str, ...],
+        action: str,
+        params: Mapping[str, Any] | None = None,
+    ) -> ActionResult | dict[str, ActionResult]:
+        """Run an action on the given unit or units and wait for the result.
+
+        Args:
+            unit: Name of unit or units to run the action on, for example
+                ``mysql/0`` or ``mysql/leader``.
+            action: Name of action to run.
+            params: Optional named parameters to pass to the action.
+
+        Returns:
+            If a single unit name string is specified, return the result of the
+            action.
+
+            If a list of units is specified, return a dict where each key is a
+            unit name and each value contains the result for that unit. Only
+            units that exist will be included in the dict (but no exception is
+            raised if some don't exist).
+
+        Raises:
+            ValueError: if a single unit is specified but the unit doesn't exist.
+            ActionError: if a single unit is specified and the action failed.
+
+        Example::
+
+            juju = jubilant.Juju()
+            result = juju.run('mysql/0', 'get-password')
+            assert result.results['username'] == 'USER0'
+
+            all_results = juju.run(['mysql/0', 'mysql/1'], 'get-password')
+            assert all_results['mysql/0'].success
+            assert all_results['mysql/0'].results['username'] == 'USER0'
+            assert all_results['mysql/1'].success
+            assert all_results['mysql/1'].results['username'] == 'USER1'
+        """
+        args = ['run', '--format', 'json']
+        if isinstance(unit, str):
+            args.append(unit)
+        else:
+            args.extend(unit)
+        args.append(action)
+
+        params_file = None
+        if params is not None:
+            with tempfile.NamedTemporaryFile('w+', delete=False) as params_file:
+                yaml.safe_dump(params, params_file)
+            args.extend(['--params', params_file.name])
+
+        try:
+            stdout = self.cli(*args)
+            # Command doesn't return any stdout if no units exist
+            all_results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            if isinstance(unit, str):
+                if unit not in all_results:
+                    raise ValueError(f'unit not found: {unit}')
+                result = ActionResult._from_dict(all_results[unit])
+                if not result.success:
+                    raise ActionError(result)
+                return result
+            else:
+                return {
+                    u: ActionResult._from_dict(all_results[u]) for u in unit if u in all_results
+                }
+        finally:
+            if params_file is not None:
+                os.remove(params_file.name)
+
     def status(self) -> Status:
         """Fetch the status of the current model, including its applications and units."""
-        args = ['status', '--format', 'json']
-        stdout = self.cli(*args)
+        stdout = self.cli('status', '--format', 'json')
         result = json.loads(stdout)
         return Status._from_dict(result)
 
