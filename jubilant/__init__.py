@@ -13,12 +13,14 @@ from ._all_any import (
     any_maintenance,
     any_waiting,
 )
-from ._juju import CLIError, Juju, WaitError
+from ._juju import CLIError, ConfigValue, Juju, SecretURI, WaitError
 from .statustypes import Status
 
 __all__ = [
     'CLIError',
+    'ConfigValue',
     'Juju',
+    'SecretURI',
     'Status',
     'WaitError',
     'all_active',

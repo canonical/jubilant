@@ -16,7 +16,7 @@ class Run:
         self._commands: dict[tuple[str, ...], tuple[int, str, str]] = {}
         self.call_count = 0
 
-    def handle(self, args: list[str], returncode: int = 0, stdout: str = '', stderr: str = ''):
+    def handle(self, args: list[str], *, returncode: int = 0, stdout: str = '', stderr: str = ''):
         """Handle specified command-line args with the given return code, stdout, and stderr."""
         self._commands[tuple(args)] = (returncode, stdout, stderr)
 

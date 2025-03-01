@@ -23,6 +23,17 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptur
     assert 'mdl' in caplog.text
 
 
+def test_with_model(run: mocks.Run, time: mocks.Time):
+    run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
+    juju = jubilant.Juju(model='mdl')
+
+    status = juju.wait(lambda _: True)
+
+    assert run.call_count == 3
+    assert time.monotonic() == 2
+    assert status == MINIMAL_STATUS
+
+
 def test_ready_glitch(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()

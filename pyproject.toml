@@ -7,7 +7,7 @@ dynamic = ["version"]
 
 [dependency-groups]
 dev = [
-    "pyright==1.1.394",
+    "pyright==1.1.395",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "ruff==0.9.6",
@@ -60,43 +60,9 @@ select = [
 ignore = [
     # Use of `assert` detected
     "S101",
-    # Do not `assert False`
-    "B011",
-    # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
-    "S403",
-    # `subprocess` module is possibly insecure
-    "S404",
-
-    # No explicit `stacklevel` keyword argument found
-    "B028",
-
-    # Return condition directly, prefer readability.
-    "SIM103",
-    # Use contextlib.suppress() instead of try/except: pass
-    "SIM105",
-    # Use a single `with` statement with multiple contexts instead of nested `with` statements
-    "SIM117",
-
-    # Missing docstring in magic method
-    "D105",
-    # Missing docstring in `__init__`
-    "D107",
-
-    # Manual dict comprehension.
-    "PERF403",
-
-    # Convert {} from `TypedDict` functional to class syntax
-    # Note that since we have some `TypedDict`s that cannot use the class
-    # syntax, we're currently choosing to be consistent in syntax even though
-    # some can be moved to the class syntax.
-    "UP013",
-
-    ## Likely worth doing, but later.
 
     # `subprocess` call: check for execution of untrusted input
     "S603",
-    # Starting a process with a partial executable path
-    "S607",
 ]
 
 [tool.ruff.lint.pydocstyle]
