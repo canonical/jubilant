@@ -1,7 +1,6 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI for integration testing."""
 
 from . import statustypes
-from ._actions import ActionError, ActionResult
 from ._all_any import (
     all_active,
     all_blocked,
@@ -18,8 +17,6 @@ from ._juju import CLIError, ConfigValue, Juju, SecretURI, WaitError
 from .statustypes import Status
 
 __all__ = [
-    'ActionError',
-    'ActionResult',
     'CLIError',
     'ConfigValue',
     'Juju',
