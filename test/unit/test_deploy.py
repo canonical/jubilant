@@ -3,7 +3,7 @@ import jubilant
 from . import mocks
 
 
-def test_defaults_no_model(run: mocks.Run):
+def test_defaults(run: mocks.Run):
     run.handle(['juju', 'deploy', 'xyz'])
     juju = jubilant.Juju()
 

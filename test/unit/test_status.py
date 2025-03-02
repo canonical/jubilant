@@ -4,7 +4,7 @@ from . import mocks
 from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 
-def test_minimal_no_model(run: mocks.Run):
+def test_minimal(run: mocks.Run):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
 
