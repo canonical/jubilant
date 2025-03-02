@@ -7,9 +7,7 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
-import yaml
-
-from . import ActionError
+from . import ActionError, _yaml
 from ._actions import ActionResult
 from .statustypes import Status
 
@@ -271,7 +269,7 @@ class Juju:
         params_file = None
         if params is not None:
             with tempfile.NamedTemporaryFile('w+', delete=False) as params_file:
-                yaml.safe_dump(params, params_file)
+                _yaml.safe_dump(params, params_file)
             args.extend(['--params', params_file.name])
 
         try:
