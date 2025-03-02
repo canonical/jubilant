@@ -9,8 +9,8 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, overload
 
-from . import ActionError, _yaml
-from ._actions import ActionResult
+from . import _yaml
+from ._actions import ActionError, ActionResult
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
