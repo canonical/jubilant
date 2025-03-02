@@ -10,7 +10,7 @@ import jubilant
 from . import mocks
 
 
-def test_single_unit(run: mocks.Run):
+def test_completed(run: mocks.Run):
     out_json = """
 {
   "mysql/0": {
@@ -50,7 +50,7 @@ def test_single_unit(run: mocks.Run):
     )
 
 
-def test_single_unit_not_found(run: mocks.Run):
+def test_not_found(run: mocks.Run):
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'])
     juju = jubilant.Juju()
 
@@ -58,11 +58,12 @@ def test_single_unit_not_found(run: mocks.Run):
         juju.run('mysql/0', 'get-password')
 
 
-def test_single_unit_failed(run: mocks.Run):
+def test_failed(run: mocks.Run):
     out_json = """
 {
   "mysql/0": {
     "id": "42",
+    "message": "Failure message",
     "results": {
       "foo": "bar",
       "return-code": 1,
@@ -85,62 +86,8 @@ def test_single_unit_failed(run: mocks.Run):
         results={'foo': 'bar'},
         return_code=1,
         stderr='Uncaught Exception in charm code: thing happened...',
+        message='Failure message',
     )
-
-
-def test_multiple_units(run: mocks.Run):
-    out_json = """
-{
-  "mysql/0": {
-    "id": "43",
-    "results": {
-      "password": "pass0",
-      "return-code": 0,
-      "username": "user0"
-    },
-    "status": "completed"
-  },
-  "mysql/1": {
-    "id": "44",
-    "results": {
-      "password": "pass1",
-      "return-code": 0,
-      "username": "user1"
-    },
-    "status": "failed"
-  }
-}
-"""
-    run.handle(
-        ['juju', 'run', '--format', 'json', 'mysql/0', 'mysql/1', 'mysql/2', 'get-password'],
-        stdout=out_json,
-    )
-    juju = jubilant.Juju()
-
-    results = juju.run(['mysql/0', 'mysql/1', 'mysql/2'], 'get-password')
-
-    assert results == {
-        'mysql/0': jubilant.ActionResult(
-            success=True,
-            status='completed',
-            task_id='43',
-            results={'username': 'user0', 'password': 'pass0'},
-        ),
-        'mysql/1': jubilant.ActionResult(
-            success=False,
-            status='failed',
-            task_id='44',
-            results={'username': 'user1', 'password': 'pass1'},
-        ),
-    }
-
-    # Ensure type checker thinks it looks like a dict
-    assert len(results) == 2
-    assert results['mysql/0']
-
-    # Ensure that passing a tuple of unit names also works
-    results_tuple = juju.run(('mysql/0', 'mysql/1', 'mysql/2'), 'get-password')
-    assert results_tuple == results
 
 
 def test_params(monkeypatch: pytest.MonkeyPatch):

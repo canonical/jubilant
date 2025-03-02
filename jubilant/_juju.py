@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, overload
+from typing import Any
 
 import yaml
 
@@ -240,45 +240,12 @@ class Juju:
 
         self.cli(*args)
 
-    @overload
-    def run(
-        self, unit: str, action: str, params: Mapping[str, Any] | None = None
-    ) -> ActionResult: ...
+    def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
+        """Run an action on the given unit and wait for the result.
 
-    @overload
-    def run(
-        self,
-        unit: list[str] | tuple[str, ...],
-        action: str,
-        params: Mapping[str, Any] | None = None,
-    ) -> dict[str, ActionResult]: ...
-
-    def run(
-        self,
-        unit: str | list[str] | tuple[str, ...],
-        action: str,
-        params: Mapping[str, Any] | None = None,
-    ) -> ActionResult | dict[str, ActionResult]:
-        """Run an action on the given unit or units and wait for the result.
-
-        Args:
-            unit: Name of unit or units to run the action on, for example
-                ``mysql/0`` or ``mysql/leader``.
-            action: Name of action to run.
-            params: Optional named parameters to pass to the action.
-
-        Returns:
-            If a single unit name string is specified, return the result of the
-            action.
-
-            If a list of units is specified, return a dict where each key is a
-            unit name and each value contains the result for that unit. Only
-            units that exist will be included in the dict (but no exception is
-            raised if some don't exist).
-
-        Raises:
-            ValueError: if a single unit is specified but the unit doesn't exist.
-            ActionError: if a single unit is specified and the action failed.
+        Note: this method does not support running an action on multiple units
+        at once. If you need that, let us know, and we'll consider adding it
+        with a new ``run_multiple`` method or similar.
 
         Example::
 
@@ -286,18 +253,20 @@ class Juju:
             result = juju.run('mysql/0', 'get-password')
             assert result.results['username'] == 'USER0'
 
-            all_results = juju.run(['mysql/0', 'mysql/1'], 'get-password')
-            assert all_results['mysql/0'].success
-            assert all_results['mysql/0'].results['username'] == 'USER0'
-            assert all_results['mysql/1'].success
-            assert all_results['mysql/1'].results['username'] == 'USER1'
+        Args:
+            unit: Name of unit to run the action on, for example ``mysql/0`` or
+                ``mysql/leader``.
+            action: Name of action to run.
+            params: Optional named parameters to pass to the action.
+
+        Returns:
+            The result of the action, including logs, failure message, and so on.
+
+        Raises:
+            ValueError: if the unit doesn't exist.
+            ActionError: if the action failed.
         """
-        args = ['run', '--format', 'json']
-        if isinstance(unit, str):
-            args.append(unit)
-        else:
-            args.extend(unit)
-        args.append(action)
+        args = ['run', '--format', 'json', unit, action]
 
         params_file = None
         if params is not None:
@@ -307,19 +276,14 @@ class Juju:
 
         try:
             stdout = self.cli(*args)
-            # Command doesn't return any stdout if no units exist
+            # Command doesn't return any stdout if no units exist.
             all_results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-            if isinstance(unit, str):
-                if unit not in all_results:
-                    raise ValueError(f'unit not found: {unit}')
-                result = ActionResult._from_dict(all_results[unit])
-                if not result.success:
-                    raise ActionError(result)
-                return result
-            else:
-                return {
-                    u: ActionResult._from_dict(all_results[u]) for u in unit if u in all_results
-                }
+            if unit not in all_results:
+                raise ValueError(f'unit not found: {unit}')
+            result = ActionResult._from_dict(all_results[unit])
+            if not result.success:
+                raise ActionError(result)
+            return result
         finally:
             if params_file is not None:
                 os.remove(params_file.name)

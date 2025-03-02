@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import Any
+from typing import Any, Literal
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -11,8 +11,8 @@ class ActionResult:
     success: bool
     """Whether the action was successful."""
 
-    status: str
-    """Status of the action, for example "completed" or "failed"."""
+    status: Literal['aborted', 'cancelled', 'completed', 'error', 'failed']
+    """Status of the action (Juju operation). Typically "completed" or "failed"."""
 
     task_id: str
     """Task ID of the action, for use with "juju show-task"."""
@@ -33,6 +33,9 @@ class ActionResult:
     stderr: str = ''
     """Stderr printed by the action hook."""
 
+    message: str = ''
+    """Failure message, if the charm provided a message when it failed the action."""
+
     log: list[str] = dataclasses.field(default_factory=list)
     """List of messages logged by the action hook."""
 
@@ -50,6 +53,7 @@ class ActionResult:
             return_code=return_code,
             stdout=stdout,
             stderr=stderr,
+            message=d.get('message') or '',
             log=d.get('log') or [],
             task_id=d['id'],
         )
