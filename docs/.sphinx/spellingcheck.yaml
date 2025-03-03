@@ -30,5 +30,6 @@ matrix:
             - a.contributor
             - span.pre
             - .sig-object
+            - '#module-jubilant em'
             - '#module-jubilant strong'
             - '#module-jubilant a.reference'
