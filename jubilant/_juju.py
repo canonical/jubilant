@@ -89,23 +89,7 @@ class Juju:
         ]
         return f'Juju({", ".join(args)})'
 
-    def cli(self, *args: str, include_model: bool = True) -> str:
-        """Run a Juju CLI command and return its standard output.
-
-        Args:
-            args: Command-line arguments (excluding ``juju``).
-            include_model: If true and :attr:`model` is set, insert the ``--model`` argument
-                after the first argument in *args*.
-        """
-        if include_model and self.model is not None:
-            args = (args[0], '--model', self.model) + args[1:]
-        try:
-            process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
-            )
-        except subprocess.CalledProcessError as e:
-            raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
-        return process.stdout
+    # Try to keep to public methods in alphabetical order.
 
     def add_model(
         self,
@@ -134,37 +118,72 @@ class Juju:
         self.cli(*args, include_model=False)
         self.model = model
 
-    def switch(self, model: str) -> None:
-        """Switch to a named model and set this instance's model to it.
+    def cli(self, *args: str, include_model: bool = True) -> str:
+        """Run a Juju CLI command and return its standard output.
 
         Args:
-            model: Name of model to switch to. This can be a model name, a controller name, or in
-                ``mycontroller:mymodel`` syntax.
+            args: Command-line arguments (excluding ``juju``).
+            include_model: If true and :attr:`model` is set, insert the ``--model`` argument
+                after the first argument in *args*.
         """
-        self.cli('switch', model, include_model=False)
-        self.model = model
+        if include_model and self.model is not None:
+            args = (args[0], '--model', self.model) + args[1:]
+        try:
+            process = subprocess.run(
+                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
+            )
+        except subprocess.CalledProcessError as e:
+            raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
+        return process.stdout
 
-    def destroy_model(
+    @overload
+    def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
+
+    @overload
+    def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
+
+    def config(
         self,
-        model: str,
+        app: str,
+        values: Mapping[str, ConfigValue | None] | None = None,
         *,
-        force: bool = False,
-    ) -> None:
-        """Terminate all machines (or containers) and resources for a model.
+        app_config: bool = False,
+    ) -> Mapping[str, ConfigValue] | None:
+        """Get or set the configuration of a deployed application.
 
-        If the given model is this instance's model, also sets this instance's
-        :attr:`model` to None.
+        If called with only the *app* argument, get the config and return it.
+        If called with the *values* argument, set the config values and return
+        ``None``.
 
         Args:
-            model: Name of model to destroy.
-            force: If true, force model destruction and ignore any errors.
+            app: Application name to get or set config for.
+            values: Mapping of config names to values. Reset values that are
+                ``None``.
+            app_config: When getting config, set this to True to get the
+                (poorly-named) "application-config" values instead of charm config.
         """
-        args = ['destroy-model', model, '--no-prompt']
-        if force:
-            args.append('--force')
-        self.cli(*args, include_model=False)
-        if model == self.model:
-            self.model = None
+        if values is None:
+            stdout = self.cli('config', '--format', 'json', app)
+            outer = json.loads(stdout)
+            inner = outer['application-config'] if app_config else outer['settings']
+            result = {
+                k: SecretURI(v['value']) if v['type'] == 'secret' else v['value']
+                for k, v in inner.items()
+                if 'value' in v
+            }
+            return result
+
+        reset: list[str] = []
+        args = ['config', app]
+        for k, v in values.items():
+            if v is None:
+                reset.append(k)
+            else:
+                args.append(_format_config(k, v))
+        if reset:
+            args.extend(['--reset', ','.join(reset)])
+
+        self.cli(*args)
 
     def deploy(
         self,
@@ -248,54 +267,27 @@ class Juju:
 
         self.cli(*args)
 
-    @overload
-    def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
-
-    @overload
-    def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
-
-    def config(
+    def destroy_model(
         self,
-        app: str,
-        values: Mapping[str, ConfigValue | None] | None = None,
+        model: str,
         *,
-        app_config: bool = False,
-    ) -> Mapping[str, ConfigValue] | None:
-        """Get or set the configuration of a deployed application.
+        force: bool = False,
+    ) -> None:
+        """Terminate all machines (or containers) and resources for a model.
 
-        If called with only the *app* argument, get the config and return it.
-        If called with the *values* argument, set the config values and return
-        ``None``.
+        If the given model is this instance's model, also sets this instance's
+        :attr:`model` to None.
 
         Args:
-            app: Application name to get or set config for.
-            values: Mapping of config names to values. Reset values that are
-                ``None``.
-            app_config: When getting config, set this to True to get the
-                (poorly-named) "application-config" values instead of charm config.
+            model: Name of model to destroy.
+            force: If true, force model destruction and ignore any errors.
         """
-        if values is None:
-            stdout = self.cli('config', '--format', 'json', app)
-            outer = json.loads(stdout)
-            inner = outer['application-config'] if app_config else outer['settings']
-            result = {
-                k: SecretURI(v['value']) if v['type'] == 'secret' else v['value']
-                for k, v in inner.items()
-                if 'value' in v
-            }
-            return result
-
-        reset: list[str] = []
-        args = ['config', app]
-        for k, v in values.items():
-            if v is None:
-                reset.append(k)
-            else:
-                args.append(_format_config(k, v))
-        if reset:
-            args.extend(['--reset', ','.join(reset)])
-
-        self.cli(*args)
+        args = ['destroy-model', model, '--no-prompt']
+        if force:
+            args.append('--force')
+        self.cli(*args, include_model=False)
+        if model == self.model:
+            self.model = None
 
     def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
         """Run an action on the given unit and wait for the result.
@@ -350,6 +342,16 @@ class Juju:
         stdout = self.cli('status', '--format', 'json')
         result = json.loads(stdout)
         return Status._from_dict(result)
+
+    def switch(self, model: str) -> None:
+        """Switch to a named model and set this instance's model to it.
+
+        Args:
+            model: Name of model to switch to. This can be a model name, a controller name, or in
+                ``mycontroller:mymodel`` syntax.
+        """
+        self.cli('switch', model, include_model=False)
+        self.model = model
 
     def wait(
         self,
