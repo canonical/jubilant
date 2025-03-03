@@ -3,7 +3,6 @@ jubilant.egg-info
 /dist
 /SCRATCH.md
 /docs/_build
-/docs/.sphinx
 /.idea
 /t.py
 /.coverage
