@@ -119,6 +119,41 @@ class Juju:
         self.cli(*args, include_model=False)
         self.model = model
 
+    def add_unit(
+        self,
+        app: str,
+        *,
+        attach_storage: str | Iterable[str] | None = None,
+        num_units: int = 1,
+        to: str | Iterable[str] | None = None,
+    ):
+        """Add one or more units to a deployed application.
+
+        Args:
+            app: Name of application to add units to.
+            attach_storage: Existing storage(s) to attach to the deployed unit, for example,
+                ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
+            num_units: Number of units to add.
+            to: Machine or container to deploy the unit in (bypasses constraints). For example,
+                to deploy to a new LXD container on machine 25, use ``lxd:25``.
+        """
+        args = ['add-unit', app]
+
+        if attach_storage:
+            if isinstance(attach_storage, str):
+                args.extend(['--attach-storage', attach_storage])
+            else:
+                args.extend(['--attach-storage', ','.join(attach_storage)])
+        if num_units != 1:
+            args.extend(['--num-units', str(num_units)])
+        if to:
+            if isinstance(to, str):
+                args.extend(['--to', to])
+            else:
+                args.extend(['--to', ','.join(to)])
+
+        self.cli(*args)
+
     def cli(self, *args: str, include_model: bool = True) -> str:
         """Run a Juju CLI command and return its standard output.
 
