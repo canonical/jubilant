@@ -15,7 +15,7 @@ class ActionResult:
     """Status of the action (Juju operation). Typically "completed" or "failed"."""
 
     task_id: str
-    """Task ID of the action, for use with "juju show-task"."""
+    """Task ID of the action, for use with ``juju show-task``."""
 
     results: dict[str, Any] = dataclasses.field(default_factory=dict)
     """Results of the action provided by the charm.

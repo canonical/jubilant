@@ -36,7 +36,7 @@ __all__ = [
 
 
 class StatusError(Exception):
-    """Raised when "juju status" returns a status-error for certain types."""
+    """Raised when ``juju status`` returns a status-error for certain types."""
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
