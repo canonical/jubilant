@@ -291,7 +291,7 @@ class Juju:
             self.model = None
 
     def integrate(self, app1: str, app2: str, *, via: str | Iterable[str] | None = None) -> None:
-        """Integrate two applications.
+        """Integrate two applications, creating a relation between them.
 
         The order of *app1* and *app2* is not significant. Each of them should
         be in the format ``<application>[:<endpoint>]``. The endpoint is only
