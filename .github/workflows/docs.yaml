@@ -42,14 +42,9 @@ jobs:
         uses: canonical/documentation-workflows/linkcheck@main
         with:
           working-directory: docs
-  md-lint:
-    name: Markdown lint
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        ref: ${{ github.event.pull_request.head.sha }}
-    - uses: DavidAnson/markdownlint-cli2-action@v16
-      with:
-        config: "docs/.sphinx/.markdownlint.json"
+      - name: Markdown lint
+        id: markdown-step
+        if: success() || failure()
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          config: "docs/.sphinx/.markdownlint.json"        
