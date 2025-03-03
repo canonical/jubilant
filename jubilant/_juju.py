@@ -306,7 +306,7 @@ class Juju:
             app2: The other of the applications (and endpoints) to integrate.
             via: Inform the offering side (the remote application) of the
                 source of traffic, to enable network ports to be opened. This
-                is in the format ``<cidr-subnet>``.
+                is in CIDR notation, for example ``192.0.2.0/24``.
         """
         args = ['integrate', app1, app2]
         if via:
