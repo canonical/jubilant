@@ -89,7 +89,8 @@ class Juju:
         ]
         return f'Juju({", ".join(args)})'
 
-    # Try to keep to public methods in alphabetical order.
+    # Keep the public methods in alphabetical order, so we don't have to think
+    # about where to put each new method.
 
     def add_model(
         self,

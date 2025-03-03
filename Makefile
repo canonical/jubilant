@@ -42,4 +42,4 @@ static:
 # Run quick unit tests
 .PHONY: unit
 unit:
-	uv run pytest test/unit --cov=jubilant
+	uv run pytest test/unit -vv --cov=jubilant
