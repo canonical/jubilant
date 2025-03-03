@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
 import subprocess
+import tempfile
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any, overload
 
+from . import _yaml
+from ._actions import ActionError, ActionResult
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
@@ -23,7 +29,15 @@ class CLIError(subprocess.CalledProcessError):
 
 
 class WaitError(Exception):
-    """Raised when :meth:`Juju.wait`'s "error" callable returns False."""
+    """Raised when :meth:`Juju.wait`'s *error* callable returns False."""
+
+
+class SecretURI(str):
+    """A string subclass that represents a secret URI ("secret:...")."""
+
+
+type ConfigValue = bool | int | float | str | SecretURI
+"""The possible types a charm config value can be."""
 
 
 class Juju:
@@ -61,7 +75,7 @@ class Juju:
         *,
         model: str | None = None,
         wait_timeout: float = 3 * 60.0,
-        cli_binary: str | os.PathLike | None = None,
+        cli_binary: str | os.PathLike[str] | None = None,
     ):
         self.model = model
         self.wait_timeout = wait_timeout
@@ -87,7 +101,7 @@ class Juju:
             args = (args[0], '--model', self.model) + args[1:]
         try:
             process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='UTF-8'
+                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
@@ -98,7 +112,7 @@ class Juju:
         model: str,
         *,
         controller: str | None = None,
-        config: dict[str, bool | int | float | str] | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
     ) -> None:
         """Add a named model and set this instance's model to it.
 
@@ -134,12 +148,12 @@ class Juju:
         self,
         model: str,
         *,
-        force=False,
+        force: bool = False,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
-        Also sets this instance's :attr:`model` to None, meaning use the current Juju model for
-        subsequent commands.
+        If the given model is this instance's model, also sets this instance's
+        :attr:`model` to None.
 
         Args:
             model: Name of model to destroy.
@@ -149,23 +163,24 @@ class Juju:
         if force:
             args.append('--force')
         self.cli(*args, include_model=False)
-        self.model = None
+        if model == self.model:
+            self.model = None
 
     def deploy(
         self,
-        charm: str | os.PathLike,
+        charm: str | os.PathLike[str],
         app: str | None = None,
         *,
         attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
         channel: str | None = None,
-        config: dict[str, bool | int | float | str] | None = None,
-        constraints: dict[str, str] | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
+        constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
-        resource: dict[str, str] | None = None,
+        resource: Mapping[str, str] | None = None,
         revision: int | None = None,
-        storage: dict[str, str] | None = None,
+        storage: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
         trust: bool = False,
     ) -> None:
@@ -192,7 +207,7 @@ class Juju:
                 to deploy to a new LXD container on machine 25, use ``lxd:25``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
-        args = ['deploy', charm]
+        args = ['deploy', str(charm)]
         if app is not None:
             args.append(app)
 
@@ -233,10 +248,106 @@ class Juju:
 
         self.cli(*args)
 
+    @overload
+    def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
+
+    @overload
+    def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
+
+    def config(
+        self,
+        app: str,
+        values: Mapping[str, ConfigValue | None] | None = None,
+        *,
+        app_config: bool = False,
+    ) -> Mapping[str, ConfigValue] | None:
+        """Get or set the configuration of a deployed application.
+
+        If called with only the *app* argument, get the config and return it.
+        If called with the *values* argument, set the config values and return
+        ``None``.
+
+        Args:
+            app: Application name to get or set config for.
+            values: Mapping of config names to values. Reset values that are
+                ``None``.
+            app_config: When getting config, set this to True to get the
+                (poorly-named) "application-config" values instead of charm config.
+        """
+        if values is None:
+            stdout = self.cli('config', '--format', 'json', app)
+            outer = json.loads(stdout)
+            inner = outer['application-config'] if app_config else outer['settings']
+            result = {
+                k: SecretURI(v['value']) if v['type'] == 'secret' else v['value']
+                for k, v in inner.items()
+                if 'value' in v
+            }
+            return result
+
+        reset: list[str] = []
+        args = ['config', app]
+        for k, v in values.items():
+            if v is None:
+                reset.append(k)
+            else:
+                args.append(_format_config(k, v))
+        if reset:
+            args.extend(['--reset', ','.join(reset)])
+
+        self.cli(*args)
+
+    def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
+        """Run an action on the given unit and wait for the result.
+
+        Note: this method does not support running an action on multiple units
+        at once. If you need that, let us know, and we'll consider adding it
+        with a new ``run_multiple`` method or similar.
+
+        Example::
+
+            juju = jubilant.Juju()
+            result = juju.run('mysql/0', 'get-password')
+            assert result.results['username'] == 'USER0'
+
+        Args:
+            unit: Name of unit to run the action on, for example ``mysql/0`` or
+                ``mysql/leader``.
+            action: Name of action to run.
+            params: Optional named parameters to pass to the action.
+
+        Returns:
+            The result of the action, including logs, failure message, and so on.
+
+        Raises:
+            ValueError: if the unit doesn't exist.
+            ActionError: if the action failed.
+        """
+        args = ['run', '--format', 'json', unit, action]
+
+        params_file = None
+        if params is not None:
+            with tempfile.NamedTemporaryFile('w+', delete=False) as params_file:
+                _yaml.safe_dump(params, params_file)
+            args.extend(['--params', params_file.name])
+
+        try:
+            stdout = self.cli(*args)
+            # Command doesn't return any stdout if no units exist.
+            all_results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            if unit not in all_results:
+                raise ValueError(f'unit not found: {unit}')
+            result = ActionResult._from_dict(all_results[unit])
+            if not result.success:
+                raise ActionError(result)
+            return result
+        finally:
+            if params_file is not None:
+                os.remove(params_file.name)
+
     def status(self) -> Status:
         """Fetch the status of the current model, including its applications and units."""
-        args = ['status', '--format', 'json']
-        stdout = self.cli(*args)
+        stdout = self.cli('status', '--format', 'json')
         result = json.loads(stdout)
         return Status._from_dict(result)
 
@@ -279,8 +390,10 @@ class Juju:
             successes: Number of times *ready* must return true for the wait to succeed.
 
         Raises:
-            TimeoutError: If the *timeout* is reached.
-            WaitError: If the *error* callable returns True.
+            TimeoutError: If the *timeout* is reached. A string representation
+                of the last status, if any, is added as an exception note.
+            WaitError: If the *error* callable returns True. A string representation
+                of the last status is added as an exception note.
         """
         if timeout is None:
             timeout = self.wait_timeout
@@ -296,8 +409,9 @@ class Juju:
                 logger.info('status changed:\n%s', status)
 
             if error is not None and error(status):
-                msg = f'error function {error.__qualname__} returned false'
-                raise _exception_with_status(WaitError, msg, status)
+                exc = WaitError(f'error function {error.__qualname__} returned false')
+                exc.add_note(str(status))
+                raise exc
 
             if ready(status):
                 success_count += 1
@@ -308,23 +422,13 @@ class Juju:
 
             time.sleep(delay)
 
-        raise _exception_with_status(TimeoutError, f'timed out after {timeout}s', status)
+        exc = TimeoutError(f'timed out after {timeout}s')
+        if status is not None:
+            exc.add_note(str(status))
+        raise exc
 
 
-def _exception_with_status(
-    exc_type: type[Exception], msg: str, status: Status | None
-) -> Exception:
-    if status is None:
-        return exc_type(msg)
-    if hasattr(exc_type, 'add_note'):  # available in Python 3.11+ (PEP 678)
-        exc = exc_type(msg)
-        exc.add_note(str(status))
-        return exc
-    else:
-        return exc_type(msg + '\n' + str(status))
-
-
-def _format_config(k: str, v: bool | int | float | str) -> str:
+def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'

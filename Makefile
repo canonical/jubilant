@@ -6,7 +6,7 @@ help:
 
 # Run all quick, local commands
 .PHONY: all
-all: fmt lint static unit
+all: format lint static unit
 
 # Build documentation
 .PHONY: docs
@@ -42,4 +42,4 @@ static:
 # Run quick unit tests
 .PHONY: unit
 unit:
-	uv run pytest test/unit
+	uv run pytest test/unit --cov=jubilant
