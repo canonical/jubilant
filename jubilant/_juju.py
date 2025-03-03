@@ -290,6 +290,32 @@ class Juju:
         if model == self.model:
             self.model = None
 
+    def integrate(self, app1: str, app2: str, *, via: str | Iterable[str] | None = None) -> None:
+        """Integrate two applications.
+
+        The order of *app1* and *app2* is not significant. Each of them should
+        be in the format ``<application>[:<endpoint>]``. The endpoint is only
+        required if there's more than one possible integration between the two
+        applications.
+
+        To integrate an application in the current model with an application in
+        another model (cross-model), prefix *app1* or *app2* with ``<model>.``.
+
+        Args:
+            app1: One of the applications (and endpoints) to integrate.
+            app2: The other of the applications (and endpoints) to integrate.
+            via: Inform the offering side (the remote application) of the
+                source of traffic, to enable network ports to be opened. This
+                is in the format ``<cidr-subnet>``.
+        """
+        args = ['integrate', app1, app2]
+        if via:
+            if isinstance(via, str):
+                args.extend(['--via', via])
+            else:
+                args.extend(['--via', ','.join(via)])
+        self.cli(*args)
+
     def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
         """Run an action on the given unit and wait for the result.
 
