@@ -42,7 +42,7 @@ jobs:
         with:
           working-directory: docs
   md-lint:
-    name: MD lint
+    name: Markdown lint
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
