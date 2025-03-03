@@ -10,6 +10,13 @@ def test(run: mocks.Run):
     juju.integrate('app1', 'app2')
 
 
+def test_with_model(run: mocks.Run):
+    run.handle(['juju', 'integrate', '--model', 'mdl', 'app1', 'app2'])
+    juju = jubilant.Juju(model='mdl')
+
+    juju.integrate('app1', 'app2')
+
+
 def test_with_endpoints(run: mocks.Run):
     run.handle(['juju', 'integrate', 'app1:db', 'app2:db'])
     juju = jubilant.Juju()
