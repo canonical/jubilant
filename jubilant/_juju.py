@@ -290,6 +290,51 @@ class Juju:
         if model == self.model:
             self.model = None
 
+    def remove_unit(
+        self,
+        unit: str | Iterable[str],
+        *,
+        destroy_storage: bool = False,
+        force: bool = False,
+        num_units: int = 0,
+    ) -> None:
+        """Remove application units from the model.
+
+        Examples::
+
+            # Kubernetes model:
+            juju.remove_unit('wordpress', num_units=2)
+
+            # Machine model:
+            juju.remove_unit('wordpress/1')
+            juju.remove_unit(['wordpress/2', 'wordpress/3'])
+
+        Args:
+            unit: On machine models, this is the name of the unit or units to remove.
+                On Kubernetes models, this is actually the application name (a single string),
+                as individual units are not named; you must use *num_units* to remove more than
+                one unit on a Kubernetes model.
+            destroy_storage: If True, also destroy storage attached to the unit(s).
+            force: Force removal even if unit is in an error state.
+            num_units: Number of units to remove (Kubernetes models only).
+        """
+        args = ['remove-unit', '--no-prompt']
+        if isinstance(unit, str):
+            args.append(unit)
+        else:
+            args.extend(unit)
+
+        if destroy_storage:
+            args.append('--destroy-storage')
+        if force:
+            args.append('--force')
+        if num_units:
+            if not isinstance(unit, str):
+                raise TypeError('"unit" must be a single application name if num_units specified')
+            args.extend(['--num-units', str(num_units)])
+
+        self.cli(*args)
+
     def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
         """Run an action on the given unit and wait for the result.
 
