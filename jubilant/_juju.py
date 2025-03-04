@@ -290,6 +290,34 @@ class Juju:
         if model == self.model:
             self.model = None
 
+    def integrate(self, app1: str, app2: str, *, via: str | Iterable[str] | None = None) -> None:
+        """Integrate two applications, creating a relation between them.
+
+        The order of *app1* and *app2* is not significant. Each of them should
+        be in the format ``<application>[:<endpoint>]``. The endpoint is only
+        required if there's more than one possible integration between the two
+        applications.
+
+        To integrate an application in the current model with an application in
+        another model (cross-model), prefix *app1* or *app2* with ``<model>.``.
+        To integrate with an application on another controller, *app1* or *app2* must
+        be an offer endpoint. See ``juju integrate --help`` for details.
+
+        Args:
+            app1: One of the applications (and endpoints) to integrate.
+            app2: The other of the applications (and endpoints) to integrate.
+            via: Inform the offering side (the remote application) of the
+                source of traffic, to enable network ports to be opened. This
+                is in CIDR notation, for example ``192.0.2.0/24``.
+        """
+        args = ['integrate', app1, app2]
+        if via:
+            if isinstance(via, str):
+                args.extend(['--via', via])
+            else:
+                args.extend(['--via', ','.join(via)])
+        self.cli(*args)
+
     def remove_unit(
         self,
         unit: str | Iterable[str],
