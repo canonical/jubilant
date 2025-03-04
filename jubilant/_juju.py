@@ -300,6 +300,8 @@ class Juju:
 
         To integrate an application in the current model with an application in
         another model (cross-model), prefix *app1* or *app2* with ``<model>.``.
+        To integrate with an application on another controller, *app1* or *app2* must
+        be an offer endpoint. See ``juju integrate --help`` for details.
 
         Args:
             app1: One of the applications (and endpoints) to integrate.
