@@ -13,10 +13,10 @@ class Run:
     """
 
     def __init__(self):
-        self._commands = {}
+        self._commands: dict[tuple[str, ...], tuple[int, str, str]] = {}
         self.call_count = 0
 
-    def handle(self, args: list[str], returncode: int = 0, stdout: str = '', stderr: str = ''):
+    def handle(self, args: list[str], *, returncode: int = 0, stdout: str = '', stderr: str = ''):
         """Handle specified command-line args with the given return code, stdout, and stderr."""
         self._commands[tuple(args)] = (returncode, stdout, stderr)
 
@@ -26,7 +26,7 @@ class Run:
         check: bool = False,
         capture_output: bool = False,
         encoding: str | None = None,
-    ) -> subprocess.CompletedProcess:
+    ) -> subprocess.CompletedProcess[str]:
         assert check is True
         assert capture_output is True
         assert encoding == 'utf-8'

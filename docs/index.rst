@@ -1,5 +1,0 @@
-
-Jubilant
-========
-
-.. automodule:: jubilant

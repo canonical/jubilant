@@ -11,8 +11,7 @@ all: format lint static unit
 # Build documentation
 .PHONY: docs
 docs:
-	uv export --group docs >docs/requirements.txt
-	uv run --group docs sphinx-build docs/ docs/_build/html
+	$(MAKE) -C docs run
 
 # Fix linting issues
 .PHONY: fix
@@ -43,4 +42,4 @@ static:
 # Run quick unit tests
 .PHONY: unit
 unit:
-	uv run pytest test/unit --cov=jubilant
+	uv run pytest test/unit -vv --cov=jubilant
