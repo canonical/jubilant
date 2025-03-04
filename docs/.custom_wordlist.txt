@@ -1,5 +1,6 @@
-# Leave a blank line at the end of this file to support concatenation
+# Ensure the last line in this file has a newline at the end, to support concatenation
 args
+CIDR
 config
 Pythonic
 stdout
