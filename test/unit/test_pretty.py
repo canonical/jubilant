@@ -36,7 +36,7 @@ Status(
     cloud='microk8s',
     version='3.6.1',
     region='localhost',
-    model_status=StatusInfoContents(current='available', since='24 Feb 2025 12:02:57+13:00'),
+    model_status=StatusInfo(current='available', since='24 Feb 2025 12:02:57+13:00'),
   ),
   machines={},
   apps={
@@ -51,11 +51,11 @@ Status(
       scale=1,
       provider_id='276bec9f-6a0c-46ea-8094-aca6337d46e5',
       address='10.152.183.248',
-      app_status=StatusInfoContents(current='active', message='snappass started', since='24 Feb 2025 12:03:17+13:00'),
+      app_status=StatusInfo(current='active', message='snappass started', since='24 Feb 2025 12:03:17+13:00'),
       units={
         'snappass-test/0': UnitStatus(
-          workload_status=StatusInfoContents(current='active', message='snappass started', since='24 Feb 2025 12:03:17+13:00'),
-          juju_status=StatusInfoContents(current='idle', since='24 Feb 2025 12:03:18+13:00', version='3.6.1'),
+          workload_status=StatusInfo(current='active', message='snappass started', since='24 Feb 2025 12:03:17+13:00'),
+          juju_status=StatusInfo(current='idle', since='24 Feb 2025 12:03:18+13:00', version='3.6.1'),
           leader=True,
           address='10.1.164.138',
           provider_id='snappass-test-0',
@@ -84,7 +84,7 @@ Status(
     cloud='microk8s',
     version='3.6.1',
     region='localhost',
-    model_status=StatusInfoContents(current='available', since='24 Feb 2025 12:02:57+13:00'),
+    model_status=StatusInfo(current='available', since='24 Feb 2025 12:02:57+13:00'),
   ),
   machines={},
   apps={
@@ -98,7 +98,7 @@ Status(
       scale=1,
       provider_id='fa764a56-2b71-4f7e-a6eb-b265f13adc4c',
       address='10.152.183.228',
-      app_status=StatusInfoContents(current='active', message='relation-created: added new secret', since='24 Feb 2025 16:59:43+13:00'),
+      app_status=StatusInfo(current='active', message='relation-created: added new secret', since='24 Feb 2025 16:59:43+13:00'),
       relations={
         'db': [
           AppStatusRelation(related_app='webapp', interface='dbi', scope='global'),
@@ -107,8 +107,8 @@ Status(
       },
       units={
         'database/0': UnitStatus(
-          workload_status=StatusInfoContents(current='active', message='relation-created: added new secret', since='24 Feb 2025 16:59:43+13:00'),
-          juju_status=StatusInfoContents(current='idle', since='24 Feb 2025 16:59:44+13:00', version='3.6.1'),
+          workload_status=StatusInfo(current='active', message='relation-created: added new secret', since='24 Feb 2025 16:59:43+13:00'),
+          juju_status=StatusInfo(current='idle', since='24 Feb 2025 16:59:44+13:00', version='3.6.1'),
           leader=True,
           open_ports=['8080/tcp'],
           address='10.1.164.190',
@@ -127,7 +127,7 @@ Status(
       scale=1,
       provider_id='5c49f9f9-09b3-4212-8a36-dfc081ee80b3',
       address='10.152.183.254',
-      app_status=StatusInfoContents(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
+      app_status=StatusInfo(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
       relations={
         'db': [
           AppStatusRelation(related_app='database', interface='dbi', scope='global'),
@@ -135,8 +135,8 @@ Status(
       },
       units={
         'webapp/0': UnitStatus(
-          workload_status=StatusInfoContents(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
-          juju_status=StatusInfoContents(current='idle', since='24 Feb 2025 16:59:44+13:00', version='3.6.1'),
+          workload_status=StatusInfo(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
+          juju_status=StatusInfo(current='idle', since='24 Feb 2025 16:59:44+13:00', version='3.6.1'),
           leader=True,
           address='10.1.164.179',
           provider_id='webapp-0',

@@ -26,7 +26,7 @@ __all__ = [
     'RemoteEndpoint',
     'Status',
     'StatusError',
-    'StatusInfoContents',
+    'StatusInfo',
     'StorageAttachments',
     'StorageInfo',
     'UnitStatus',
@@ -55,7 +55,7 @@ class FormattedBase:
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StatusInfoContents:
+class StatusInfo:
     current: str = ''
     message: str = ''
     reason: str = ''
@@ -64,7 +64,7 @@ class StatusInfoContents:
     life: str = ''
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> StatusInfoContents:
+    def _from_dict(cls, d: dict[str, Any]) -> StatusInfo:
         if 'status-error' in d:
             raise StatusError(d['status-error'])
         return cls(
@@ -94,8 +94,8 @@ class AppStatusRelation:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitStatus:
-    workload_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
-    juju_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    workload_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
+    juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     leader: bool = False
     upgrading_from: str = ''
     machine: str = ''
@@ -111,14 +111,12 @@ class UnitStatus:
             raise StatusError(d['status-error'])
         return cls(
             workload_status=(
-                StatusInfoContents._from_dict(d['workload-status'])
+                StatusInfo._from_dict(d['workload-status'])
                 if 'workload-status' in d
-                else StatusInfoContents()
+                else StatusInfo()
             ),
             juju_status=(
-                StatusInfoContents._from_dict(d['juju-status'])
-                if 'juju-status' in d
-                else StatusInfoContents()
+                StatusInfo._from_dict(d['juju-status']) if 'juju-status' in d else StatusInfo()
             ),
             leader=d.get('leader') or False,
             upgrading_from=d.get('upgrading-from') or '',
@@ -177,7 +175,7 @@ class AppStatus:
     provider_id: str = ''
     address: str = ''
     life: str = ''
-    app_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)
     subordinate_to: list[str] = dataclasses.field(default_factory=list)
     units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)
@@ -204,9 +202,9 @@ class AppStatus:
             address=d.get('address') or '',
             life=d.get('life') or '',
             app_status=(
-                StatusInfoContents._from_dict(d['application-status'])
+                StatusInfo._from_dict(d['application-status'])
                 if 'application-status' in d
-                else StatusInfoContents()
+                else StatusInfo()
             ),
             relations=(
                 {
@@ -546,14 +544,14 @@ class NetworkInterface:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MachineStatus:
-    juju_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     hostname: str = ''
     dns_name: str = ''
     ip_addresses: list[str] = dataclasses.field(default_factory=list)
     instance_id: str = ''
     display_name: str = ''
-    machine_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
-    modification_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    machine_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
+    modification_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     base: FormattedBase | None = None
     network_interfaces: dict[str, NetworkInterface] = dataclasses.field(default_factory=dict)
     containers: dict[str, MachineStatus] = dataclasses.field(default_factory=dict)
@@ -569,9 +567,7 @@ class MachineStatus:
             raise StatusError(d['status-error'])
         return cls(
             juju_status=(
-                StatusInfoContents._from_dict(d['juju-status'])
-                if 'juju-status' in d
-                else StatusInfoContents()
+                StatusInfo._from_dict(d['juju-status']) if 'juju-status' in d else StatusInfo()
             ),
             hostname=d.get('hostname') or '',
             dns_name=d.get('dns-name') or '',
@@ -579,14 +575,14 @@ class MachineStatus:
             instance_id=d.get('instance-id') or '',
             display_name=d.get('display-name') or '',
             machine_status=(
-                StatusInfoContents._from_dict(d['machine-status'])
+                StatusInfo._from_dict(d['machine-status'])
                 if 'machine-status' in d
-                else StatusInfoContents()
+                else StatusInfo()
             ),
             modification_status=(
-                StatusInfoContents._from_dict(d['modification-status'])
+                StatusInfo._from_dict(d['modification-status'])
                 if 'modification-status' in d
-                else StatusInfoContents()
+                else StatusInfo()
             ),
             base=FormattedBase._from_dict(d['base']) if 'base' in d else None,
             network_interfaces=(
@@ -621,7 +617,7 @@ class ModelStatus:
 
     region: str = ''
     upgrade_available: str = ''
-    model_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    model_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
@@ -634,9 +630,7 @@ class ModelStatus:
             region=d.get('region') or '',
             upgrade_available=d.get('upgrade-available') or '',
             model_status=(
-                StatusInfoContents._from_dict(d['model-status'])
-                if 'model-status' in d
-                else StatusInfoContents()
+                StatusInfo._from_dict(d['model-status']) if 'model-status' in d else StatusInfo()
             ),
         )
 
@@ -682,7 +676,7 @@ class RemoteAppStatus:
 
     endpoints: dict[str, RemoteEndpoint] = dataclasses.field(default_factory=dict)
     life: str = ''
-    app_status: StatusInfoContents = dataclasses.field(default_factory=StatusInfoContents)
+    app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     relations: dict[str, list[str]] = dataclasses.field(default_factory=dict)
 
     @classmethod
@@ -698,9 +692,9 @@ class RemoteAppStatus:
             ),
             life=d.get('life') or '',
             app_status=(
-                StatusInfoContents._from_dict(d['application-status'])
+                StatusInfo._from_dict(d['application-status'])
                 if 'application-status' in d
-                else StatusInfoContents()
+                else StatusInfo()
             ),
             relations=d.get('relations') or {},
         )
