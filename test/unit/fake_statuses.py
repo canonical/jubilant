@@ -153,7 +153,8 @@ DATABASE_WEBAPP_JSON = """
                     },
                     "leader": true,
                     "address": "10.1.164.190",
-                    "provider-id": "database-0"
+                    "provider-id": "database-0",
+                    "open-ports": ["8080/tcp"]
                 }
             },
             "endpoint-bindings": {

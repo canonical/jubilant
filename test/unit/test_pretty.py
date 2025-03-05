@@ -9,7 +9,12 @@ def test_small():
     status_repr = repr(MINIMAL_STATUS)
     assert (
         status_repr
-        == "Status(model=ModelStatus(name='mdl', type='typ', controller='ctl', cloud='aws', version='3.0.0'), machines={}, apps={})"
+        == """\
+Status(
+  model=ModelStatus(name='mdl', type='typ', controller='ctl', cloud='aws', version='3.0.0'),
+  machines={},
+  apps={},
+)"""
     )
     assert str(MINIMAL_STATUS) == status_repr
 
@@ -105,6 +110,7 @@ Status(
           workload_status=StatusInfoContents(current='active', message='relation-created: added new secret', since='24 Feb 2025 16:59:43+13:00'),
           juju_status=StatusInfoContents(current='idle', since='24 Feb 2025 16:59:44+13:00', version='3.6.1'),
           leader=True,
+          open_ports=['8080/tcp'],
           address='10.1.164.190',
           provider_id='database-0',
         ),
@@ -122,7 +128,11 @@ Status(
       provider_id='5c49f9f9-09b3-4212-8a36-dfc081ee80b3',
       address='10.152.183.254',
       app_status=StatusInfoContents(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
-      relations={'db': [AppStatusRelation(related_app='database', interface='dbi', scope='global')]},
+      relations={
+        'db': [
+          AppStatusRelation(related_app='database', interface='dbi', scope='global'),
+        ],
+      },
       units={
         'webapp/0': UnitStatus(
           workload_status=StatusInfoContents(current='active', message="relation-changed: would update web app's db secret", since='24 Feb 2025 16:59:43+13:00'),
