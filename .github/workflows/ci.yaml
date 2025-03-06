@@ -15,8 +15,10 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+
       - name: Run linting
         run: make lint
 
@@ -26,8 +28,10 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+
       - name: Run static type checks
         run: make static
 
@@ -41,12 +45,35 @@ jobs:
         python-version: ["3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repo
+        uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+
       - name: Run unit tests
         run: make unit
+
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install concierge
+        run: sudo snap install --classic concierge
+
+      - name: Install Juju and tools
+        run: sudo concierge prepare --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
+
+      - name: Run integration tests
+        run: make integration
