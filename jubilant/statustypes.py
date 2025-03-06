@@ -746,3 +746,18 @@ class Status:
     def __str__(self):
         """Return a pretty-printed version of the status."""
         return repr(self)
+
+    def __eq__(self, other: object) -> bool:
+        """Report whether two status objects are equivalent.
+
+        This excludes the :attr:`controller` attribute, because that only has a timestamp that
+        constantly updates.
+        """
+        if not isinstance(other, Status):
+            return False
+        for field in dataclasses.fields(self):
+            if field.name == 'controller':
+                continue
+            if getattr(self, field.name) != getattr(other, field.name):
+                return False
+        return True
