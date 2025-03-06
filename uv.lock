@@ -171,6 +171,11 @@ dependencies = [
     { name = "pyyaml" },
 ]
 
+[package.optional-dependencies]
+pytest = [
+    { name = "pytest" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "pyright" },
@@ -184,7 +189,10 @@ docs = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pyyaml", specifier = "==6.*" }]
+requires-dist = [
+    { name = "pytest", marker = "extra == 'pytest'", specifier = "==8.*" },
+    { name = "pyyaml", specifier = "==6.*" },
+]
 
 [package.metadata.requires-dev]
 dev = [
