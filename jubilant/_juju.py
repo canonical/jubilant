@@ -417,16 +417,6 @@ class Juju:
         result = json.loads(stdout)
         return Status._from_dict(result)
 
-    def switch(self, model: str) -> None:
-        """Switch to a named model and set this instance's model to it.
-
-        Args:
-            model: Name of model to switch to. This can be a model name, a controller name, or in
-                ``mycontroller:mymodel`` syntax.
-        """
-        self.cli('switch', model, include_model=False)
-        self.model = model
-
     def wait(
         self,
         ready: Callable[[Status], bool],
