@@ -72,8 +72,8 @@ jobs:
       - name: Install concierge
         run: sudo snap install --classic concierge
 
-      - name: Install Juju and tools
-        run: sudo concierge prepare --trace --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
+      - name: Prepare Juju
+        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
 
       - name: Run integration tests
         run: make integration
