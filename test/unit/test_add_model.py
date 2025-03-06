@@ -4,7 +4,7 @@ from . import mocks
 
 
 def test_defaults(run: mocks.Run):
-    run.handle(['juju', 'add-model', 'new'])
+    run.handle(['juju', 'add-model', '--no-switch', 'new'])
     juju = jubilant.Juju(model='initial')
 
     juju.add_model('new')
@@ -17,6 +17,7 @@ def test_all_args(run: mocks.Run):
         [
             'juju',
             'add-model',
+            '--no-switch',
             'm',
             '--controller',
             'c',

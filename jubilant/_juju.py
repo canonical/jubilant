@@ -101,6 +101,10 @@ class Juju:
     ) -> None:
         """Add a named model and set this instance's model to it.
 
+        To avoid interfering with CLI users, this won't switch the Juju CLI to the
+        newly-created model. However, because :attr:`model` is set to the name of the new
+        model, all subsequent operations on this instance will use the new model.
+
         Args:
             model: Name of model to add.
             controller: Name of controller to operate in. If not specified, use the current
@@ -108,7 +112,7 @@ class Juju:
             config: Model configuration as key-value pairs, for example,
                 ``{'image-stream': 'daily'}``.
         """
-        args = ['add-model', model]
+        args = ['add-model', '--no-switch', model]
 
         if controller is not None:
             args.extend(['--controller', controller])
