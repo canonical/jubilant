@@ -157,6 +157,12 @@ html_context = {
     'github_issues': 'enabled',
 }
 
+# To enable the edit button (a pencil icon next to the feedback button)
+#
+# html_theme_options = {
+# 'source_edit_link': 'https://github.com/canonical/jubilant',
+# }
+
 # Project slug; see https://meta.discourse.org/t/what-is-category-slug/87897
 #
 # TODO: If your documentation is hosted on https://docs.ubuntu.com/,
