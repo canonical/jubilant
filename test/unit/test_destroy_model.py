@@ -21,10 +21,10 @@ def test_destroy_other(run: mocks.Run):
     assert juju.model == 'initial'
 
 
-def test_force(run: mocks.Run):
-    run.handle(['juju', 'destroy-model', 'bad', '--no-prompt', '--force'])
+def test_args(run: mocks.Run):
+    run.handle(['juju', 'destroy-model', 'bad', '--no-prompt', '--destroy-storage', '--force'])
     juju = jubilant.Juju()
 
-    juju.destroy_model('bad', force=True)
+    juju.destroy_model('bad', destroy_storage=True, force=True)
 
     assert juju.model is None

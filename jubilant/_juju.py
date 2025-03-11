@@ -311,6 +311,7 @@ class Juju:
         self,
         model: str,
         *,
+        destroy_storage: bool = False,
         force: bool = False,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
@@ -320,9 +321,12 @@ class Juju:
 
         Args:
             model: Name of model to destroy.
+            destroy_storage: If true, destroy all storage instances in the model.
             force: If true, force model destruction and ignore any errors.
         """
         args = ['destroy-model', model, '--no-prompt']
+        if destroy_storage:
+            args.append('--destroy-storage')
         if force:
             args.append('--force')
         self.cli(*args, include_model=False)
