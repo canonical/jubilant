@@ -12,13 +12,13 @@ def with_model(model: str | None = None, keep: bool = False) -> Generator[Juju, 
     Yields a new :class:`Juju` instance to operate on.
 
     If *model* is not provided, create a new model with a random name in the format
-    "jubilant-abcd1234", and destroy it and its storage afterward.
+    ``jubilant-abcd1234``, and destroy it and its storage afterwards.
 
     Args:
-        model: If set, operate in this existing model, and don't destroy it afterward (in other
+        model: If set, operate in this existing model, and don't destroy it afterwards (in other
             words, implies *keep=True*).
         keep: If true (and *model* is not set), keep the created model around instead of
-            destroying it afterward.
+            destroying it afterwards.
     """
     juju = Juju(model=model)
 
