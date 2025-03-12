@@ -227,6 +227,16 @@ class Juju:
 
         self.cli(*args)
 
+    def debug_log(self, *, limit: int = 0) -> str:
+        """Return debug log messages from a model.
+
+        Args:
+            limit: Limit the result to the most recent *limit* lines. Defaults to 0, meaning
+                return all lines in the log.
+        """
+        args = ['debug-log', '--limit', str(limit)]
+        return self.cli(*args)
+
     def deploy(
         self,
         charm: str | os.PathLike[str],
