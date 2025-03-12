@@ -8,19 +8,29 @@ from . import mocks
 from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
 
 
-def test_ready_normal(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+def test_ready_normal(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant')
 
     status = juju.wait(lambda _: True)
 
     assert len(run.calls) == 3
     assert time.monotonic() == 2
     assert status == MINIMAL_STATUS
-    assert len(caplog.records) == 1  # only logs on first call or when status changes
-    assert 'status changed' in caplog.text
-    assert 'mdl' in caplog.text
+
+
+def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
+    juju = jubilant.Juju()
+    caplog.set_level(logging.INFO, logger='jubilant')
+
+    juju.wait(lambda _: True)
+
+    logs = [r for r in caplog.records if r.msg.startswith('wait:')]
+    assert len(logs) == 1  # only logs on first call or when status changes
+    message = logs[0].getMessage()
+    assert 'status changed' in message
+    assert 'mdl' in message
 
 
 def test_with_model(run: mocks.Run, time: mocks.Time):

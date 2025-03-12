@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shlex
 import subprocess
 import tempfile
 import time
@@ -168,6 +169,7 @@ class Juju:
         """
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
+        logger.info('cli: juju %s', shlex.join(args))
         try:
             process = subprocess.run(
                 [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
@@ -515,7 +517,7 @@ class Juju:
             prev_status = status
             status = self.status()
             if status != prev_status:
-                logger.info('status changed:\n%s', status)
+                logger.info('wait: status changed:\n%s', status)
 
             if error is not None and error(status):
                 exc = WaitError(f'error function {error.__qualname__} returned false')

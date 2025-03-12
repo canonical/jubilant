@@ -1,3 +1,4 @@
+import logging
 import subprocess
 
 import pytest
@@ -14,6 +15,18 @@ def test_success(run: mocks.Run):
     stdout = juju.cli('bootstrap', 'microk8s')
 
     assert stdout == 'bootstrapped\n'
+
+
+def test_logging(run: mocks.Run, caplog: pytest.LogCaptureFixture):
+    run.handle(['juju', 'deploy', '--model', 'mdl', 'app1'])
+    juju = jubilant.Juju(model='mdl')
+    caplog.set_level(logging.INFO, logger='jubilant')
+
+    juju.cli('deploy', 'app1')
+
+    logs = [r for r in caplog.records if r.msg.startswith('cli:')]
+    assert len(logs) == 1
+    assert logs[0].getMessage() == 'cli: juju deploy --model mdl app1'
 
 
 def test_error(run: mocks.Run):
