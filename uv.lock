@@ -181,6 +181,7 @@ dev = [
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "requests" },
     { name = "ruff" },
 ]
 docs = [
@@ -200,6 +201,7 @@ dev = [
     { name = "pyright", specifier = "==1.1.396" },
     { name = "pytest", specifier = "==8.3.4" },
     { name = "pytest-cov", specifier = "==6.0.0" },
+    { name = "requests", specifier = ">=2.32.3" },
     { name = "ruff", specifier = "==0.9.6" },
 ]
 docs = [
