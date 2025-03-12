@@ -8,11 +8,6 @@ dependencies = [
     "PyYAML==6.*",
 ]
 
-[project.optional-dependencies]
-pytest = [
-    "pytest==8.*",
-]
-
 [dependency-groups]
 dev = [
     "pyright==1.1.396",

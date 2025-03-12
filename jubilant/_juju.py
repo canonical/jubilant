@@ -375,7 +375,7 @@ class Juju:
 
     def remove_unit(
         self,
-        unit: str | Iterable[str],
+        app_or_unit: str | Iterable[str],
         *,
         destroy_storage: bool = False,
         force: bool = False,
@@ -393,7 +393,7 @@ class Juju:
             juju.remove_unit(['wordpress/2', 'wordpress/3'])
 
         Args:
-            unit: On machine models, this is the name of the unit or units to remove.
+            app_or_unit: On machine models, this is the name of the unit or units to remove.
                 On Kubernetes models, this is actually the application name (a single string),
                 as individual units are not named; you must use *num_units* to remove more than
                 one unit on a Kubernetes model.
@@ -402,18 +402,18 @@ class Juju:
             num_units: Number of units to remove (Kubernetes models only).
         """
         args = ['remove-unit', '--no-prompt']
-        if isinstance(unit, str):
-            args.append(unit)
+        if isinstance(app_or_unit, str):
+            args.append(app_or_unit)
         else:
-            args.extend(unit)
+            args.extend(app_or_unit)
 
         if destroy_storage:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
         if num_units:
-            if not isinstance(unit, str):
-                raise TypeError('"unit" must be a single application name if num_units specified')
+            if not isinstance(app_or_unit, str):
+                raise TypeError('"app_or_unit" must be a single app name if num_units specified')
             args.extend(['--num-units', str(num_units)])
 
         self.cli(*args)
