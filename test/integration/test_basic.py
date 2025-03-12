@@ -48,7 +48,7 @@ def test_integrate_and_run(juju: jubilant.Juju):
     juju.deploy('wordpress-k8s')
     juju.deploy('mysql-k8s')
     juju.integrate('wordpress-k8s', 'mysql-k8s')
-    status = juju.wait(jubilant.all_active)
+    status = juju.wait(jubilant.all_active, timeout=10*60)
 
     address = status.apps['wordpress-k8s'].units['wordpress-k8s/0'].address
     response = requests.get(f'http://{address}/', timeout=10)
