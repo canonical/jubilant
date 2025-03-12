@@ -543,7 +543,7 @@ class Juju:
 
             time.sleep(delay)
 
-        exc = TimeoutError(f'timed out after {timeout}s')
+        exc = TimeoutError(f'wait timed out after {timeout}s')
         if status is not None:
             exc.add_note(str(status))
         raise exc
