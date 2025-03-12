@@ -27,12 +27,16 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
     with jubilant.temp_model() as juju:
         assert juju.model == 'jubilant-abcd1234'
+        assert len(run.calls) == 1
+        assert run.calls[0].args[1] == 'add-model'
+
         juju.deploy('app1')
+
+        assert len(run.calls) == 2
+        assert run.calls[1].args[1] == 'deploy'
 
     assert juju.model is None
     assert len(run.calls) == 3
-    assert run.calls[0].args[1] == 'add-model'
-    assert run.calls[1].args[1] == 'deploy'
     assert run.calls[2].args[1] == 'destroy-model'
 
 
@@ -43,9 +47,13 @@ def test_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
     with jubilant.temp_model(keep=True) as juju:
         assert juju.model == 'jubilant-abcd1234'
+        assert len(run.calls) == 1
+        assert run.calls[0].args[1] == 'add-model'
+
         juju.deploy('app1')
+
+        assert len(run.calls) == 2
+        assert run.calls[1].args[1] == 'deploy'
 
     assert juju.model == 'jubilant-abcd1234'
     assert len(run.calls) == 2
-    assert run.calls[0].args[1] == 'add-model'
-    assert run.calls[1].args[1] == 'deploy'
