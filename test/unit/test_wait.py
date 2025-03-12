@@ -15,7 +15,7 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptur
 
     status = juju.wait(lambda _: True)
 
-    assert run.call_count == 3
+    assert len(run.calls) == 3
     assert time.monotonic() == 2
     assert status == MINIMAL_STATUS
     assert len(caplog.records) == 1  # only logs on first call or when status changes
@@ -29,7 +29,7 @@ def test_with_model(run: mocks.Run, time: mocks.Time):
 
     status = juju.wait(lambda _: True)
 
-    assert run.call_count == 3
+    assert len(run.calls) == 3
     assert time.monotonic() == 2
     assert status == MINIMAL_STATUS
 
@@ -49,7 +49,7 @@ def test_ready_glitch(run: mocks.Run, time: mocks.Time):
 
     # Should wait for three successful calls to ready in a row:
     # ready, not ready, ready, ready, ready (5 total)
-    assert run.call_count == 5
+    assert len(run.calls) == 5
     assert time.monotonic() == 4
     assert status == MINIMAL_STATUS
 
@@ -60,7 +60,7 @@ def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
 
     status = juju.wait(lambda _: True, delay=0.75, successes=5)
 
-    assert run.call_count == 5
+    assert len(run.calls) == 5
     assert time.monotonic() == 3.0
     assert status == MINIMAL_STATUS
 
@@ -72,7 +72,7 @@ def test_error(run: mocks.Run, time: mocks.Time):
     with pytest.raises(jubilant.WaitError) as excinfo:
         juju.wait(lambda _: True, error=lambda _: True)
 
-    assert run.call_count == 1
+    assert len(run.calls) == 1
     assert time.monotonic() == 0
     status_str = excinfo.value.__notes__[0]
     assert 'mdl' in status_str
@@ -85,7 +85,7 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time):
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False)
 
-    assert run.call_count == 180
+    assert len(run.calls) == 180
     assert time.monotonic() == 180
     status_str = excinfo.value.__notes__[0]
     assert 'mdl' in status_str
@@ -98,7 +98,7 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False, timeout=5)
 
-    assert run.call_count == 5
+    assert len(run.calls) == 5
     assert time.monotonic() == 5
     status_str = excinfo.value.__notes__[0]
     assert 'mdl' in status_str

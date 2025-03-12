@@ -7,18 +7,18 @@ from ._juju import Juju
 
 @contextlib.contextmanager
 def with_model(model: str | None = None, keep: bool = False) -> Generator[Juju, None, None]:
-    """Context manager to create (or use) a model for running tests in.
+    """Context manager to create a model for running tests in (or use an existing one).
 
-    Yields a new :class:`Juju` instance to operate on.
+    Provides a :class:`Juju` instance to operate on.
 
     If *model* is not provided, create a new model with a random name in the format
-    ``jubilant-abcd1234``, and destroy it and its storage afterwards.
+    ``jubilant-abcd1234``, and destroy it and its storage when the context manager exits.
 
     Args:
-        model: If set, operate in this existing model, and don't destroy it afterwards (in other
-            words, implies *keep=True*).
+        model: If set, operate in this existing model, and don't destroy it when the context
+            manager exits (in other words, implies *keep=True*).
         keep: If true (and *model* is not set), keep the created model around instead of
-            destroying it afterwards.
+            destroying it when the context manager exits.
     """
     juju = Juju(model=model)
 

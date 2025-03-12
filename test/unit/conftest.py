@@ -11,7 +11,7 @@ def run(monkeypatch: pytest.MonkeyPatch) -> Generator[mocks.Run, None, None]:
     run_mock = mocks.Run()
     monkeypatch.setattr('subprocess.run', run_mock)
     yield run_mock
-    assert run_mock.call_count >= 1, 'subprocess.run not called'
+    assert len(run_mock.calls) >= 1, 'subprocess.run not called'
 
 
 @pytest.fixture

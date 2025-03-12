@@ -1,4 +1,13 @@
+import dataclasses
 import subprocess
+
+
+@dataclasses.dataclass(frozen=True)
+class Call:
+    args: tuple[str, ...]
+    returncode: int
+    stdout: str
+    stderr: str
 
 
 class Run:
@@ -14,7 +23,7 @@ class Run:
 
     def __init__(self):
         self._commands: dict[tuple[str, ...], tuple[int, str, str]] = {}
-        self.call_count = 0
+        self.calls: list[Call] = []
 
     def handle(self, args: list[str], *, returncode: int = 0, stdout: str = '', stderr: str = ''):
         """Handle specified command-line args with the given return code, stdout, and stderr."""
@@ -27,13 +36,14 @@ class Run:
         capture_output: bool = False,
         encoding: str | None = None,
     ) -> subprocess.CompletedProcess[str]:
+        args_tuple = tuple(args)
         assert check is True
         assert capture_output is True
         assert encoding == 'utf-8'
-        assert tuple(args) in self._commands, f'unhandled command {args}'
+        assert args_tuple in self._commands, f'unhandled command {args}'
 
-        self.call_count += 1
-        returncode, stdout, stderr = self._commands[tuple(args)]
+        returncode, stdout, stderr = self._commands[args_tuple]
+        self.calls.append(Call(args_tuple, returncode, stdout, stderr))
         if returncode != 0:
             raise subprocess.CalledProcessError(
                 returncode=returncode,
