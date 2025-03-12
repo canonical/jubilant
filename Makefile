@@ -26,7 +26,7 @@ format:
 # Run integration tests (slow, require real Juju)
 .PHONY: integration
 integration:
-	uv run pytest test/integration -vv --log-level=INFO
+	uv run pytest test/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s"
 
 # Perform linting
 .PHONY: lint
