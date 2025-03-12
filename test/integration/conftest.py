@@ -5,8 +5,6 @@ import pytest
 
 import jubilant
 
-# TODO ben: need to improve logging; just log all subprocess.run args?
-
 
 def pytest_addoption(parser: pytest.OptionGroup):
     parser.addoption(
@@ -17,7 +15,7 @@ def pytest_addoption(parser: pytest.OptionGroup):
         '--keep-models',
         action='store_true',
         default=False,
-        help='keep created models (implied if --model is specified)',
+        help='keep temporarily-created models',
     )
 
 
@@ -29,5 +27,8 @@ def juju(request: pytest.FixtureRequest) -> Generator[jubilant.Juju, None, None]
     """
     model = cast(str | None, request.config.getoption('--model'))
     keep_models = cast(bool, request.config.getoption('--keep-models'))
-    with jubilant.with_model(model, keep=keep_models) as juju:
-        yield juju
+    if model:
+        yield jubilant.Juju(model=model)
+    else:
+        with jubilant.temp_model(keep=keep_models) as juju:
+            yield juju

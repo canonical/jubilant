@@ -15,7 +15,7 @@ from ._all_any import (
     any_waiting,
 )
 from ._juju import CLIError, ConfigValue, Juju, SecretURI, WaitError
-from ._test_helpers import with_model
+from ._test_helpers import temp_model
 from .statustypes import Status
 
 __all__ = [
@@ -38,7 +38,7 @@ __all__ = [
     'any_maintenance',
     'any_waiting',
     'statustypes',
-    'with_model',
+    'temp_model',
 ]
 
 __version__ = '0.0.0a1'
