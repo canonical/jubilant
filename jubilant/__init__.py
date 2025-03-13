@@ -41,4 +41,4 @@ __all__ = [
     'temp_model',
 ]
 
-__version__ = '0.0.0a1'
+__version__ = '1.0.0beta1'

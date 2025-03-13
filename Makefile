@@ -34,6 +34,13 @@ lint:
 	uv run ruff check
 	uv run ruff format --diff
 
+# Publish to PyPI
+.PHONY:
+publish:
+	rm -rf dist
+	uv build
+	uv publish
+
 # Check static types
 .PHONY: static
 static:

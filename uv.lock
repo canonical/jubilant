@@ -166,7 +166,7 @@ wheels = [
 
 [[package]]
 name = "jubilant"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "pyyaml" },
 ]
