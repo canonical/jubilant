@@ -1,7 +1,7 @@
 
 .PHONY: help
 help:
-	@echo "Usage: make [target]\n\nTargets:"
+	@echo "Usage: make [target] [ARGS='additional args']\n\nTargets:"
 	@awk -F: '/^[a-z]+:/ { print "   ", $$1 }' Makefile
 
 # Run all quick, local commands
@@ -26,7 +26,7 @@ format:
 # Run integration tests (slow, require real Juju)
 .PHONY: integration
 integration:
-	uv run pytest test/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s"
+	uv run pytest test/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" $(ARGS)
 
 # Perform linting
 .PHONY: lint
@@ -42,4 +42,4 @@ static:
 # Run quick unit tests
 .PHONY: unit
 unit:
-	uv run pytest test/unit -vv --cov=jubilant
+	uv run pytest test/unit -vv --cov=jubilant $(ARGS)
