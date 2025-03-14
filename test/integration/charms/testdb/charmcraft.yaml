@@ -1,0 +1,34 @@
+name: testdb
+type: charm
+summary: Test "db" provider charm for Jubilant integration tests
+description: Test "db" provider charm for Jubilant integration tests
+
+provides:
+  db:
+    interface: dbi
+
+bases:
+  - build-on:
+    - name: ubuntu
+      channel: "22.04"
+    run-on:
+    - name: ubuntu
+      channel: "22.04"
+
+parts:
+  charm:
+    build-packages: [git]
+
+actions:
+  do-thing:
+    description: Do a thing.
+    params:
+      mode:
+        type: string
+
+config:
+  options:
+    testoption:
+      type: string
+      description: A test option.
+      default: ""

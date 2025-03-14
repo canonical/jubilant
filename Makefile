@@ -34,6 +34,12 @@ lint:
 	uv run ruff check
 	uv run ruff format --diff
 
+# Pack charms used by integration tests (requires charmcraft)
+.PHONY: pack
+pack:
+	cd test/integration/charms/testdb && charmcraft pack
+	cd test/integration/charms/testapp && charmcraft pack
+
 # Check static types
 .PHONY: static
 static:

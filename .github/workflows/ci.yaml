@@ -75,5 +75,8 @@ jobs:
       - name: Prepare Juju
         run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
 
+      - name: Pack test charms
+        run: make pack
+
       - name: Run integration tests
         run: make integration
