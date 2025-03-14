@@ -65,8 +65,8 @@ def test_integrate(juju: jubilant.Juju):
     assert charms, 'testdb .charm file not found'
     juju.deploy(charms[0])
 
-    charms = [p.absolute() for p in (CHARMS_PATH / 'testdb').glob('*.charm')]
-    assert charms, 'testdb .charm file not found'
+    charms = [p.absolute() for p in (CHARMS_PATH / 'testapp').glob('*.charm')]
+    assert charms, 'testapp .charm file not found'
     juju.deploy(charms[0])
 
     juju.integrate('testdb', 'testapp')
