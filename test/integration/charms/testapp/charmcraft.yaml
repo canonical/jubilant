@@ -1,0 +1,20 @@
+name: testapp
+type: charm
+summary: Test app ("db" consumer) charm for Jubilant integration tests
+description: Test app ("db" consumer) charm for Jubilant integration tests
+
+requires:
+  db:
+    interface: dbi
+
+bases:
+  - build-on:
+    - name: ubuntu
+      channel: "22.04"
+    run-on:
+    - name: ubuntu
+      channel: "22.04"
+
+parts:
+  charm:
+    build-packages: [git]
