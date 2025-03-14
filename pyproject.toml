@@ -5,7 +5,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dynamic = ["version"]
 authors = [
-    {name="The Charm Tech team at Canonical Ltd.", email="charm-tech@lists.launchpad.net"},
+    {name="The Charm Tech team at Canonical Ltd."},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
