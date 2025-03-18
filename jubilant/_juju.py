@@ -551,11 +551,14 @@ class Juju:
             exc.add_note(str(status))
         raise exc
 
-    # TODO: add run() tests of this
+    @property
+    def _is_juju_snap(self) -> bool:
+        which = shutil.which(self.cli_binary)
+        return which is not None and '/snap/' in which
+
     def _named_temporary_file(self):
         if self._temp_dir is None:
-            which = shutil.which(self.cli_binary)
-            if which is not None and which.startswith('/snap/'):
+            if self._is_juju_snap:
                 # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
                 self._temp_dir = os.path.expanduser('~/snap/juju')
             else:
