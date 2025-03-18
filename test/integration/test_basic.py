@@ -34,10 +34,10 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 
 
 def test_config_and_run(juju: jubilant.Juju):
-    charms = [p.absolute() for p in (CHARMS_PATH / 'testdb').glob('*.charm')]
-    assert charms, 'testdb .charm file not found'
-    juju.deploy(charms[0])
-    juju.wait(jubilant.all_blocked)  # waiting for relation
+    juju.deploy(charm_path('testdb'))
+
+    # should come up as "unknown"
+    juju.wait(lambda status: status.apps['testdb'].app_status.current == 'unknown')
 
     config = juju.config('testdb')
     assert config['testoption'] == ''
@@ -61,15 +61,19 @@ def test_config_and_run(juju: jubilant.Juju):
 
 
 def test_integrate(juju: jubilant.Juju):
-    charms = [p.absolute() for p in (CHARMS_PATH / 'testdb').glob('*.charm')]
-    assert charms, 'testdb .charm file not found'
-    juju.deploy(charms[0])
-
-    charms = [p.absolute() for p in (CHARMS_PATH / 'testapp').glob('*.charm')]
-    assert charms, 'testapp .charm file not found'
-    juju.deploy(charms[0])
+    juju.deploy(charm_path('testdb'))
+    juju.deploy(charm_path('testapp'))
 
     juju.integrate('testdb', 'testapp')
     status = juju.wait(jubilant.all_active)
     assert status.apps['testdb'].app_status.current == 'relation created'
     assert status.apps['testapp'].app_status.current == 'relation changed: dbkey=dbvalue'
+
+
+def charm_path(name: str) -> pathlib.Path:
+    """Return full absolute path to given test charm."""
+    # .charm filename has platform in it, so search with *.charm
+    charms = [p.absolute() for p in (CHARMS_PATH / name).glob('*.charm')]
+    assert charms, f'{name} .charm file not found'
+    assert len(charms) == 1, f'{name} has more than one .charm file, unsure which to use'
+    return charms[0]
