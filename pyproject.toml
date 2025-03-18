@@ -10,6 +10,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ops==2.19.4",  # for static type checking test charms
     "pyright==1.1.396",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
