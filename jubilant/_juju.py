@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import tempfile
 import time
@@ -81,6 +82,8 @@ class Juju:
         self.model = model
         self.wait_timeout = wait_timeout
         self.cli_binary = str(cli_binary or 'juju')
+
+        self._temp_dir: str | None = None
 
     def __repr__(self) -> str:
         args = [
@@ -448,7 +451,7 @@ class Juju:
 
         params_file = None
         if params is not None:
-            with tempfile.NamedTemporaryFile('w+', delete=False) as params_file:
+            with self._named_temporary_file() as params_file:
                 _yaml.safe_dump(params, params_file)
             args.extend(['--params', params_file.name])
 
@@ -547,6 +550,18 @@ class Juju:
         if status is not None:
             exc.add_note(str(status))
         raise exc
+
+    # TODO: add run() tests of this
+    def _named_temporary_file(self):
+        if self._temp_dir is None:
+            which = shutil.which(self.cli_binary)
+            if which is not None and which.startswith('/snap/'):
+                # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
+                self._temp_dir = os.path.expanduser('~/snap/juju')
+            else:
+                self._temp_dir = tempfile.gettempdir()
+
+        return tempfile.NamedTemporaryFile('w+', delete=False, dir=self._temp_dir)
 
 
 def _format_config(k: str, v: ConfigValue) -> str:

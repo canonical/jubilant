@@ -36,8 +36,10 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 def test_config_and_run(juju: jubilant.Juju):
     juju.deploy(charm_path('testdb'))
 
-    # should come up as "unknown"
-    juju.wait(lambda status: status.apps['testdb'].app_status.current == 'unknown')
+    # unit should come up as "unknown"
+    juju.wait(
+        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+    )
 
     config = juju.config('testdb')
     assert config['testoption'] == ''
@@ -49,15 +51,14 @@ def test_config_and_run(juju: jubilant.Juju):
     config = juju.config('testdb')
     assert config['testoption'] == 'foobar'
 
-    # TODO: debug this. The --params /tmp/file doesn't seem to work. Maybe /tmp not available?
-    # result = juju.run('testdb/0', 'do-thing', {'param1': 'value1'})
-    # assert result.success
-    # assert result.return_code == 0
-    # assert result.results == {
-    #     'config': {'testoption': 'foobar'},
-    #     'params': {'param1': 'value1'},
-    #     'thingy': 'foo',
-    # }
+    result = juju.run('testdb/0', 'do-thing', {'param1': 'value1'})
+    assert result.success
+    assert result.return_code == 0
+    assert result.results == {
+        'config': {'testoption': 'foobar'},
+        'params': {'param1': 'value1'},
+        'thingy': 'foo',
+    }
 
 
 def test_integrate(juju: jubilant.Juju):
@@ -66,8 +67,8 @@ def test_integrate(juju: jubilant.Juju):
 
     juju.integrate('testdb', 'testapp')
     status = juju.wait(jubilant.all_active)
-    assert status.apps['testdb'].app_status.current == 'relation created'
-    assert status.apps['testapp'].app_status.current == 'relation changed: dbkey=dbvalue'
+    assert status.apps['testdb'].app_status.message == 'relation created'
+    assert status.apps['testapp'].app_status.message == 'relation changed: dbkey=dbvalue'
 
 
 def charm_path(name: str) -> pathlib.Path:
