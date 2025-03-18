@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import os
@@ -82,8 +83,6 @@ class Juju:
         self.model = model
         self.wait_timeout = wait_timeout
         self.cli_binary = str(cli_binary or 'juju')
-
-        self._temp_dir: str | None = None
 
     def __repr__(self) -> str:
         args = [
@@ -451,7 +450,9 @@ class Juju:
 
         params_file = None
         if params is not None:
-            with self._named_temporary_file() as params_file:
+            with tempfile.NamedTemporaryFile(
+                'w+', delete=False, dir=self._temp_dir
+            ) as params_file:
                 _yaml.safe_dump(params, params_file)
             args.extend(['--params', params_file.name])
 
@@ -551,20 +552,18 @@ class Juju:
             exc.add_note(str(status))
         raise exc
 
-    @property
-    def _is_juju_snap(self) -> bool:
+    @functools.cached_property
+    def _juju_is_snap(self) -> bool:
         which = shutil.which(self.cli_binary)
         return which is not None and '/snap/' in which
 
-    def _named_temporary_file(self):
-        if self._temp_dir is None:
-            if self._is_juju_snap:
-                # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
-                self._temp_dir = os.path.expanduser('~/snap/juju')
-            else:
-                self._temp_dir = tempfile.gettempdir()
-
-        return tempfile.NamedTemporaryFile('w+', delete=False, dir=self._temp_dir)
+    @functools.cached_property
+    def _temp_dir(self) -> str:
+        if self._juju_is_snap:
+            # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
+            return os.path.expanduser('~/snap/juju')
+        else:
+            return tempfile.gettempdir()
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
