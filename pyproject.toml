@@ -91,7 +91,7 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 ]
 
 [tool.pyright]
-include = ["jubilant/*.py", "test/**/*.py"]
+include = ["jubilant", "test"]
 pythonVersion = "3.12"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
