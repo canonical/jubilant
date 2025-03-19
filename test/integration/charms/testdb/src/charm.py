@@ -8,7 +8,7 @@ class Charm(ops.CharmBase):
     def __init__(self, framework: ops.Framework):
         super().__init__(framework)
         self.framework.observe(self.on['db'].relation_created, self._on_db_relation_created)
-        self.framework.observe(self.on.do_thing_action, self._do_thing)
+        self.framework.observe(self.on['do_thing'].action, self._do_thing)
 
     def _do_thing(self, event: ops.ActionEvent):
         event.set_results({'thingy': 'foo', 'params': event.params, 'config': dict(self.config)})
