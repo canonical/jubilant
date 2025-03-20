@@ -3,8 +3,7 @@ name: Publish
 on:
   push:
     tags:
-      - '0.*'
-      - '1.*'
+      - 'v*'
 
 jobs:
   publish:
@@ -24,11 +23,6 @@ jobs:
 
       - name: Build dist packages
         run: uv build
-
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2.2.3
-        with:
-          subject-path: 'dist/*'
 
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
