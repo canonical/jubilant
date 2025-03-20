@@ -31,7 +31,7 @@ juju.deploy('snappass-test')
 juju.wait(jubilant.all_active)
 ```
 
-Below is an example integration test [from Jubilant itself](https://github.com/canonical/jubilant/blob/main/tests/integration/test_basic.py). This test uses the [`juju` pytest fixture](https://github.com/canonical/jubilant/blob/main/tests/integration/conftest.py), which adds a model during, runs your test with the `Juju` instance, and destroys the model during teardown:
+Below is an example integration test [from Jubilant itself](https://github.com/canonical/jubilant/blob/main/tests/integration/test_basic.py). This test uses the [`juju` pytest fixture](https://github.com/canonical/jubilant/blob/main/tests/integration/conftest.py), which adds a model during setup, runs your test with a `Juju` instance pointing at that model, and destroys the model during teardown:
 
 ```python
 def test_deploy(juju: jubilant.Juju):
@@ -45,7 +45,7 @@ def test_deploy(juju: jubilant.Juju):
     assert 'snappass' in response.text.lower()
 ```
 
-You don't have to use [Pytest](https://docs.pytest.org/en/stable/) with Jubilant, but it's what we usually recommend. Its fixtures and its simple `assert`-based approach make writing tests easy.
+You don't have to use [Pytest](https://docs.pytest.org/en/stable/) with Jubilant, but it's what we usually recommend. Pytest's fixtures and its simple `assert`-based approach make writing tests easy.
 
 
 ## Design goals
@@ -62,7 +62,7 @@ We designed Jubilant so it would:
 
 Anyone can contribute to Jubilant. It's best to start by [opening an issue](https://github.com/canonical/jubilant/issues) with a clear description of the problem or feature request, but you can also [open a pull request](https://github.com/canonical/jubilant/pulls) directly.
 
-Jubilant uses [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies and tools, and `make` to run development tasks, so you'll need to [install uv](https://docs.astral.sh/uv/#installation) to work on Jubilant.
+Jubilant uses [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies and tools, so you'll need to [install uv](https://docs.astral.sh/uv/#installation) to work on the library. You'll also need `make` to run local development tasks (but you probably have `make` installed already).
 
 After that, clone the Jubilant codebase and type `make all` to run various checks and the unit tests:
 
@@ -85,6 +85,5 @@ To create a new release of Jubilant:
 
 - Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version you want to release.
 - Push up a PR with this change and get it reviewed and merged.
-- Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub. The tag should be in format `v<__version__>`, for example `v1.0.0`.
-- The [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically build the release and publish it to PyPI.
+- Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `v`, like `v1.2.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI.
 - Once the publish workflow has finished, check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant/#history).
