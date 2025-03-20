@@ -26,7 +26,7 @@ format:
 # Run integration tests (slow, require real Juju)
 .PHONY: integration
 integration:
-	uv run pytest test/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" $(ARGS)
+	uv run pytest tests/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" $(ARGS)
 
 # Perform linting
 .PHONY: lint
@@ -37,8 +37,8 @@ lint:
 # Pack charms used by integration tests (requires charmcraft)
 .PHONY: pack
 pack:
-	cd test/integration/charms/testdb && charmcraft pack
-	cd test/integration/charms/testapp && charmcraft pack
+	cd tests/integration/charms/testdb && charmcraft pack
+	cd tests/integration/charms/testapp && charmcraft pack
 
 # Check static types
 .PHONY: static
@@ -48,4 +48,4 @@ static:
 # Run quick unit tests
 .PHONY: unit
 unit:
-	uv run pytest test/unit -vv --cov=jubilant $(ARGS)
+	uv run pytest tests/unit -vv --cov=jubilant $(ARGS)

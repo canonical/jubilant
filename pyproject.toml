@@ -11,7 +11,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ops==2.19.4",  # for static type checking test charms
-    "pyright==1.1.396",
+    "pyright==1.1.397",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "requests>=2.32.3",
@@ -81,7 +81,7 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
     # Missing docstring in public class
     "D101",
 ]
-"test/*" = [
+"tests/*" = [
     # All documentation linting.
     "D",
     # Use of possibly insecure function (eval)
@@ -91,7 +91,7 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 ]
 
 [tool.pyright]
-include = ["jubilant", "test"]
+include = ["jubilant", "tests"]
 pythonVersion = "3.12"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
