@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '0.*'
+      - '1.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build dist packages
+        run: uv build
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2.2.3
+        with:
+          subject-path: 'dist/*'
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
