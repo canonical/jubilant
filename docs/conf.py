@@ -348,3 +348,6 @@ autodoc_default_options = {
     'undoc-members': None,
     'show-inheritance': None,
 }
+
+# This value stacks args vertically if a signature is too long.
+maximum_signature_line_length = 80
