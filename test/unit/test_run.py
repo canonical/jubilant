@@ -90,7 +90,8 @@ def test_failed(run: mocks.Run):
     )
 
 
-def test_params(monkeypatch: pytest.MonkeyPatch):
+@pytest.mark.parametrize('cli_binary', ['/snap/bin/juju', '/bin/juju'])
+def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
     stdout = """
 {
   "mysql/0": {
@@ -108,7 +109,7 @@ def test_params(monkeypatch: pytest.MonkeyPatch):
     def mock_run(args: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
         nonlocal params_path
         assert args[:-1] == [
-            'juju',
+            cli_binary,
             'run',
             '--format',
             'json',
@@ -123,7 +124,7 @@ def test_params(monkeypatch: pytest.MonkeyPatch):
         return subprocess.CompletedProcess(args=args, returncode=0, stdout=stdout)
 
     monkeypatch.setattr('subprocess.run', mock_run)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_binary=cli_binary)
 
     result = juju.run('mysql/0', 'get-password', {'foo': 1, 'bar': ['ab', 'cd']})
 

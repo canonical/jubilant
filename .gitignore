@@ -4,4 +4,5 @@ jubilant.egg-info
 /SCRATCH.md
 /.idea
 /t.py
-/.coverage
+.coverage
+*.charm

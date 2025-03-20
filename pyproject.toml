@@ -28,9 +28,11 @@ Documentation = "https://canonical-jubilant.readthedocs-hosted.com/"
 
 [dependency-groups]
 dev = [
+    "ops==2.19.4",  # for static type checking test charms
     "pyright==1.1.396",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
+    "requests>=2.32.3",
     "ruff==0.9.6",
 ]
 docs = [
@@ -119,7 +121,7 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 ]
 
 [tool.pyright]
-include = ["jubilant/*.py", "test/unit/*.py", "test/integration/*.py"]
+include = ["jubilant", "test"]
 pythonVersion = "3.12"
 pythonPlatform = "All"
 typeCheckingMode = "strict"

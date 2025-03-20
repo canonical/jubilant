@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import functools
 import json
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import tempfile
 import time
@@ -448,7 +450,9 @@ class Juju:
 
         params_file = None
         if params is not None:
-            with tempfile.NamedTemporaryFile('w+', delete=False) as params_file:
+            with tempfile.NamedTemporaryFile(
+                'w+', delete=False, dir=self._temp_dir
+            ) as params_file:
                 _yaml.safe_dump(params, params_file)
             args.extend(['--params', params_file.name])
 
@@ -547,6 +551,21 @@ class Juju:
         if status is not None:
             exc.add_note(str(status))
         raise exc
+
+    @functools.cached_property
+    def _juju_is_snap(self) -> bool:
+        which = shutil.which(self.cli_binary)
+        return which is not None and '/snap/' in which
+
+    @functools.cached_property
+    def _temp_dir(self) -> str:
+        if self._juju_is_snap:
+            # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
+            temp_dir = os.path.expanduser('~/snap/juju/common')
+            os.makedirs(temp_dir, exist_ok=True)
+            return temp_dir
+        else:
+            return tempfile.gettempdir()
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
