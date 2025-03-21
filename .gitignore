@@ -1,8 +1,6 @@
 __pycache__
 jubilant.egg-info
 /dist
-/SCRATCH.md
 /.idea
-/t.py
 .coverage
 *.charm
