@@ -2,14 +2,15 @@
 
 ```{toctree}
 :maxdepth: 1
+:hidden:
 
-jubilant
+jubilant module <jubilant>
 ```
 
 These guides provide technical information about Jubilant.
 
 
-## API reference
+## `jubilant` module
 
 Jubilant has a type-annotated, Pythonic API.
 

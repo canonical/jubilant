@@ -12,14 +12,17 @@ explanation/index
 
 Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
+You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](explanation/design-goals).
+
 Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release a 1.0.0 final version in May 2025.
+
 
 The library provides:
 
-- The main [`jubilant.Juju`](/reference/jubilant/#jubilant.Juju) class with methods such as [`deploy`](/reference/jubilant/#jubilant.Juju.deploy) and [`integrate`](/reference/jubilant/#jubilant.Juju.integrate)
-- The [`Juju.wait`](/reference/jubilant/#jubilant.Juju.wait) method which waits for a condition such as "all apps active"
-- Status helpers such as [`jubilant.all_active`](/reference/jubilant/#jubilant.all_active), for use with `Juju.wait`
-- Context managers such as [`jubilant.temp_model`](/reference/jubilant/#jubilant.temp_model), for use in test setup and teardown
+- The main [](jubilant.Juju) class with methods such as [`deploy`](jubilant.Juju.deploy) and [`integrate`](jubilant.Juju.integrate)
+- The [`Juju.wait`](jubilant.Juju.wait) method which waits for a condition such as "all apps active"
+- Status helpers such as [](jubilant.all_active), for use with `Juju.wait`
+- Context managers such as [](jubilant.temp_model), for use in test setup and teardown
 
 
 ## In this documentation
@@ -45,7 +48,7 @@ The library provides:
 
 ```{grid-item-card} [Explanation](explanation/index)
 **Discussion and clarification** of key topics
-- [Design goals](explanation/design-goals.md)
+- [Design goals](explanation/design-goals)
 ```
 ````
 
