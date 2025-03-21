@@ -1,7 +1,5 @@
 # Jubilant, the joyful library for integration-testing Juju charms
 
-![CI Status](https://github.com/canonical/jubilant/actions/workflows/ci.yaml/badge.svg)
-
 Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
 It was written to supersede the use of [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) and [python-libjuju](https://github.com/juju/python-libjuju/) for charm integration tests. Python-libjuju in particular has a complex and confusing API, and its use of `async` is unnecessary for testing.
@@ -20,6 +18,8 @@ $ pip install jubilant
 # or
 $ uv add jubilant
 ```
+
+Because Jubilant calls the Juju CLI, you'll also need to [install Juju](https://canonical-juju.readthedocs-hosted.com/en/latest/user/howto/manage-juju/#install-juju).
 
 To use Jubilant in Python code, instantiate a `Juju` instance and call methods like `deploy` and `wait`:
 
@@ -45,7 +45,7 @@ def test_deploy(juju: jubilant.Juju):
     assert 'snappass' in response.text.lower()
 ```
 
-You don't have to use [Pytest](https://docs.pytest.org/en/stable/) with Jubilant, but it's what we usually recommend. Pytest's fixtures and its simple `assert`-based approach make writing tests easy.
+You don't have to use [Pytest](https://docs.pytest.org/en/stable/) with Jubilant, but it's what we recommend. Pytest's fixtures and its simple `assert`-based approach make writing tests easy.
 
 
 ## Design goals
@@ -54,7 +54,7 @@ We designed Jubilant so it would:
 
 - Match the Juju CLI. Method, parameter, and response field names match the Juju CLI, with minor exceptions (such as "application" being shortened to "app").
 - Have a simple API. Higher-level operations will be in helpers and fixtures, not the main `Juju` class (the only exception being `Juju.wait`).
-- Not use `async`. This was a "feature" of python-libjuju that adds complexity and isn't needed for integration tests.
+- Not use `async`. This was a "feature" of python-libjuju that adds complexity and isn't needed for integration tests. In addition, most Juju CLI commands return quickly and complete asynchronously in the background.
 - Support Juju 3 and 4. The Juju team is guaranteeing CLI arguments and `--format=json` responses won't change between Juju 3.x and 4.x. When Juju 5.x arrives and changes the CLI, we'll keep the Jubilant API simple and 1:1 with the 5.x CLI, but will consider adding a `jubilant.compat` layer to avoid tests have to manually work around differences between 4.x and 5.x.
 
 
