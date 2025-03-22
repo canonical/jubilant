@@ -14,7 +14,7 @@ Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use
 
 You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](explanation/design-goals).
 
-Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release a 1.0.0 final version in May 2025.
+Jubilant is currently in pre-release or "beta" phase ([PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release version 1.0.0 in May 2025.
 
 
 The library provides:
@@ -34,8 +34,6 @@ The library provides:
 
 ```{grid-item-card} [How-to guides](how-to/index)
 **Step-by-step guides** covering key operations and common tasks
-- [Define a custom `wait` condition](how-to/custom-wait)
-- [Write a model-setup fixture](how-to/model-fixture)
 ```
 ````
 
