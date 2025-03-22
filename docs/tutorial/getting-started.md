@@ -101,7 +101,7 @@ def test_unknown(juju: jubilant.Juju):
     )
 ```
 
-There are also `is_*` properties on the `AppStatus` and `UnitStatus` classes for the common statuses: `is_active`, `is_blocked`, `is_error`, `is_maintenance`, and `is_waiting`.
+There are also `is_*` properties on the [`AppStatus`](jubilant.statustypes.AppStatus) and [`UnitStatus`](jubilant.statustypes.UnitStatus) classes for the common statuses: `is_active`, `is_blocked`, `is_error`, `is_maintenance`, and `is_waiting`.
 
 For example, to wait till `myapp` is active and `yourapp` is blocked, and to raise an error if any app or unit goes into error state:
 
