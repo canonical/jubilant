@@ -11,5 +11,5 @@ When designing Jubilant, we had several important goals.
 :titlesonly:
 :maxdepth: 1
 
-Jubilant design goals <design-goals>
+Design goals <design-goals>
 ```
