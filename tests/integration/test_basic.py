@@ -1,5 +1,6 @@
 import pathlib
 
+import pytest
 import requests
 
 import jubilant
@@ -31,7 +32,8 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 1)
 
 
-def test_config_and_run(juju: jubilant.Juju):
+# Tests config get, config set, run, and exec
+def test_charm_basics(juju: jubilant.Juju):
     charm = 'testdb'
     juju.deploy(charm_path(charm))
 
@@ -50,14 +52,31 @@ def test_config_and_run(juju: jubilant.Juju):
     config = juju.config(charm)
     assert config['testoption'] == 'foobar'
 
-    result = juju.run(charm + '/0', 'do-thing', {'param1': 'value1'})
-    assert result.success
-    assert result.return_code == 0
-    assert result.results == {
+    task = juju.run(charm + '/0', 'do-thing', {'param1': 'value1'})
+    assert task.success
+    assert task.return_code == 0
+    assert task.results == {
         'config': {'testoption': 'foobar'},
         'params': {'param1': 'value1'},
         'thingy': 'foo',
     }
+
+    task = juju.exec('echo foo', unit=charm + '/0')
+    assert task.success
+    assert task.return_code == 0
+    assert task.stdout == 'foo\n'
+    assert task.stderr == ''
+
+    task = juju.exec('echo', 'bar', 'baz', unit=charm + '/0')
+    assert task.success
+    assert task.stdout == 'bar baz\n'
+
+    with pytest.raises(jubilant.TaskError) as excinfo:
+        juju.exec('sleep x', unit=charm + '/0')
+    task = excinfo.value.task
+    assert not task.success
+    assert task.stdout == ''
+    assert 'invalid time' in task.stderr
 
 
 def test_integrate(juju: jubilant.Juju):

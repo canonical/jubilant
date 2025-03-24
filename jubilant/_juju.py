@@ -13,7 +13,7 @@ from collections.abc import Callable, Iterable, Mapping
 from typing import Any, overload
 
 from . import _yaml
-from ._actions import ActionError, ActionResult
+from ._task import Task
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
@@ -77,7 +77,7 @@ class Juju:
         self,
         *,
         model: str | None = None,
-        wait_timeout: float = 3 * 60.0,
+        wait_timeout: float = 3 * 60.0,  # TODO: change to 10 to match pytest-operator's default
         cli_binary: str | os.PathLike[str] | None = None,
     ):
         self.model = model
@@ -347,6 +347,68 @@ class Juju:
         if model == self.model:
             self.model = None
 
+    # TODO: overloads for either machine or unit?
+
+    def exec(
+        self,
+        *command: str,
+        machine: int | None = None,
+        unit: str | None = None,
+    ) -> Task:
+        """Run the command on the remote target specified.
+
+        You must specify either *machine* or *unit*, but not both.
+
+        Note: this method does not support running a command on multiple units
+        at once. If you need that, let us know, and we'll consider adding it
+        with a new ``exec_multiple`` method or similar.
+
+        Args:
+            command: Command to run, along with its arguments.
+            machine: ID of machine to run the command on.
+            unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
+
+        Returns:
+            The task created to run the command, including logs, failure message, and so on.
+
+        Raises:
+            ValueError: if the machine or unit doesn't exist.
+            TaskError: if the command failed.
+        """
+        args = ['exec', '--format', 'json']
+        if machine is not None:
+            args.extend(['--machine', str(machine)])
+        elif unit:
+            args.extend(['--unit', unit])
+        else:
+            raise TypeError('must specify "machine" or "unit"')
+        args.append('--')
+        args.extend(command)
+
+        try:
+            stdout = self.cli(*args)
+        except CLIError as exc:
+            # "juju exec" CLI command itself fails if exec'd command fails.
+            if 'task failed' not in exc.stderr:
+                raise
+            stdout = exc.stdout
+
+        # Command doesn't return any stdout if no units exist.
+        results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+        result = None
+        if machine is not None:
+            if str(machine) not in results:
+                raise ValueError(f'machine not found: {machine}')
+            result = results[str(machine)]
+        elif unit:
+            if unit not in results:
+                raise ValueError(f'unit not found: {unit}')
+            result = results[unit]
+        assert result is not None
+        task = Task._from_dict(result)
+        task.raise_on_failure()
+        return task
+
     def integrate(self, app1: str, app2: str, *, via: str | Iterable[str] | None = None) -> None:
         """Integrate two applications, creating a relation between them.
 
@@ -420,7 +482,7 @@ class Juju:
 
         self.cli(*args)
 
-    def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> ActionResult:
+    def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> Task:
         """Run an action on the given unit and wait for the result.
 
         Note: this method does not support running an action on multiple units
@@ -440,11 +502,11 @@ class Juju:
             params: Optional named parameters to pass to the action.
 
         Returns:
-            The result of the action, including logs, failure message, and so on.
+            The task created to run the action, including logs, failure message, and so on.
 
         Raises:
             ValueError: if the unit doesn't exist.
-            ActionError: if the action failed.
+            TaskError: if the action failed.
         """
         args = ['run', '--format', 'json', unit, action]
 
@@ -459,13 +521,12 @@ class Juju:
         try:
             stdout = self.cli(*args)
             # Command doesn't return any stdout if no units exist.
-            all_results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-            if unit not in all_results:
+            all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            if unit not in all_tasks:
                 raise ValueError(f'unit not found: {unit}')
-            result = ActionResult._from_dict(all_results[unit])
-            if not result.success:
-                raise ActionError(result)
-            return result
+            task = Task._from_dict(all_tasks[unit])
+            task.raise_on_failure()
+            return task
         finally:
             if params_file is not None:
                 os.remove(params_file.name)
