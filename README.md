@@ -31,11 +31,11 @@ juju.deploy('snappass-test')
 juju.wait(jubilant.all_active)
 ```
 
-Below is an example of a charm integration test. First we define a [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant's`temp_model` context manager creates the model during test setup and destroys it during teardown:
+Below is an example of a charm integration test. First we define a module-scoped [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant's`temp_model` context manager creates the model during test setup and destroys it during teardown:
 
 ```python
 # conftest.py
-@pytest.fixture
+@pytest.fixture(scope='module')
 def juju():
     with jubilant.temp_model() as juju:
         yield juju

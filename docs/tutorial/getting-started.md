@@ -60,16 +60,16 @@ Model "test" is empty.
 
 We recommend using [pytest](https://docs.pytest.org/en/stable/) for writing tests. You can define a [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) to create a temporary Juju model for each test. The [](jubilant.temp_model) context manager creates a randomly-named model on entry, and destroys the model on exit.
 
-Here is a model-setup fixture called `juju`, which you would normally define in [`conftest.py`](https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files):
+Here is a module-scope fixture called `juju`, which you would normally define in [`conftest.py`](https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files):
 
 ```python
-@pytest.fixture
+@pytest.fixture(scope='module')
 def juju():
     with jubilant.temp_model() as juju:
         yield juju
 ```
 
-An integration test would use the fixture, operating on the temporary model:
+Integration tests in a test file would use the fixture, operating on the temporary model:
 
 ```python
 def test_deploy(juju: jubilant.Juju):
@@ -78,10 +78,10 @@ def test_deploy(juju: jubilant.Juju):
     assert status.apps['snappass-test'].scale == 1
 ```
 
-You may want to make your fixture [module-scoped](https://docs.pytest.org/en/stable/how-to/fixtures.html#scope-sharing-fixtures-across-classes-modules-packages-or-session), to allow all the tests in one file to share the same temporary model:
+You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, if you want to create a new model for every test function, use `scope='function'`, or just omit the scope (function scope is pytest's default):
 
 ```python
-@pytest.fixture(scope='module')
+@pytest.fixture
 def juju():
     ...
 ```
