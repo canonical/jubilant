@@ -6,6 +6,7 @@ CLI
 cli
 config
 Dataclasses
+favorite
 Jubilant
 Jubilant's
 libjuju
