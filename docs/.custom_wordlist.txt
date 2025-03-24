@@ -1,5 +1,4 @@
 # Ensure the last line in this file has a newline at the end, to support concatenation
-AppStatus
 args
 CIDR
 CLI
@@ -18,6 +17,5 @@ statustypes
 stdout
 stderr
 teardown
-UnitStatus
 URI
 websocket

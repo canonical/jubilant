@@ -32,4 +32,4 @@ matrix:
             - .sig-object
             - '#module-jubilant em'
             - '#module-jubilant strong'
-            - '#module-jubilant a.reference'
+            - a.reference[title^="jubilant."]
