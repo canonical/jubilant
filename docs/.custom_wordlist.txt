@@ -9,8 +9,8 @@ Dataclasses
 Jubilant
 Jubilant's
 libjuju
-Microk
-Microk8s
+MicroK
+MicroK8s
 PyPI
 pytest
 Pythonic

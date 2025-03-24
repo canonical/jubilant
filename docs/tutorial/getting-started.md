@@ -147,7 +147,7 @@ By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance
 
 ## Use `concierge` in CI
 
-We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up Juju when running your integration tests in CI. It will install Juju with a provider like Microk8s and bootstrap a controller for you. For example, using GitHub Actions:
+We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up Juju when running your integration tests in CI. It will install Juju with a provider like MicroK8s and bootstrap a controller for you. For example, using GitHub Actions:
 
 ```
 - name: Install concierge
