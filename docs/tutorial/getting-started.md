@@ -1,13 +1,13 @@
 # Getting started with Jubilant
 
-In this tutorial, we will learn how to install Jubilant, run Juju commands with it, and write a simple charm integration test.
+In this tutorial, we'll learn how to install Jubilant, use it to run Juju commands, and write a simple charm integration test.
 
 The tutorial assumes that you have a basic understanding of Juju and have already installed it. [Learn how to install the Juju CLI.](https://canonical-juju.readthedocs-hosted.com/en/latest/user/howto/manage-juju/#install-juju)
 
 
 ## Install Jubilant
 
-Jubilant is published to PyPI, so you can install and use it with your favourite Python package manager:
+Jubilant is published to PyPI, so you can install and use it with your favorite Python package manager:
 
 ```
 $ pip install jubilant
@@ -16,9 +16,9 @@ $ uv add jubilant
 ```
 
 
-## Ensure it's working
+## Check your setup
 
-To ensure Jubilant is working, use it to add a Juju model and check its status:
+To check that Jubilant is working, use it to add a Juju model and check its status:
 
 ```
 $ uv run python
@@ -89,7 +89,7 @@ def juju():
 
 ## Use a custom `wait` condition
 
-When waiting on a condition with [`Juju.wait`](jubilant.Juju.wait), you can use pre-defined helpers like [](jubilant.all_active) or [](jubilant.any_error), but you can also define a custom condition using the *ready* or *error* parameters. This is typically done with inline `lambda` functions.
+When waiting on a condition with [`Juju.wait`](jubilant.Juju.wait), you can use pre-defined helpers including [](jubilant.all_active) and [](jubilant.any_error). You can also define custom conditions for the *ready* and *error* parameters. This is typically done with inline `lambda` functions.
 
 For example, to test that the `myapp` charm starts up with application status "unknown":
 

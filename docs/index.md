@@ -19,8 +19,8 @@ Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https:
 
 The library provides:
 
-- The main [](jubilant.Juju) class with methods such as [`deploy`](jubilant.Juju.deploy) and [`integrate`](jubilant.Juju.integrate)
-- The [`Juju.wait`](jubilant.Juju.wait) method which waits for a condition such as "all apps active"
+- The main [](jubilant.Juju) class, with methods such as [`deploy`](jubilant.Juju.deploy) and [`integrate`](jubilant.Juju.integrate)
+- The [`Juju.wait`](jubilant.Juju.wait) method, which waits for a condition such as "all apps active"
 - Status helpers such as [](jubilant.all_active), for use with `Juju.wait`
 - Context managers such as [](jubilant.temp_model), for use in test setup and teardown
 

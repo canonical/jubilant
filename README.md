@@ -11,7 +11,7 @@ Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https:
 
 ## Using Jubilant
 
-Jubilant is published to PyPI, so you can install and use it with your favourite Python package manager:
+Jubilant is published to PyPI, so you can install and use it with your favorite Python package manager:
 
 ```
 $ pip install jubilant
