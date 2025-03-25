@@ -443,7 +443,7 @@ class Juju:
             The result of the action, including logs, failure message, and so on.
 
         Raises:
-            ValueError: if the unit doesn't exist.
+            ValueError: if the action or the unit doesn't exist.
             ActionError: if the action failed.
         """
         args = ['run', '--format', 'json', unit, action]
@@ -468,7 +468,7 @@ class Juju:
             # Command doesn't return any stdout if no units exist.
             all_results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
             if unit not in all_results:
-                raise ValueError(f'unit not found: {unit}')
+                raise ValueError(f'action {action!r} not defined, or unit {unit!r} not found')
             result = ActionResult._from_dict(all_results[unit])
             if not result.success:
                 raise ActionError(result)

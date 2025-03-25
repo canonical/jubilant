@@ -80,7 +80,7 @@ def test_failure(run: mocks.Run):
 
     assert excinfo.value.result == jubilant.ActionResult(
         success=False,
-        status='failed',
+        status='failed',  # This is what causes the failure (even when return_code is 0)
         task_id='42',
         results={'foo': 'bar'},
         return_code=0,
@@ -128,7 +128,7 @@ def test_exception_other(run: mocks.Run):
         ['juju', 'run', '--format', 'json', 'mysql/0', 'exceptiony'],
         returncode=2,
         stdout='OUT',
-        stderr='ERR',
+        stderr='ERR',  # Must not contain "task failed"
     )
     juju = jubilant.Juju()
 
