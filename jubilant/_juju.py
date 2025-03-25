@@ -77,7 +77,7 @@ class Juju:
         self,
         *,
         model: str | None = None,
-        wait_timeout: float = 3 * 60.0,  # TODO: change to 10 to match pytest-operator's default
+        wait_timeout: float = 3 * 60.0,
         cli_binary: str | os.PathLike[str] | None = None,
     ):
         self.model = model
