@@ -7,14 +7,12 @@ requires:
   db:
     interface: dbi
 
-bases:
-  - build-on:
-    - name: ubuntu
-      channel: "22.04"
-    run-on:
-    - name: ubuntu
-      channel: "22.04"
+base: ubuntu@24.04
+platforms:
+  amd64:
 
 parts:
-  charm:
-    build-packages: [git]
+  app-charm:
+    source: .
+    plugin: uv
+    build-snaps: [astral-uv]

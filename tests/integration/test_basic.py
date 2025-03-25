@@ -63,6 +63,22 @@ def test_charm_basics(juju: jubilant.Juju):
         'thingy': 'foo',
     }
 
+    with pytest.raises(jubilant.TaskError) as excinfo:
+        juju.run(charm + '/0', 'do-thing', {'error': 'ERR'})
+    task = excinfo.value.task
+    assert not task.success
+    assert task.status == 'failed'
+    assert task.return_code == 0  # return_code is 0 even if action fails
+    assert task.message == 'failed with error: ERR'
+
+    with pytest.raises(jubilant.TaskError) as excinfo:
+        juju.run(charm + '/0', 'do-thing', {'exception': 'EXC'})
+    task = excinfo.value.task
+    assert not task.success
+    assert task.status == 'failed'
+    assert task.return_code != 0
+    assert 'EXC' in task.stderr
+
     # Test exec
     task = juju.exec('echo foo', unit=charm + '/0')
     assert task.success

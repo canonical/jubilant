@@ -2,16 +2,18 @@
 
 Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
-It was written to supersede the use of [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) and [python-libjuju](https://github.com/juju/python-libjuju/) for charm integration tests. Python-libjuju in particular has a complex and confusing API, and its use of `async` is unnecessary for testing.
+You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](https://canonical-jubilant.readthedocs-hosted.com/explanation/design-goals).
 
-Jubilant is currently in pre-release or "beta" phase ([PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release version 1.0.0 in May 2025.
+Jubilant requires Python 3.12 or above. If your charm uses an Ubuntu base with an older Python version, run your integration tests with Python 3.12+ and install Jubilant with the requirement `jubilant;python_version>='3.12'` ([see an example](https://github.com/jnsgruk/zinc-k8s-operator/pull/355/files)).
+
+Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release version 1.0.0 in May 2025.
 
 [**Read the full documentation**](https://canonical-jubilant.readthedocs-hosted.com/)
 
 
 ## Using Jubilant
 
-Jubilant is published to PyPI, so you can install and use it with your favourite Python package manager:
+Jubilant is published to PyPI, so you can install and use it with your favorite Python package manager:
 
 ```
 $ pip install jubilant
@@ -31,11 +33,11 @@ juju.deploy('snappass-test')
 juju.wait(jubilant.all_active)
 ```
 
-Below is an example of a charm integration test. First we define a [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant's`temp_model` context manager creates the model during test setup and destroys it during teardown:
+Below is an example of a charm integration test. First we define a module-scoped [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant's`temp_model` context manager creates the model during test setup and destroys it during teardown:
 
 ```python
 # conftest.py
-@pytest.fixture
+@pytest.fixture(scope='module')
 def juju():
     with jubilant.temp_model() as juju:
         yield juju
@@ -54,16 +56,6 @@ def test_deploy(juju: jubilant.Juju):        # Use the "juju" fixture
 ```
 
 You don't have to use pytest with Jubilant, but it's what we recommend. Pytest's `assert`-based approach is a straight-forward way to write tests, and its fixtures are helpful for structuring setup and teardown.
-
-
-## Design goals
-
-We designed Jubilant so it would:
-
-- Match the Juju CLI. Method, parameter, and response field names match the Juju CLI, with minor exceptions (such as "application" being shortened to "app").
-- Have a simple API. Higher-level operations will be in helper functions, not the main `Juju` class (the only exception being `Juju.wait`).
-- Not use `async`. This was a "feature" of python-libjuju that adds complexity and isn't needed for integration tests. In addition, most Juju CLI commands return quickly and complete asynchronously in the background.
-- Support Juju 3 and 4. The Juju team is guaranteeing CLI arguments and `--format=json` responses won't change between Juju 3.x and 4.x. When Juju 5.x arrives and changes the CLI, we'll keep the Jubilant API simple and match the 5.x CLI. However, we will consider adding a compatibility layer to avoid tests having to manually handle differences between 4.x and 5.x.
 
 
 ## Contributing and developing

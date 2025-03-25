@@ -58,7 +58,7 @@ def test_not_found(run: mocks.Run):
         juju.run('mysql/0', 'get-password')
 
 
-def test_failed(run: mocks.Run):
+def test_failure(run: mocks.Run):
     out_json = """
 {
   "mysql/0": {
@@ -66,8 +66,7 @@ def test_failed(run: mocks.Run):
     "message": "Failure message",
     "results": {
       "foo": "bar",
-      "return-code": 1,
-      "stderr": "Uncaught Exception in charm code: thing happened..."
+      "return-code": 0
     },
     "status": "failed"
   }
@@ -81,13 +80,64 @@ def test_failed(run: mocks.Run):
 
     assert excinfo.value.task == jubilant.Task(
         id='42',
+        status='failed',  # This is what causes the failure (even when return_code is 0)
+        results={'foo': 'bar'},
+        return_code=0,
+        message='Failure message',
+    )
+    assert not excinfo.value.task.success
+
+
+def test_exception_task_failed(run: mocks.Run):
+    out_json = """
+{
+  "mysql/0": {
+    "id": "42",
+    "results": {
+      "foo": "bar",
+      "return-code": 1,
+      "stderr": "Uncaught Exception in charm code: thing happened..."
+    },
+    "status": "failed"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'exceptiony'],
+        returncode=1,
+        stdout=out_json,
+        stderr='... task failed ...',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.TaskError) as excinfo:
+        juju.run('mysql/0', 'exceptiony')
+
+    assert excinfo.value.task == jubilant.Task(
+        id='42',
         status='failed',
         results={'foo': 'bar'},
         return_code=1,
         stderr='Uncaught Exception in charm code: thing happened...',
-        message='Failure message',
     )
     assert not excinfo.value.task.success
+
+
+def test_exception_other(run: mocks.Run):
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'exceptiony'],
+        returncode=2,
+        stdout='OUT',
+        stderr='ERR',  # Must not contain "task failed"
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.CLIError) as excinfo:
+        juju.run('mysql/0', 'exceptiony')
+
+    assert excinfo.value.returncode == 2
+    assert excinfo.value.stdout == 'OUT'
+    assert excinfo.value.stderr == 'ERR'
 
 
 @pytest.mark.parametrize('cli_binary', ['/snap/bin/juju', '/bin/juju'])

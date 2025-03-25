@@ -2,7 +2,7 @@ matrix:
   - name: rST files
     aspell:
       lang: en
-      d: en_GB
+      d: en_US
     dictionary:
       wordlists:
         - .sphinx/.wordlist.txt
@@ -32,4 +32,6 @@ matrix:
             - .sig-object
             - '#module-jubilant em'
             - '#module-jubilant strong'
-            - '#module-jubilant a.reference'
+            - '#module-jubilant.statustypes em'
+            - '#module-jubilant.statustypes strong'
+            - a.reference[title^="jubilant."]

@@ -509,7 +509,7 @@ class Juju:
             The task created to run the action, including logs, failure message, and so on.
 
         Raises:
-            ValueError: if the unit doesn't exist.
+            ValueError: if the action or the unit doesn't exist.
             TaskError: if the action failed.
         """
         args = ['run', '--format', 'json', unit, action]
@@ -523,11 +523,18 @@ class Juju:
             args.extend(['--params', params_file.name])
 
         try:
-            stdout = self.cli(*args)
+            try:
+                stdout = self.cli(*args)
+            except CLIError as exc:
+                # The "juju run" CLI command fails if the action has an uncaught exception.
+                if 'task failed' not in exc.stderr:
+                    raise
+                stdout = exc.stdout
+
             # Command doesn't return any stdout if no units exist.
             all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
             if unit not in all_tasks:
-                raise ValueError(f'unit not found: {unit}')
+                raise ValueError(f'action {action!r} not defined, or unit {unit!r} not found')
             task = Task._from_dict(all_tasks[unit])
             task.raise_on_failure()
             return task
