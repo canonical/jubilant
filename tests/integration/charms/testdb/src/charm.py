@@ -11,6 +11,11 @@ class Charm(ops.CharmBase):
         self.framework.observe(self.on['do_thing'].action, self._do_thing)
 
     def _do_thing(self, event: ops.ActionEvent):
+        if 'error' in event.params:
+            event.fail(f'failed with error: {event.params["error"]}')
+            return
+        if 'exception' in event.params:
+            raise Exception(event.params['exception'])
         event.set_results({'thingy': 'foo', 'params': event.params, 'config': dict(self.config)})
 
     def _on_db_relation_created(self, event: ops.RelationCreatedEvent):
