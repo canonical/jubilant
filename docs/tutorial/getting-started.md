@@ -80,7 +80,7 @@ def test_deploy(juju: jubilant.Juju):
     assert status.apps['snappass-test'].scale == 1
 ```
 
-You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, if you want to create a new model for every test function, use `scope='function'`, or just omit the scope (function scope is pytest's default):
+You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, to create a new model for every test function (pytest's default behavior), omit the scope:
 
 ```python
 @pytest.fixture
