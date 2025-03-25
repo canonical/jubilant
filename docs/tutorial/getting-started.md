@@ -15,6 +15,8 @@ $ pip install jubilant
 $ uv add jubilant
 ```
 
+Jubilant requires Python 3.12 or above. If your charm uses an Ubuntu base with an older Python version, run your integration tests with Python 3.12+ and install Jubilant with the requirement `jubilant;python_version>='3.12'` ([see an example](https://github.com/jnsgruk/zinc-k8s-operator/pull/355/files)).
+
 
 ## Check your setup
 
