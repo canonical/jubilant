@@ -389,7 +389,13 @@ class Juju:
         args.append('--')
         args.extend(command)
 
-        stdout = self.cli(*args)
+        try:
+            stdout = self.cli(*args)
+        except CLIError as exc:
+            # The "juju exec" CLI command itself fails if the exec'd command fails.
+            if 'task failed' not in exc.stderr:
+                raise
+            stdout = exc.stdout
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}

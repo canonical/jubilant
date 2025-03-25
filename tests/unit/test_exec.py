@@ -67,7 +67,7 @@ def test_machine(run: mocks.Run):
     assert task.success
 
 
-def test_failure(run: mocks.Run):
+def test_failure_normal(run: mocks.Run):
     out_json = r"""
 {
   "ubuntu/0": {
@@ -98,6 +98,58 @@ def test_failure(run: mocks.Run):
         stderr='sleep: invalid time interval\n',
     )
     assert not task.success
+
+
+def test_failure_cli_error(run: mocks.Run):
+    out_json = r"""
+{
+  "ubuntu/0": {
+    "id": "28",
+    "results": {
+      "return-code": 1,
+      "stderr": "sleep: invalid time interval\n"
+    },
+    "status": "completed",
+    "unit": "ubuntu/0"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/0', '--', 'sleep x'],
+        returncode=1,
+        stdout=out_json,
+        stderr='task failed',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.TaskError) as excinfo:
+        juju.exec('sleep x', unit='ubuntu/0')
+
+    task = excinfo.value.task
+    assert task == jubilant.Task(
+        id='28',
+        status='completed',
+        return_code=1,
+        stderr='sleep: invalid time interval\n',
+    )
+    assert not task.success
+
+
+def test_failure_other_error(run: mocks.Run):
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/0', '--', 'sleep x'],
+        returncode=2,
+        stdout='OUT',
+        stderr='ERR',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.CLIError) as excinfo:
+        juju.exec('sleep x', unit='ubuntu/0')
+
+    assert excinfo.value.returncode == 2
+    assert excinfo.value.stdout == 'OUT'
+    assert excinfo.value.stderr == 'ERR'
 
 
 def test_machine_not_found(run: mocks.Run):
