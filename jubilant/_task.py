@@ -5,17 +5,14 @@ from typing import Any, Literal
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ActionResult:
-    """Holds the results of Juju running an action on a single unit."""
+class Task:
+    """A task holds the results of Juju running an action or exec command on a single unit."""
 
-    success: bool
-    """Whether the action was successful."""
+    id: str
+    """Task ID of the action, for use with ``juju show-task``."""
 
     status: Literal['aborted', 'cancelled', 'completed', 'error', 'failed']
     """Status of the action (Juju operation). Typically "completed" or "failed"."""
-
-    task_id: str
-    """Task ID of the action, for use with ``juju show-task``."""
 
     results: dict[str, Any] = dataclasses.field(default_factory=dict)
     """Results of the action provided by the charm.
@@ -40,14 +37,14 @@ class ActionResult:
     """List of messages logged by the action hook."""
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> ActionResult:
+    def _from_dict(cls, d: dict[str, Any]) -> Task:
         status = d['status']
         results: dict[str, Any] = d.get('results') or {}
         return_code = results.pop('return-code', 0)
         stdout = results.pop('stdout', '')
         stderr = results.pop('stderr', '')
         return cls(
-            success=status == 'completed',
+            id=d['id'],
             status=status,
             results=results,
             return_code=return_code,
@@ -55,15 +52,24 @@ class ActionResult:
             stderr=stderr,
             message=d.get('message') or '',
             log=d.get('log') or [],
-            task_id=d['id'],
         )
 
+    @property
+    def success(self) -> bool:
+        """Whether the action was successful."""
+        return self.status == 'completed' and self.return_code == 0
 
-class ActionError(Exception):
-    """Exception raised when an action run on a single unit fails."""
+    def raise_on_failure(self):
+        """If task was not successful, raise a :class:`TaskError`."""
+        if not self.success:
+            raise TaskError(self)
 
-    result: ActionResult
-    """Results of running the action."""
 
-    def __init__(self, result: ActionResult):
-        self.result = result
+class TaskError(Exception):
+    """Exception raised when an action or exec command fails."""
+
+    task: Task
+    """Associated task."""
+
+    def __init__(self, task: Task):
+        self.task = task

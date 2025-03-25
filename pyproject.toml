@@ -93,6 +93,9 @@ select = [
     "D",
 ]
 ignore = [
+    # Function argument `x` is shadowing a Python builtin
+    "A002",
+
     # Use of `assert` detected
     "S101",
 
