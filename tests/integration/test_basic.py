@@ -42,6 +42,7 @@ def test_charm_basics(juju: jubilant.Juju):
         lambda status: status.apps[charm].units[charm + '/0'].workload_status.current == 'unknown'
     )
 
+    # Test config get and set
     config = juju.config(charm)
     assert config['testoption'] == ''
 
@@ -52,6 +53,7 @@ def test_charm_basics(juju: jubilant.Juju):
     config = juju.config(charm)
     assert config['testoption'] == 'foobar'
 
+    # Test run (running an action)
     task = juju.run(charm + '/0', 'do-thing', {'param1': 'value1'})
     assert task.success
     assert task.return_code == 0
@@ -61,6 +63,7 @@ def test_charm_basics(juju: jubilant.Juju):
         'thingy': 'foo',
     }
 
+    # Test exec
     task = juju.exec('echo foo', unit=charm + '/0')
     assert task.success
     assert task.return_code == 0

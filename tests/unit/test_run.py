@@ -33,9 +33,9 @@ def test_completed(run: mocks.Run):
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'], stdout=out_json)
     juju = jubilant.Juju()
 
-    result = juju.run('mysql/0', 'get-password')
+    task = juju.run('mysql/0', 'get-password')
 
-    assert result == jubilant.Task(
+    assert task == jubilant.Task(
         id='42',
         status='completed',
         results={'username': 'user', 'password': 'pass'},
@@ -47,7 +47,7 @@ def test_completed(run: mocks.Run):
             '2025-03-01 16:23:26 +1300 NZDT Another message',
         ],
     )
-    assert result.success
+    assert task.success
 
 
 def test_not_found(run: mocks.Run):
@@ -126,13 +126,13 @@ def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
     monkeypatch.setattr('subprocess.run', mock_run)
     juju = jubilant.Juju(cli_binary=cli_binary)
 
-    result = juju.run('mysql/0', 'get-password', {'foo': 1, 'bar': ['ab', 'cd']})
+    task = juju.run('mysql/0', 'get-password', {'foo': 1, 'bar': ['ab', 'cd']})
 
-    assert result == jubilant.Task(
+    assert task == jubilant.Task(
         id='42',
         status='completed',
         results={'username': 'user', 'password': 'pass'},
     )
-    assert result.success
+    assert task.success
     assert params_path
     assert not os.path.exists(params_path)

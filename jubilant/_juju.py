@@ -347,7 +347,11 @@ class Juju:
         if model == self.model:
             self.model = None
 
-    # TODO: overloads for either machine or unit?
+    @overload
+    def exec(self, *command: str, machine: int) -> Task: ...
+
+    @overload
+    def exec(self, *command: str, unit: str) -> Task: ...
 
     def exec(
         self,
@@ -385,13 +389,7 @@ class Juju:
         args.append('--')
         args.extend(command)
 
-        try:
-            stdout = self.cli(*args)
-        except CLIError as exc:
-            # "juju exec" CLI command itself fails if exec'd command fails.
-            if 'task failed' not in exc.stderr:
-                raise
-            stdout = exc.stdout
+        stdout = self.cli(*args)
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
