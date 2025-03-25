@@ -58,7 +58,7 @@ def test_not_found(run: mocks.Run):
         juju.run('mysql/0', 'get-password')
 
 
-def test_failed(run: mocks.Run):
+def test_failure(run: mocks.Run):
     out_json = """
 {
   "mysql/0": {
@@ -66,8 +66,7 @@ def test_failed(run: mocks.Run):
     "message": "Failure message",
     "results": {
       "foo": "bar",
-      "return-code": 1,
-      "stderr": "Uncaught Exception in charm code: thing happened..."
+      "return-code": 0
     },
     "status": "failed"
   }
@@ -84,10 +83,61 @@ def test_failed(run: mocks.Run):
         status='failed',
         task_id='42',
         results={'foo': 'bar'},
-        return_code=1,
-        stderr='Uncaught Exception in charm code: thing happened...',
+        return_code=0,
         message='Failure message',
     )
+
+
+def test_exception_task_failed(run: mocks.Run):
+    out_json = """
+{
+  "mysql/0": {
+    "id": "42",
+    "results": {
+      "foo": "bar",
+      "return-code": 1,
+      "stderr": "Uncaught Exception in charm code: thing happened..."
+    },
+    "status": "failed"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'exceptiony'],
+        returncode=1,
+        stdout=out_json,
+        stderr='... task failed ...',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.ActionError) as excinfo:
+        juju.run('mysql/0', 'exceptiony')
+
+    assert excinfo.value.result == jubilant.ActionResult(
+        success=False,
+        status='failed',
+        task_id='42',
+        results={'foo': 'bar'},
+        return_code=1,
+        stderr='Uncaught Exception in charm code: thing happened...',
+    )
+
+
+def test_exception_other(run: mocks.Run):
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'exceptiony'],
+        returncode=2,
+        stdout='OUT',
+        stderr='ERR',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(jubilant.CLIError) as excinfo:
+        juju.run('mysql/0', 'exceptiony')
+
+    assert excinfo.value.returncode == 2
+    assert excinfo.value.stdout == 'OUT'
+    assert excinfo.value.stderr == 'ERR'
 
 
 @pytest.mark.parametrize('cli_binary', ['/snap/bin/juju', '/bin/juju'])
