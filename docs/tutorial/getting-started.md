@@ -163,7 +163,9 @@ We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up 
           --preset microk8s
 
 - name: Run integration tests
-  run: uv run pytest tests/integration -vv --log-level=INFO
+  run: |
+      charmcraft pack
+      uv run pytest tests/integration -vv --log-level=INFO
 ```
 
 
