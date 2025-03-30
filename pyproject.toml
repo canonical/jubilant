@@ -29,7 +29,7 @@ Documentation = "https://canonical-jubilant.readthedocs-hosted.com/"
 [dependency-groups]
 dev = [
     "ops==2.19.4",  # for static type checking test charms
-    "pyright==1.1.397",
+    "pyright==1.1.398",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "requests>=2.32.3",

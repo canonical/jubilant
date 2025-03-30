@@ -38,14 +38,13 @@ class Task:
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Task:
-        status = d['status']
         results: dict[str, Any] = d.get('results') or {}
         return_code = results.pop('return-code', 0)
         stdout = results.pop('stdout', '')
         stderr = results.pop('stderr', '')
         return cls(
             id=d['id'],
-            status=status,
+            status=d['status'],
             results=results,
             return_code=return_code,
             stdout=stdout,

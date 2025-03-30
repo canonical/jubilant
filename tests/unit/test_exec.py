@@ -104,17 +104,17 @@ def test_failure(run: mocks.Run):
 
 def test_failure_other_error(run: mocks.Run):
     run.handle(
-        ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/0', '--', 'sleep x'],
-        returncode=2,
+        ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/0', '--', 'echo foo'],
+        returncode=1,
         stdout='OUT',
-        stderr='ERR',
+        stderr='ERR',  # Must not contain "task failed"
     )
     juju = jubilant.Juju()
 
     with pytest.raises(jubilant.CLIError) as excinfo:
-        juju.exec('sleep x', unit='ubuntu/0')
+        juju.exec('echo foo', unit='ubuntu/0')
 
-    assert excinfo.value.returncode == 2
+    assert excinfo.value.returncode == 1
     assert excinfo.value.stdout == 'OUT'
     assert excinfo.value.stderr == 'ERR'
 
@@ -135,7 +135,9 @@ def test_unit_not_found(run: mocks.Run):
         juju.exec('echo', unit='u/0')
 
 
-def test_no_target_arg():
+def test_type_errors():
     juju = jubilant.Juju()
     with pytest.raises(TypeError):
         juju.exec('echo')  # type: ignore
+    with pytest.raises(TypeError):
+        juju.exec('echo', machine=0, unit='ubuntu/0')  # type: ignore

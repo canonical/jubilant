@@ -17,7 +17,7 @@ def test_success(run: mocks.Run):
     assert stdout == 'bootstrapped\n'
 
 
-def test_logging(run: mocks.Run, caplog: pytest.LogCaptureFixture):
+def test_logging_normal(run: mocks.Run, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'deploy', '--model', 'mdl', 'app1'])
     juju = jubilant.Juju(model='mdl')
     caplog.set_level(logging.INFO, logger='jubilant')
@@ -27,6 +27,18 @@ def test_logging(run: mocks.Run, caplog: pytest.LogCaptureFixture):
     logs = [r for r in caplog.records if r.msg.startswith('cli:')]
     assert len(logs) == 1
     assert logs[0].getMessage() == 'cli: juju deploy --model mdl app1'
+
+
+def test_logging_stderr(run: mocks.Run, caplog: pytest.LogCaptureFixture):
+    run.handle(['juju', 'foo'], stdout='OUT', stderr='ERR')
+    juju = jubilant.Juju()
+    caplog.set_level(logging.WARNING, logger='jubilant')
+
+    juju.cli('foo')
+
+    logs = [r for r in caplog.records if r.msg.startswith('cli:')]
+    assert len(logs) == 1
+    assert logs[0].getMessage() == 'cli: unexpected stderr running juju foo:\nERR'
 
 
 def test_error(run: mocks.Run):

@@ -178,6 +178,10 @@ class Juju:
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
+        if process.stderr:
+            logger.warning(
+                'cli: unexpected stderr running juju %s:\n%s', shlex.join(args), process.stderr
+            )
         return process.stdout
 
     @overload
@@ -379,13 +383,15 @@ class Juju:
             ValueError: if the machine or unit doesn't exist.
             TaskError: if the command failed.
         """
+        if (machine is not None and unit is not None) or (machine is None and unit is None):
+            raise TypeError('must specify "machine" or "unit", but not both')
+
         args = ['exec', '--format', 'json']
         if machine is not None:
             args.extend(['--machine', str(machine)])
-        elif unit:
-            args.extend(['--unit', unit])
         else:
-            raise TypeError('must specify "machine" or "unit"')
+            assert unit is not None
+            args.extend(['--unit', unit])
         args.append('--')
         args.extend(command)
 
@@ -399,16 +405,14 @@ class Juju:
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-        result = None
         if machine is not None:
             if str(machine) not in results:
                 raise ValueError(f'machine not found: {machine}')
             result = results[str(machine)]
-        elif unit:
+        else:
             if unit not in results:
                 raise ValueError(f'unit not found: {unit}')
             result = results[unit]
-        assert result is not None
         task = Task._from_dict(result)
         task.raise_on_failure()
         return task

@@ -79,6 +79,11 @@ def test_charm_basics(juju: jubilant.Juju):
     assert task.return_code != 0
     assert 'EXC' in task.stderr
 
+    with pytest.raises(ValueError):
+        juju.run(charm + '/0', 'action-not-defined')
+    with pytest.raises(ValueError):
+        juju.run(charm + '/42', 'do-thing')  # unit not found
+
     # Test exec
     task = juju.exec('echo foo', unit=charm + '/0')
     assert task.success
@@ -96,6 +101,11 @@ def test_charm_basics(juju: jubilant.Juju):
     assert not task.success
     assert task.stdout == ''
     assert 'invalid time' in task.stderr
+
+    with pytest.raises(ValueError):
+        juju.exec('echo foo', unit=charm + '/42')  # unit not found
+    with pytest.raises(jubilant.CLIError):
+        juju.exec('echo foo', machine=0)  # unable to target machines with a k8s controller
 
 
 def test_integrate(juju: jubilant.Juju):
