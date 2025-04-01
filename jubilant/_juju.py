@@ -77,7 +77,7 @@ class Juju:
         self,
         *,
         model: str | None = None,
-        wait_timeout: float = 3 * 60.0,
+        wait_timeout: float = 10 * 60.0,
         cli_binary: str | os.PathLike[str] | None = None,
     ):
         self.model = model

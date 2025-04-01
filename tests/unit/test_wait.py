@@ -95,8 +95,8 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time):
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False)
 
-    assert len(run.calls) == 180
-    assert time.monotonic() == 180
+    assert len(run.calls) == 600
+    assert time.monotonic() == 600
     status_str = excinfo.value.__notes__[0]
     assert 'mdl' in status_str
 
