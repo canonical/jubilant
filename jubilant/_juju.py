@@ -251,7 +251,7 @@ class Juju:
         constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
-        resource: Mapping[str, str] | None = None,
+        resources: Mapping[str, str] | None = None,
         revision: int | None = None,
         storage: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
@@ -272,7 +272,7 @@ class Juju:
             constraints: Hardware constraints for new machines, for example, ``{'mem': '8G'}``.
             force: If true, bypass checks such as supported bases.
             num_units: Number of units to deploy for principal charms.
-            resource: Specify named resources to use for deployment, for example:
+            resources: Specify named resources to use for deployment, for example:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
             storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
@@ -303,8 +303,8 @@ class Juju:
             args.append('--force')
         if num_units != 1:
             args.extend(['--num-units', str(num_units)])
-        if resource is not None:
-            for k, v in resource.items():
+        if resources is not None:
+            for k, v in resources.items():
                 args.extend(['--resource', f'{k}={v}'])
         if revision is not None:
             args.extend(['--revision', str(revision)])

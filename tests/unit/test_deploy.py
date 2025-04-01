@@ -64,7 +64,7 @@ def test_all_args(run: mocks.Run):
         constraints={'mem': '8G'},
         force=True,
         num_units=3,
-        resource={'bin': '/path'},
+        resources={'bin': '/path'},
         revision=42,
         storage={'data': 'tmpfs,1G'},
         to='lxd:25',
