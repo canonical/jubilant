@@ -179,7 +179,7 @@ class Juju:
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
         if process.stderr:
-            logger.warning(
+            logger.error(
                 'cli: unexpected stderr running juju %s:\n%s', shlex.join(args), process.stderr
             )
         return process.stdout

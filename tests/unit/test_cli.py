@@ -32,7 +32,7 @@ def test_logging_normal(run: mocks.Run, caplog: pytest.LogCaptureFixture):
 def test_logging_stderr(run: mocks.Run, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'foo'], stdout='OUT', stderr='ERR')
     juju = jubilant.Juju()
-    caplog.set_level(logging.WARNING, logger='jubilant')
+    caplog.set_level(logging.ERROR, logger='jubilant')
 
     juju.cli('foo')
 
