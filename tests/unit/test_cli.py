@@ -29,18 +29,6 @@ def test_logging_normal(run: mocks.Run, caplog: pytest.LogCaptureFixture):
     assert logs[0].getMessage() == 'cli: juju deploy --model mdl app1'
 
 
-def test_logging_stderr(run: mocks.Run, caplog: pytest.LogCaptureFixture):
-    run.handle(['juju', 'foo'], stdout='OUT', stderr='ERR')
-    juju = jubilant.Juju()
-    caplog.set_level(logging.ERROR, logger='jubilant')
-
-    juju.cli('foo')
-
-    logs = [r for r in caplog.records if r.msg.startswith('cli:')]
-    assert len(logs) == 1
-    assert logs[0].getMessage() == 'cli: unexpected stderr running juju foo:\nERR'
-
-
 def test_error(run: mocks.Run):
     run.handle(['juju', 'error'], returncode=3, stdout='OUT', stderr='ERR')
     juju = jubilant.Juju()

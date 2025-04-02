@@ -169,6 +169,11 @@ class Juju:
             include_model: If true and :attr:`model` is set, insert the ``--model`` argument
                 after the first argument in *args*.
         """
+        stdout, _ = self._cli(*args, include_model=include_model)
+        return stdout
+
+    def _cli(self, *args: str, include_model: bool = True) -> tuple[str, str]:
+        """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
         logger.info('cli: juju %s', shlex.join(args))
@@ -178,11 +183,7 @@ class Juju:
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
-        if process.stderr:
-            logger.error(
-                'cli: unexpected stderr running juju %s:\n%s', shlex.join(args), process.stderr
-            )
-        return process.stdout
+        return (process.stdout, process.stderr)
 
     @overload
     def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
@@ -396,22 +397,23 @@ class Juju:
         args.extend(command)
 
         try:
-            stdout = self.cli(*args)
+            stdout, stderr = self._cli(*args)
         except CLIError as exc:
             # The "juju exec" CLI command itself fails if the exec'd command fails.
             if 'task failed' not in exc.stderr:
                 raise
             stdout = exc.stdout
+            stderr = exc.stderr
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
         if machine is not None:
             if str(machine) not in results:
-                raise ValueError(f'machine not found: {machine}')
+                raise ValueError(f'machine {machine!r} not found, stderr:\n{stderr}')
             result = results[str(machine)]
         else:
             if unit not in results:
-                raise ValueError(f'unit not found: {unit}')
+                raise ValueError(f'unit {unit!r} not found, stderr:\n{stderr}')
             result = results[unit]
         task = Task._from_dict(result)
         task.raise_on_failure()
@@ -528,17 +530,20 @@ class Juju:
 
         try:
             try:
-                stdout = self.cli(*args)
+                stdout, stderr = self._cli(*args)
             except CLIError as exc:
                 # The "juju run" CLI command fails if the action has an uncaught exception.
                 if 'task failed' not in exc.stderr:
                     raise
                 stdout = exc.stdout
+                stderr = exc.stderr
 
             # Command doesn't return any stdout if no units exist.
             all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
             if unit not in all_tasks:
-                raise ValueError(f'action {action!r} not defined, or unit {unit!r} not found')
+                raise ValueError(
+                    f'action {action!r} not defined or unit {unit!r} not found, stderr:\n{stderr}'
+                )
             task = Task._from_dict(all_tasks[unit])
             task.raise_on_failure()
             return task
