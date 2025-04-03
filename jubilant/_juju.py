@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, overload
 
-from . import _yaml
+from . import _pretty, _yaml
 from ._task import Task
 from .statustypes import Status
 
@@ -654,7 +654,7 @@ class Juju:
             prev_status = status
             status = self.status()
             if status != prev_status:
-                logger.info('wait: status changed:\n%s', status)
+                logger.info('wait: status changed:\n%s', _status_diff(prev_status, status))
 
             if error is not None and error(status):
                 exc = WaitError(f'error function {error.__qualname__} returned false')
@@ -695,3 +695,12 @@ def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
+
+
+def _status_diff(old: Status | None, new: Status) -> str:
+    if old is None:
+        return '\n'.join('+ ' + x for x in _pretty.gron(new))
+    # Exclude controller timestamp as it changes every update and is just noise.
+    old_lines = [x for x in _pretty.gron(old) if not x.startswith('.controller.timestamp')]
+    new_lines = [x for x in _pretty.gron(new) if not x.startswith('.controller.timestamp')]
+    return '\n'.join(_pretty.diff(old_lines, new_lines))
