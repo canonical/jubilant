@@ -79,6 +79,9 @@ def test_charm_basics(juju: jubilant.Juju):
     assert task.return_code != 0
     assert 'EXC' in task.stderr
 
+    with pytest.raises(TimeoutError):
+        juju.run(charm + '/0', 'do-thing', wait=0.001)
+
     with pytest.raises(ValueError):
         juju.run(charm + '/0', 'action-not-defined')
     with pytest.raises(ValueError):
@@ -101,6 +104,9 @@ def test_charm_basics(juju: jubilant.Juju):
     assert not task.success
     assert task.stdout == ''
     assert 'invalid time' in task.stderr
+
+    with pytest.raises(TimeoutError):
+        juju.exec('sleep 1', unit=charm + '/0', wait=0.001)
 
     with pytest.raises(ValueError):
         juju.exec('echo foo', unit=charm + '/42')  # unit not found

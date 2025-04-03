@@ -353,16 +353,17 @@ class Juju:
             self.model = None
 
     @overload
-    def exec(self, *command: str, machine: int) -> Task: ...
+    def exec(self, *command: str, machine: int, wait: float | None = None) -> Task: ...
 
     @overload
-    def exec(self, *command: str, unit: str) -> Task: ...
+    def exec(self, *command: str, unit: str, wait: float | None = None) -> Task: ...
 
     def exec(
         self,
         *command: str,
         machine: int | None = None,
         unit: str | None = None,
+        wait: float | None = None,
     ) -> Task:
         """Run the command on the remote target specified.
 
@@ -376,6 +377,8 @@ class Juju:
             command: Command to run, along with its arguments.
             machine: ID of machine to run the command on.
             unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
+            wait: Maximum time to wait for command to finish; :class:`TimeoutError` is raised if
+                this is reached. Default is to wait indefinitely.
 
         Returns:
             The task created to run the command, including logs, failure message, and so on.
@@ -383,6 +386,7 @@ class Juju:
         Raises:
             ValueError: if the machine or unit doesn't exist.
             TaskError: if the command failed.
+            TimeoutError: if *wait* was specified and the wait time was reached.
         """
         if (machine is not None and unit is not None) or (machine is None and unit is None):
             raise TypeError('must specify "machine" or "unit", but not both')
@@ -393,12 +397,17 @@ class Juju:
         else:
             assert unit is not None
             args.extend(['--unit', unit])
+        if wait is not None:
+            args.extend(['--wait', f'{wait}s'])
         args.append('--')
         args.extend(command)
 
         try:
             stdout, stderr = self._cli(*args)
         except CLIError as exc:
+            if 'timed out' in exc.stderr:
+                msg = f'timed out waiting for command, stderr:\n{exc.stderr}'
+                raise TimeoutError(msg) from None
             # The "juju exec" CLI command itself fails if the exec'd command fails.
             if 'task failed' not in exc.stderr:
                 raise
@@ -492,7 +501,14 @@ class Juju:
 
         self.cli(*args)
 
-    def run(self, unit: str, action: str, params: Mapping[str, Any] | None = None) -> Task:
+    def run(
+        self,
+        unit: str,
+        action: str,
+        params: Mapping[str, Any] | None = None,
+        *,
+        wait: float | None = None,
+    ) -> Task:
         """Run an action on the given unit and wait for the result.
 
         Note: this method does not support running an action on multiple units
@@ -510,6 +526,8 @@ class Juju:
                 ``mysql/leader``.
             action: Name of action to run.
             params: Optional named parameters to pass to the action.
+            wait: Maximum time to wait for action to finish; :class:`TimeoutError` is raised if
+                this is reached. Default is to wait indefinitely.
 
         Returns:
             The task created to run the action, including logs, failure message, and so on.
@@ -517,8 +535,11 @@ class Juju:
         Raises:
             ValueError: if the action or the unit doesn't exist.
             TaskError: if the action failed.
+            TimeoutError: if *wait* was specified and the wait time was reached.
         """
         args = ['run', '--format', 'json', unit, action]
+        if wait is not None:
+            args.extend(['--wait', f'{wait}s'])
 
         params_file = None
         if params is not None:
@@ -532,6 +553,9 @@ class Juju:
             try:
                 stdout, stderr = self._cli(*args)
             except CLIError as exc:
+                if 'timed out' in exc.stderr:
+                    msg = f'timed out waiting for action, stderr:\n{exc.stderr}'
+                    raise TimeoutError(msg) from None
                 # The "juju run" CLI command fails if the action has an uncaught exception.
                 if 'task failed' not in exc.stderr:
                     raise
@@ -591,7 +615,7 @@ class Juju:
             error: Callable that takes a :class:`Status` object and returns true when ``wait``
                 should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
-            timeout: Overall timeout; :class:`TimeoutError` is raised when this is reached.
+            timeout: Overall timeout; :class:`TimeoutError` is raised if this is reached.
                 If not specified, uses the *wait_timeout* specified when the instance was created.
             successes: Number of times *ready* must return true for the wait to succeed.
 

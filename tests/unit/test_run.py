@@ -140,6 +140,19 @@ def test_exception_other(run: mocks.Run):
     assert excinfo.value.stderr == 'ERR'
 
 
+def test_wait_timeout(run: mocks.Run):
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'do-thing', '--wait', '0.001s'],
+        returncode=1,
+        stdout='OUT',
+        stderr='... timed out ...',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError):
+        juju.run('mysql/0', 'do-thing', wait=0.001)
+
+
 @pytest.mark.parametrize('cli_binary', ['/snap/bin/juju', '/bin/juju'])
 def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
     stdout = """

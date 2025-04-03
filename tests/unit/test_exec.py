@@ -119,6 +119,30 @@ def test_failure_other_error(run: mocks.Run):
     assert excinfo.value.stderr == 'ERR'
 
 
+def test_wait_timeout(run: mocks.Run):
+    run.handle(
+        [
+            'juju',
+            'exec',
+            '--format',
+            'json',
+            '--unit',
+            'ubuntu/0',
+            '--wait',
+            '0.001s',
+            '--',
+            'sleep 1',
+        ],
+        returncode=1,
+        stdout='OUT',
+        stderr='... timed out ...',
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError):
+        juju.exec('sleep 1', unit='ubuntu/0', wait=0.001)
+
+
 def test_machine_not_found(run: mocks.Run):
     run.handle(['juju', 'exec', '--format', 'json', '--machine', '0', '--', 'echo'])
     juju = jubilant.Juju()
