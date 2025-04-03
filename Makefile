@@ -1,6 +1,6 @@
 
 # We're using Make as a command runner, so always make (avoids need for .PHONY)
-MAKEFLAGS += "--always-make"
+MAKEFLAGS += --always-make
 
 help:  # Display help
 	@echo "Usage: make [target] [ARGS='additional args']\n\nTargets:"

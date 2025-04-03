@@ -456,6 +456,24 @@ class Juju:
                 args.extend(['--via', ','.join(via)])
         self.cli(*args)
 
+    def remove_relation(self, app1: str, app2: str, *, force: bool = False) -> None:
+        """Remove an existing relation between two applications (opposite of :meth:`integrate`).
+
+        The order of *app1* and *app2* is not significant. Each of them should
+        be in the format ``<application>[:<endpoint>]``. The endpoint is only
+        required if there's more than one possible integration between the two
+        applications.
+
+        Args:
+            app1: One of the applications (and endpoints) to integrate.
+            app2: The other of the applications (and endpoints) to integrate.
+            force: Force removal, ignoring operational errors.
+        """
+        args = ['remove-relation', app1, app2]
+        if force:
+            args.append('--force')
+        self.cli(*args)
+
     def remove_unit(
         self,
         app_or_unit: str | Iterable[str],
