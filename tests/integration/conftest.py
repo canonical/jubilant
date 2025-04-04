@@ -1,5 +1,6 @@
-from collections.abc import Generator
-from typing import cast
+from __future__ import annotations
+
+from typing import Generator, cast
 
 import pytest
 

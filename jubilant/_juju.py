@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, overload
+from typing import Any, Union, overload
 
 from . import _yaml
 from ._task import Task
@@ -39,7 +39,7 @@ class SecretURI(str):
     """A string subclass that represents a secret URI ("secret:...")."""
 
 
-type ConfigValue = bool | int | float | str | SecretURI
+ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
 
 
@@ -657,9 +657,7 @@ class Juju:
                 logger.info('wait: status changed:\n%s', status)
 
             if error is not None and error(status):
-                exc = WaitError(f'error function {error.__qualname__} returned false')
-                exc.add_note(str(status))
-                raise exc
+                raise WaitError(f'error function {error.__qualname__} returned false\n{status}')
 
             if ready(status):
                 success_count += 1
@@ -670,10 +668,9 @@ class Juju:
 
             time.sleep(delay)
 
-        exc = TimeoutError(f'wait timed out after {timeout}s')
-        if status is not None:
-            exc.add_note(str(status))
-        raise exc
+        if status is None:
+            raise TimeoutError(f'wait timed out after {timeout}s')
+        raise TimeoutError(f'wait timed out after {timeout}s\n{status}')
 
     @functools.cached_property
     def _juju_is_snap(self) -> bool:

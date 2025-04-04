@@ -2,7 +2,7 @@
 name = "testdb"
 version = "0.1.0"
 description = "Test 'db' provider charm for Jubilant integration tests"
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 dependencies = [
     "ops==2.*",
 ]

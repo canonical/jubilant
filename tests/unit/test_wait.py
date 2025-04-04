@@ -84,8 +84,7 @@ def test_error(run: mocks.Run, time: mocks.Time):
 
     assert len(run.calls) == 1
     assert time.monotonic() == 0
-    status_str = excinfo.value.__notes__[0]
-    assert 'mdl' in status_str
+    assert 'mdl' in str(excinfo.value)
 
 
 def test_timeout_default(run: mocks.Run, time: mocks.Time):
@@ -97,8 +96,7 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time):
 
     assert len(run.calls) == 180
     assert time.monotonic() == 180
-    status_str = excinfo.value.__notes__[0]
-    assert 'mdl' in status_str
+    assert 'mdl' in str(excinfo.value)
 
 
 def test_timeout_override(run: mocks.Run, time: mocks.Time):
@@ -110,5 +108,4 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
 
     assert len(run.calls) == 5
     assert time.monotonic() == 5
-    status_str = excinfo.value.__notes__[0]
-    assert 'mdl' in status_str
+    assert 'mdl' in str(excinfo.value)
