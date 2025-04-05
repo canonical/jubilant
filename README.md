@@ -4,8 +4,6 @@ Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use
 
 You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](https://canonical-jubilant.readthedocs-hosted.com/explanation/design-goals).
 
-Jubilant requires Python 3.12 or above. If your charm uses an Ubuntu base with an older Python version, run your integration tests with Python 3.12+ and install Jubilant with the requirement `jubilant;python_version>='3.12'` ([see an example](https://github.com/jnsgruk/zinc-k8s-operator/pull/355/files)).
-
 Jubilant is currently in pre-release or "beta" phase (see [PyPI releases](https://pypi.org/project/jubilant/#history)). Our intention is to release version 1.0.0 in May 2025.
 
 [**Read the full documentation**](https://canonical-jubilant.readthedocs-hosted.com/)

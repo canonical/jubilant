@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 import difflib
 from collections.abc import Generator, Sequence
@@ -44,7 +46,7 @@ def dump(value: object, indent: str = '') -> str:
         return f'{class_name}(\n{lines_str}\n{indent})'
 
     elif isinstance(value, list):
-        value = cast(list[object], value)
+        value = cast('list[object]', value)
         is_simple = all(isinstance(v, _SIMPLE_TYPES) for v in value)
         if is_simple:
             single_line = repr(value)
@@ -56,7 +58,7 @@ def dump(value: object, indent: str = '') -> str:
         return f'[\n{lines_str}\n{indent}]'
 
     elif isinstance(value, dict):
-        value = cast(dict[str, object], value)
+        value = cast('dict[str, object]', value)
         is_simple = all(isinstance(v, _SIMPLE_TYPES) for v in value.values())
         if is_simple:
             single_line = repr(value)

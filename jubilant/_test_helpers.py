@@ -1,6 +1,6 @@
 import contextlib
 import secrets
-from collections.abc import Generator
+from typing import Generator
 
 from ._juju import Juju
 

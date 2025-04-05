@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Protocol, TypeVar, overload
+from typing import Any, Protocol, TypeVar, Union, overload
 
 import yaml
 
@@ -13,7 +13,7 @@ class SupportsRead(Protocol[_T_co]):
     def read(self, length: int = ..., /) -> _T_co: ...
 
 
-type _ReadStream = str | bytes | SupportsRead[str] | SupportsRead[bytes]
+_ReadStream = Union[str, bytes, SupportsRead[str], SupportsRead[bytes]]
 
 _T_contra = TypeVar('_T_contra', str, bytes, contravariant=True)
 

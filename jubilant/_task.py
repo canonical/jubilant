@@ -4,7 +4,7 @@ import dataclasses
 from typing import Any, Literal
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True)
 class Task:
     """A task holds the results of Juju running an action or exec command on a single unit."""
 
