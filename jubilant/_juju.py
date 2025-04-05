@@ -456,6 +456,27 @@ class Juju:
                 args.extend(['--via', ','.join(via)])
         self.cli(*args)
 
+    def offer(self, app: str, endpoint: str | Iterable[str], *, name: str | None = None) -> None:
+        """Offer application endpoints for use in other models.
+
+        Args:
+            app: Application name to offer endpoints for.
+            endpoint: Endpoint or endpoints to offer, for example ``'db'`` or ``['db', 'log']``.
+            name: Name of the offer. By default, the offer is named after the application.
+        """
+        if ':' in app:
+            raise TypeError('must provide endpoint in "endpoint" argument not in "app"')
+
+        args = ['offer']
+        if isinstance(endpoint, str):
+            args.append(f'{app}:{endpoint}')
+        else:
+            args.append(f'{app}:{",".join(endpoint)}')
+        if name is not None:
+            args.append(name)
+
+        self.cli(*args)
+
     def remove_relation(self, app1: str, app2: str, *, force: bool = False) -> None:
         """Remove an existing relation between two applications (opposite of :meth:`integrate`).
 

@@ -109,3 +109,13 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
     assert len(run.calls) == 5
     assert time.monotonic() == 5
     assert 'mdl' in str(excinfo.value)
+
+
+def test_timeout_zero(time: mocks.Time):
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError) as excinfo:
+        juju.wait(lambda _: False, timeout=0)
+
+    assert time.monotonic() == 0
+    assert 'mdl' not in str(excinfo.value)
