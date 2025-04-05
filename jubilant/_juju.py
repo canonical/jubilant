@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Union, overload
+from typing import Any, Literal, Union, overload
 
 from . import _yaml
 from ._task import Task
@@ -598,6 +598,25 @@ class Juju:
         stdout = self.cli('status', '--format', 'json')
         result = json.loads(stdout)
         return Status._from_dict(result)
+
+    def trust(
+        self, app: str, *, remove: bool = False, scope: Literal['cluster'] | None = None
+    ) -> None:
+        """Set the trust status of a deployed application.
+
+        Args:
+            app: Application name to set trust status for.
+            remove: Set to True to remove trust status.
+            scope: On Kubernetes models, this must be set to "cluster", as the trust operation
+                grants the charm full access to the cluster.
+        """
+        args = ['trust', app]
+        if remove:
+            args.append('--remove')
+        if scope is not None:
+            args.extend(['--scope', scope])
+
+        self.cli(*args)
 
     def wait(
         self,

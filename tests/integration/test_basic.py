@@ -53,6 +53,14 @@ def test_charm_basics(juju: jubilant.Juju):
     config = juju.config(charm)
     assert config['testoption'] == 'foobar'
 
+    # Test trust command (at least that app_config value updates)
+    juju.trust(charm, scope='cluster')
+    app_config = juju.config(charm, app_config=True)
+    assert app_config['trust'] is True
+    juju.trust(charm, remove=True, scope='cluster')
+    app_config = juju.config(charm, app_config=True)
+    assert app_config['trust'] is False
+
     # Test run (running an action)
     task = juju.run(charm + '/0', 'do-thing', {'param1': 'value1'})
     assert task.success
