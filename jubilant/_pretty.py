@@ -107,12 +107,12 @@ def gron(value: object, prefix: str = '') -> Generator[str, None, None]:
             yield from gron(v, f'{prefix}.{field.name}')
 
     elif isinstance(value, list):
-        value = cast(list[object], value)
+        value = cast('list[object]', value)
         for i, v in enumerate(value):
             yield from gron(v, f'{prefix}[{i}]')
 
     elif isinstance(value, dict):
-        value = cast(dict[str, object], value)
+        value = cast('dict[str, object]', value)
         for k, v in sorted(value.items()):
             yield from gron(v, f'{prefix}[{k!r}]')
 
