@@ -698,9 +698,23 @@ def _format_config(k: str, v: ConfigValue) -> str:
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
+    """Return a line-based diff of two status objects."""
     if old is None:
-        return '\n'.join('+ ' + x for x in _pretty.gron(new))
-    # Exclude controller timestamp as it changes every update and is just noise.
-    old_lines = [x for x in _pretty.gron(old) if not x.startswith('.controller.timestamp')]
-    new_lines = [x for x in _pretty.gron(new) if not x.startswith('.controller.timestamp')]
+        old_lines = []
+    else:
+        old_lines = [line for line in _pretty.gron(old) if _status_line_ok(line)]
+    new_lines = [line for line in _pretty.gron(new) if _status_line_ok(line)]
     return '\n'.join(_pretty.diff(old_lines, new_lines))
+
+
+def _status_line_ok(line: str) -> bool:
+    """Return whether the status line should be included in the diff."""
+    # Exclude controller timestamp as it changes every update and is just noise.
+    field, _, _ = line.partition(' = ')
+    if field == '.controller.timestamp':
+        return False
+    # Exclude status-updated-since timestamps as they just add noise (and log lines already
+    # include timestamps).
+    if field.endswith('.since'):
+        return False
+    return True
