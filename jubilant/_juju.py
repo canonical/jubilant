@@ -505,8 +505,8 @@ class Juju:
                 On Kubernetes models, this is actually the application name (a single string),
                 as individual units are not named; you must use *num_units* to remove more than
                 one unit on a Kubernetes model.
-            destroy_storage: If True, also destroy storage attached to the unit(s).
-            force: Force removal even if unit is in an error state.
+            destroy_storage: If True, also destroy storage attached to units.
+            force: Force removal even if a unit is in an error state.
             num_units: Number of units to remove (Kubernetes models only).
         """
         args = ['remove-unit', '--no-prompt']
