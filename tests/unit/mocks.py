@@ -47,7 +47,9 @@ class Run:
         assert args_tuple in self._commands, f'unhandled command {args}'
 
         returncode, stdout, stderr = self._commands[args_tuple]
-        self.calls.append(Call(args_tuple, returncode, input, stdout, stderr))
+        self.calls.append(
+            Call(args=args_tuple, returncode=returncode, stdin=input, stdout=stdout, stderr=stderr)
+        )
         if returncode != 0:
             raise subprocess.CalledProcessError(
                 returncode=returncode,
