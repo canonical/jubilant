@@ -26,9 +26,8 @@ def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixt
 
     juju.wait(lambda _: True)
 
-    logs = [r for r in caplog.records if r.msg.startswith('wait:')]
-    assert len(logs) == 1  # only logs on first call or when status changes
-    message = logs[0].getMessage()
+    assert len(caplog.records) == 1  # only logs on first call or when status changes
+    message = caplog.records[0].getMessage()
     assert (
         message
         == """wait: status changed:

@@ -174,12 +174,13 @@ class Juju:
         return stdout
 
     def _cli(
-        self, *args: str, include_model: bool = True, stdin: str | None = None
+        self, *args: str, include_model: bool = True, stdin: str | None = None, log: bool = True
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
-        logger.info('cli: juju %s', shlex.join(args))
+        if log:
+            logger.info('cli: juju %s', shlex.join(args))
         try:
             process = subprocess.run(
                 [self.cli_binary, *args],
@@ -678,7 +679,11 @@ class Juju:
 
         while time.monotonic() - start < timeout:
             prev_status = status
-            status = self.status()
+
+            stdout, _ = self._cli('status', '--format', 'json', log=False)
+            result = json.loads(stdout)
+            status = Status._from_dict(result)
+
             if status != prev_status:
                 logger.info('wait: status changed:\n%s', _status_diff(prev_status, status))
 
