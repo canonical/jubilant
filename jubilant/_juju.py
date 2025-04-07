@@ -463,6 +463,33 @@ class Juju:
                 args.extend(['--via', ','.join(via)])
         self.cli(*args)
 
+    def remove_application(
+        self,
+        app: str | Iterable[str],
+        *,
+        destroy_storage: bool = False,
+        force: bool = False,
+    ) -> None:
+        """Remove applications from the model.
+
+        Args:
+            app: Name of the application or applications to remove.
+            destroy_storage: If True, also destroy storage attached to application units.
+            force: Force removal even if an application is in an error state.
+        """
+        args = ['remove-application', '--no-prompt']
+        if isinstance(app, str):
+            args.append(app)
+        else:
+            args.extend(app)
+
+        if destroy_storage:
+            args.append('--destroy-storage')
+        if force:
+            args.append('--force')
+
+        self.cli(*args)
+
     def remove_relation(self, app1: str, app2: str, *, force: bool = False) -> None:
         """Remove an existing relation between two applications (opposite of :meth:`integrate`).
 
