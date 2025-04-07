@@ -508,8 +508,7 @@ class Juju:
             force: Force removal even if a unit is in an error state.
             num_units: Number of units to remove (Kubernetes models only).
         """
-        args = ['remove-unit', '--no-prompt']
-        args.extend(app_or_unit)
+        args = ['remove-unit', '--no-prompt', *app_or_unit]
 
         if destroy_storage:
             args.append('--destroy-storage')
