@@ -685,7 +685,9 @@ class Juju:
             status = Status._from_dict(result)
 
             if status != prev_status:
-                logger.info('wait: status changed:\n%s', _status_diff(prev_status, status))
+                diff = _status_diff(prev_status, status)
+                if diff:
+                    logger.info('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 raise WaitError(f'error function {error.__qualname__} returned false\n{status}')
