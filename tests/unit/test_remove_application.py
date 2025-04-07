@@ -30,4 +30,4 @@ def test_multiple(run: mocks.Run):
     run.handle(['juju', 'remove-application', '--no-prompt', 'app1', 'app2', 'app3'])
     juju = jubilant.Juju()
 
-    juju.remove_application(['app1', 'app2', 'app3'])
+    juju.remove_application('app1', 'app2', 'app3')

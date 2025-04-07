@@ -465,8 +465,7 @@ class Juju:
 
     def remove_application(
         self,
-        app: str | Iterable[str],
-        *,
+        *app: str,
         destroy_storage: bool = False,
         force: bool = False,
     ) -> None:
@@ -478,10 +477,7 @@ class Juju:
             force: Force removal even if an application is in an error state.
         """
         args = ['remove-application', '--no-prompt']
-        if isinstance(app, str):
-            args.append(app)
-        else:
-            args.extend(app)
+        args.extend(app)
 
         if destroy_storage:
             args.append('--destroy-storage')
