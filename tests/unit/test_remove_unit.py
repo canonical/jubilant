@@ -37,11 +37,18 @@ def test_multiple(run: mocks.Run):
     run.handle(['juju', 'remove-unit', '--no-prompt', 'unit/0', 'unit/1', 'unit/2'])
     juju = jubilant.Juju()
 
-    juju.remove_unit(['unit/0', 'unit/1', 'unit/2'])
+    juju.remove_unit('unit/0', 'unit/1', 'unit/2')
 
 
-def test_multiple_num_units_error():
+def test_two_units_error():
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):
-        juju.remove_unit(['unit/0', 'unit/1', 'unit/2'], num_units=3)
+        juju.remove_unit('unit/0', 'unit/1', num_units=2)
+
+
+def test_three_units_error():
+    juju = jubilant.Juju()
+
+    with pytest.raises(TypeError):
+        juju.remove_unit('unit/0', 'unit/1', 'unit/2', num_units=3)
