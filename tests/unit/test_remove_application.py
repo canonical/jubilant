@@ -1,5 +1,3 @@
-import pytest
-
 import jubilant
 
 from . import mocks
