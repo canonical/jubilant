@@ -32,12 +32,12 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 1)
 
 
-# Tests config get, config set, run, and exec
+# Tests config get, config set, trust, run, exec, and cli with input
 def test_charm_basics(juju: jubilant.Juju):
     charm = 'testdb'
     juju.deploy(charm_path(charm))
 
-    # unit should come up as "unknown"
+    # Unit should come up as "unknown"
     juju.wait(
         lambda status: status.apps[charm].units[charm + '/0'].workload_status.current == 'unknown'
     )
@@ -120,6 +120,10 @@ def test_charm_basics(juju: jubilant.Juju):
         juju.exec('echo foo', unit=charm + '/42')  # unit not found
     with pytest.raises(jubilant.CLIError):
         juju.exec('echo foo', machine=0)  # unable to target machines with a k8s controller
+
+    # Test cli with input
+    stdout = juju.cli('ssh', '--container', 'charm', charm + '/0', 'cat', stdin='foo')
+    assert stdout == 'foo'
 
 
 def test_integrate(juju: jubilant.Juju):

@@ -161,25 +161,32 @@ class Juju:
 
         self.cli(*args)
 
-    def cli(self, *args: str, include_model: bool = True) -> str:
+    def cli(self, *args: str, include_model: bool = True, stdin: str | None = None) -> str:
         """Run a Juju CLI command and return its standard output.
 
         Args:
             args: Command-line arguments (excluding ``juju``).
             include_model: If true and :attr:`model` is set, insert the ``--model`` argument
                 after the first argument in *args*.
+            stdin: Standard input to send to the process, if any.
         """
-        stdout, _ = self._cli(*args, include_model=include_model)
+        stdout, _ = self._cli(*args, include_model=include_model, stdin=stdin)
         return stdout
 
-    def _cli(self, *args: str, include_model: bool = True) -> tuple[str, str]:
+    def _cli(
+        self, *args: str, include_model: bool = True, stdin: str | None = None
+    ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
         logger.info('cli: juju %s', shlex.join(args))
         try:
             process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
+                [self.cli_binary, *args],
+                check=True,
+                capture_output=True,
+                encoding='utf-8',
+                input=stdin,
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
