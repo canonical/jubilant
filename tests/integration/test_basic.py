@@ -20,7 +20,7 @@ def test_deploy(juju: jubilant.Juju):
     assert 'snappass' in response.text.lower()
 
 
-def test_add_and_remove_unit(juju: jubilant.Juju):
+def test_add_and_remove(juju: jubilant.Juju):
     charm = 'snappass-test'
     juju.deploy(charm)
     juju.wait(jubilant.all_active)
@@ -31,14 +31,8 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.remove_unit(charm, num_units=1)
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 1)
 
-
-def test_remove_application(juju: jubilant.Juju):
-    charm = 'snappass-test'
-    juju.deploy(charm)
-    juju.wait(jubilant.all_active)
-
     juju.remove_application('snappass-test')
-    juju.wait(lambda status: jubilant.all_active(status) and len(status.apps) == 0)
+    juju.wait(lambda status: not status.apps)
 
 
 # Tests config get, config set, trust, run, exec, and cli with input
