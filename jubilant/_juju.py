@@ -476,8 +476,7 @@ class Juju:
             destroy_storage: If True, also destroy storage attached to application units.
             force: Force removal even if an application is in an error state.
         """
-        args = ['remove-application', '--no-prompt']
-        args.extend(app)
+        args = ['remove-application', '--no-prompt', *app]
 
         if destroy_storage:
             args.append('--destroy-storage')
