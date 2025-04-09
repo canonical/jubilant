@@ -30,11 +30,13 @@ def test_multiple_endpoints(run: mocks.Run):
     run.handle(['juju', 'offer', 'mysql:db,log'])
     juju = jubilant.Juju()
 
-    juju.offer('mysql', ['db', 'log'])
+    juju.offer('mysql', 'db', 'log')
 
 
-def test_endpoint_in_app():
+def test_type_errors():
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):
-        juju.offer('mysql:db', 'name')
+        juju.offer('mysql:db', 'name')  # endpoint in "app" argument
+    with pytest.raises(TypeError):
+        juju.offer('mysql')  # no endpoint provided
