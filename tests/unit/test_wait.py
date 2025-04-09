@@ -29,8 +29,15 @@ def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixt
     logs = [r for r in caplog.records if r.msg.startswith('wait:')]
     assert len(logs) == 1  # only logs on first call or when status changes
     message = logs[0].getMessage()
-    assert 'status changed' in message
-    assert 'mdl' in message
+    assert (
+        message
+        == """wait: status changed:
++ .model.name = 'mdl'
++ .model.type = 'typ'
++ .model.controller = 'ctl'
++ .model.cloud = 'aws'
++ .model.version = '3.0.0'"""
+    )
 
 
 def test_with_model(run: mocks.Run, time: mocks.Time):

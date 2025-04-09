@@ -20,7 +20,7 @@ def test_deploy(juju: jubilant.Juju):
     assert 'snappass' in response.text.lower()
 
 
-def test_add_and_remove_unit(juju: jubilant.Juju):
+def test_add_and_remove(juju: jubilant.Juju):
     charm = 'snappass-test'
     juju.deploy(charm)
     juju.wait(jubilant.all_active)
@@ -31,13 +31,16 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.remove_unit(charm, num_units=1)
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 1)
 
+    juju.remove_application('snappass-test')
+    juju.wait(lambda status: not status.apps)
 
-# Tests config get, config set, run, and exec
+
+# Tests config get, config set, trust, run, exec, and cli with input
 def test_charm_basics(juju: jubilant.Juju):
     charm = 'testdb'
     juju.deploy(charm_path(charm))
 
-    # unit should come up as "unknown"
+    # Unit should come up as "unknown"
     juju.wait(
         lambda status: status.apps[charm].units[charm + '/0'].workload_status.current == 'unknown'
     )
@@ -52,6 +55,14 @@ def test_charm_basics(juju: jubilant.Juju):
     juju.config(charm, {'testoption': 'foobar'})
     config = juju.config(charm)
     assert config['testoption'] == 'foobar'
+
+    # Test trust command (at least that app_config value updates)
+    juju.trust(charm, scope='cluster')
+    app_config = juju.config(charm, app_config=True)
+    assert app_config['trust'] is True
+    juju.trust(charm, remove=True, scope='cluster')
+    app_config = juju.config(charm, app_config=True)
+    assert app_config['trust'] is False
 
     # Test run (running an action)
     task = juju.run(charm + '/0', 'do-thing', {'param1': 'value1'})
@@ -112,6 +123,10 @@ def test_charm_basics(juju: jubilant.Juju):
         juju.exec('echo foo', unit=charm + '/42')  # unit not found
     with pytest.raises(jubilant.CLIError):
         juju.exec('echo foo', machine=0)  # unable to target machines with a k8s controller
+
+    # Test cli with input
+    stdout = juju.cli('ssh', '--container', 'charm', charm + '/0', 'cat', stdin='foo')
+    assert stdout == 'foo'
 
 
 def test_integrate(juju: jubilant.Juju):

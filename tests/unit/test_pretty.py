@@ -150,3 +150,31 @@ Status(
     )
     assert str(status) == status_repr
     assert eval(status_repr, jubilant.statustypes.__dict__) == status
+
+
+def test_diff():
+    # It's simplest to test _status_diff directly, even though it's not public.
+    old_json = json.loads(DATABASE_WEBAPP_JSON)
+    new_json = json.loads(DATABASE_WEBAPP_JSON)
+    new_json['applications']['database']['application-status']['current'] = 'waiting'
+    new_json['applications']['database']['application-status']['since'] = (
+        '24 Feb 2025 17:59:43+13:00'
+    )
+    new_json['applications']['database']['relations']['db'][0]['scope'] = 'testy'
+    del new_json['applications']['database']['relations']['db'][1]
+    old_status = jubilant.Status._from_dict(old_json)
+    new_status = jubilant.Status._from_dict(new_json)
+
+    diff = jubilant._juju._status_diff(old_status, new_status)
+
+    assert (
+        diff
+        == """\
+- .apps['database'].app_status.current = 'active'
++ .apps['database'].app_status.current = 'waiting'
+- .apps['database'].relations['db'][0].scope = 'global'
+- .apps['database'].relations['db'][1].related_app = 'dummy'
+- .apps['database'].relations['db'][1].interface = 'xyz'
+- .apps['database'].relations['db'][1].scope = 'foobar'
++ .apps['database'].relations['db'][0].scope = 'testy'"""
+    )

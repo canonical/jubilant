@@ -10,9 +10,9 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Union, overload
+from typing import Any, Literal, Union, overload
 
-from . import _yaml
+from . import _pretty, _yaml
 from ._task import Task
 from .statustypes import Status
 
@@ -161,25 +161,32 @@ class Juju:
 
         self.cli(*args)
 
-    def cli(self, *args: str, include_model: bool = True) -> str:
+    def cli(self, *args: str, include_model: bool = True, stdin: str | None = None) -> str:
         """Run a Juju CLI command and return its standard output.
 
         Args:
             args: Command-line arguments (excluding ``juju``).
             include_model: If true and :attr:`model` is set, insert the ``--model`` argument
                 after the first argument in *args*.
+            stdin: Standard input to send to the process, if any.
         """
-        stdout, _ = self._cli(*args, include_model=include_model)
+        stdout, _ = self._cli(*args, include_model=include_model, stdin=stdin)
         return stdout
 
-    def _cli(self, *args: str, include_model: bool = True) -> tuple[str, str]:
+    def _cli(
+        self, *args: str, include_model: bool = True, stdin: str | None = None
+    ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
         logger.info('cli: juju %s', shlex.join(args))
         try:
             process = subprocess.run(
-                [self.cli_binary, *args], check=True, capture_output=True, encoding='utf-8'
+                [self.cli_binary, *args],
+                check=True,
+                capture_output=True,
+                encoding='utf-8',
+                input=stdin,
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
@@ -477,6 +484,28 @@ class Juju:
 
         self.cli(*args)
 
+    def remove_application(
+        self,
+        *app: str,
+        destroy_storage: bool = False,
+        force: bool = False,
+    ) -> None:
+        """Remove applications from the model.
+
+        Args:
+            app: Name of the application or applications to remove.
+            destroy_storage: If True, also destroy storage attached to application units.
+            force: Force removal even if an application is in an error state.
+        """
+        args = ['remove-application', '--no-prompt', *app]
+
+        if destroy_storage:
+            args.append('--destroy-storage')
+        if force:
+            args.append('--force')
+
+        self.cli(*args)
+
     def remove_relation(self, app1: str, app2: str, *, force: bool = False) -> None:
         """Remove an existing relation between two applications (opposite of :meth:`integrate`).
 
@@ -497,8 +526,7 @@ class Juju:
 
     def remove_unit(
         self,
-        app_or_unit: str | Iterable[str],
-        *,
+        *app_or_unit: str,
         destroy_storage: bool = False,
         force: bool = False,
         num_units: int = 0,
@@ -512,29 +540,25 @@ class Juju:
 
             # Machine model:
             juju.remove_unit('wordpress/1')
-            juju.remove_unit(['wordpress/2', 'wordpress/3'])
+            juju.remove_unit('wordpress/2', 'wordpress/3')
 
         Args:
             app_or_unit: On machine models, this is the name of the unit or units to remove.
                 On Kubernetes models, this is actually the application name (a single string),
                 as individual units are not named; you must use *num_units* to remove more than
                 one unit on a Kubernetes model.
-            destroy_storage: If True, also destroy storage attached to the unit(s).
-            force: Force removal even if unit is in an error state.
+            destroy_storage: If True, also destroy storage attached to units.
+            force: Force removal even if a unit is in an error state.
             num_units: Number of units to remove (Kubernetes models only).
         """
-        args = ['remove-unit', '--no-prompt']
-        if isinstance(app_or_unit, str):
-            args.append(app_or_unit)
-        else:
-            args.extend(app_or_unit)
+        args = ['remove-unit', '--no-prompt', *app_or_unit]
 
         if destroy_storage:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
         if num_units:
-            if not isinstance(app_or_unit, str):
+            if len(app_or_unit) > 1:
                 raise TypeError('"app_or_unit" must be a single app name if num_units specified')
             args.extend(['--num-units', str(num_units)])
 
@@ -620,6 +644,25 @@ class Juju:
         result = json.loads(stdout)
         return Status._from_dict(result)
 
+    def trust(
+        self, app: str, *, remove: bool = False, scope: Literal['cluster'] | None = None
+    ) -> None:
+        """Set the trust status of a deployed application.
+
+        Args:
+            app: Application name to set trust status for.
+            remove: Set to True to remove trust status.
+            scope: On Kubernetes models, this must be set to "cluster", as the trust operation
+                grants the charm full access to the cluster.
+        """
+        args = ['trust', app]
+        if remove:
+            args.append('--remove')
+        if scope is not None:
+            args.extend(['--scope', scope])
+
+        self.cli(*args)
+
     def wait(
         self,
         ready: Callable[[Status], bool],
@@ -675,7 +718,7 @@ class Juju:
             prev_status = status
             status = self.status()
             if status != prev_status:
-                logger.info('wait: status changed:\n%s', status)
+                logger.info('wait: status changed:\n%s', _status_diff(prev_status, status))
 
             if error is not None and error(status):
                 raise WaitError(f'error function {error.__qualname__} returned false\n{status}')
@@ -713,3 +756,26 @@ def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
+
+
+def _status_diff(old: Status | None, new: Status) -> str:
+    """Return a line-based diff of two status objects."""
+    if old is None:
+        old_lines = []
+    else:
+        old_lines = [line for line in _pretty.gron(old) if _status_line_ok(line)]
+    new_lines = [line for line in _pretty.gron(new) if _status_line_ok(line)]
+    return '\n'.join(_pretty.diff(old_lines, new_lines))
+
+
+def _status_line_ok(line: str) -> bool:
+    """Return whether the status line should be included in the diff."""
+    # Exclude controller timestamp as it changes every update and is just noise.
+    field, _, _ = line.partition(' = ')
+    if field == '.controller.timestamp':
+        return False
+    # Exclude status-updated-since timestamps as they just add noise (and log lines already
+    # include timestamps).
+    if field.endswith('.since'):
+        return False
+    return True

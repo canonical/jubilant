@@ -97,6 +97,9 @@ ignore = [
 
     # `subprocess` call: check for execution of untrusted input
     "S603",
+
+    # Return the condition `x` directly
+    "SIM103",
 ]
 
 [tool.ruff.lint.pydocstyle]

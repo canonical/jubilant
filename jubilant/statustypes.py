@@ -741,7 +741,7 @@ class Status:
 
     def __repr__(self):
         """Return a pretty-printed version of the status."""
-        return _pretty._dump(self)
+        return _pretty.dump(self)
 
     def __str__(self):
         """Return a pretty-printed version of the status."""

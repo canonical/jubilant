@@ -8,6 +8,7 @@ import subprocess
 class Call:
     args: tuple[str, ...]
     returncode: int
+    stdin: str | None
     stdout: str
     stderr: str
 
@@ -37,6 +38,7 @@ class Run:
         check: bool = False,
         capture_output: bool = False,
         encoding: str | None = None,
+        input: str | None = None,
     ) -> subprocess.CompletedProcess[str]:
         args_tuple = tuple(args)
         assert check is True
@@ -45,7 +47,9 @@ class Run:
         assert args_tuple in self._commands, f'unhandled command {args}'
 
         returncode, stdout, stderr = self._commands[args_tuple]
-        self.calls.append(Call(args_tuple, returncode, stdout, stderr))
+        self.calls.append(
+            Call(args=args_tuple, returncode=returncode, stdin=input, stdout=stdout, stderr=stderr)
+        )
         if returncode != 0:
             raise subprocess.CalledProcessError(
                 returncode=returncode,
