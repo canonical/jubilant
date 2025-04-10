@@ -671,6 +671,10 @@ class Juju:
             ssh_options: OpenSSH client options, for example ``['-i', '/path/to/private.key']``.
             user: User account to make connection with. Defaults to ``ubuntu`` account.
         """
+        # Need this check because str is also an iterable of str.
+        if isinstance(ssh_options, str):
+            raise TypeError('ssh_options must be an iterable of str, not str')
+
         cli_args = ['ssh']
         if container is not None:
             cli_args.extend(['--container', container])
