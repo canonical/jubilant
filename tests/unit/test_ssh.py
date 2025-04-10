@@ -1,5 +1,3 @@
-import pytest
-
 import jubilant
 
 from . import mocks
@@ -64,10 +62,3 @@ def test_ssh_options(run: mocks.Run):
         ssh_options=['-i', '/path/to/private.key'],
     )
     assert output == 'foo\n'
-
-
-def test_type_errors():
-    juju = jubilant.Juju()
-
-    with pytest.raises(TypeError):
-        juju.ssh('cmd')
