@@ -9,7 +9,7 @@ def test_machine(run: mocks.Run):
     run.handle(['juju', 'ssh', '1', 'echo bar'], stdout='bar\n')
     juju = jubilant.Juju()
 
-    output = juju.ssh('echo bar', machine=1)
+    output = juju.ssh(1, 'echo bar')
     assert output == 'bar\n'
 
 
@@ -17,7 +17,7 @@ def test_unit(run: mocks.Run):
     run.handle(['juju', 'ssh', 'ubuntu/0', 'echo', 'foo'], stdout='foo\n')
     juju = jubilant.Juju()
 
-    output = juju.ssh('echo', 'foo', unit='ubuntu/0')
+    output = juju.ssh('ubuntu/0', 'echo', 'foo')
     assert output == 'foo\n'
 
 
@@ -28,7 +28,7 @@ def test_container(run: mocks.Run):
     )
     juju = jubilant.Juju()
 
-    output = juju.ssh('echo', 'foo', unit='snappass-test/0', container='snappass')
+    output = juju.ssh('snappass-test/0', 'echo', 'foo', container='snappass')
     assert output == 'foo\n'
 
 
@@ -36,7 +36,7 @@ def test_user(run: mocks.Run):
     run.handle(['juju', 'ssh', 'usr@ubuntu/0', 'echo', 'foo'], stdout='foo\n')
     juju = jubilant.Juju()
 
-    output = juju.ssh('echo', 'foo', unit='ubuntu/0', user='usr')
+    output = juju.ssh('ubuntu/0', 'echo', 'foo', user='usr')
     assert output == 'foo\n'
 
 
@@ -57,9 +57,9 @@ def test_ssh_options(run: mocks.Run):
     juju = jubilant.Juju()
 
     output = juju.ssh(
+        'ubuntu/0',
         'echo',
         'foo',
-        unit='ubuntu/0',
         host_key_checks=False,
         ssh_options=['-i', '/path/to/private.key'],
     )
@@ -71,7 +71,3 @@ def test_type_errors():
 
     with pytest.raises(TypeError):
         juju.ssh('cmd')
-    with pytest.raises(TypeError):
-        juju.ssh('cmd', unit='ubuntu/0', machine=0)
-    with pytest.raises(TypeError):
-        juju.ssh(unit='ubuntu/0')
