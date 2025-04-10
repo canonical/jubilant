@@ -274,7 +274,7 @@ class Juju:
         Args:
             charm: Name of charm or bundle to deploy, or path to a local file (must start with
                 ``/`` or ``.``).
-            app: Optional application name within the model; defaults to the charm name.
+            app: Optional application name within the model. Defaults to the charm name.
             attach_storage: Existing storage(s) to attach to the deployed unit, for example,
                 ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
             base: The base on which to deploy, for example, ``ubuntu@22.04``.
@@ -641,6 +641,54 @@ class Juju:
         finally:
             if params_file is not None:
                 os.remove(params_file.name)
+
+    def ssh(
+        self,
+        *command: str,
+        machine: int | None = None,
+        unit: str | None = None,
+        container: str | None = None,
+        host_key_checks: bool = True,
+        ssh_options: list[str] | None = None,
+        user: str | None = None,
+    ) -> str:
+        """Executes a command using SSH on a machine or container and returns its standard output.
+
+        You must specify either *machine* or *unit*, but not both.
+
+        Args:
+            command: Command to run, along with its arguments.
+            machine: ID of machine to run the command on.
+            unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
+            container: Name of container for Kubernetes charms. Defaults to the charm container.
+            host_key_checks: Set to False to disable host key checking (insecure).
+            ssh_options: OpenSSH client options, for example ``['-i', '/path/to/private.key']``.
+            user: User account to make connection with. Defaults to ``ubuntu`` account.
+        """
+        if not command:
+            raise TypeError('must provide a command')
+        if (machine is not None and unit is not None) or (machine is None and unit is None):
+            raise TypeError('must specify "machine" or "unit", but not both')
+
+        args = ['ssh']
+        if container is not None:
+            args.extend(['--container', container])
+        if not host_key_checks:
+            args.append('--no-host-key-checks')
+
+        target = user + '@' if user is not None else ''
+        if machine is not None:
+            target += str(machine)
+        else:
+            assert unit is not None
+            target += unit
+        args.append(target)
+
+        if ssh_options:
+            args.extend(ssh_options)
+        args.extend(command)
+
+        return self.cli(*args)
 
     def status(self) -> Status:
         """Fetch the status of the current model, including its applications and units."""

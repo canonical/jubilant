@@ -19,6 +19,14 @@ def test_deploy(juju: jubilant.Juju):
     assert '<title>' in response.text
     assert 'snappass' in response.text.lower()
 
+    # Test ssh with --container argument
+    output = juju.ssh('ls', '/charm/containers', unit='snappass-test/0')
+    assert output.split() == ['redis', 'snappass']
+    output = juju.ssh('ls', '/charm/container', unit='snappass-test/0', container='snappass')
+    assert 'pebble' in output.split()
+    output = juju.ssh('ls', '/charm/container', unit='snappass-test/0', container='redis')
+    assert 'pebble' in output.split()
+
 
 def test_add_and_remove(juju: jubilant.Juju):
     charm = 'snappass-test'
