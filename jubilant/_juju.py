@@ -488,6 +488,61 @@ class Juju:
 
         self.cli(*args)
 
+    def refresh(
+        self,
+        app: str,
+        *,
+        base: str | None = None,
+        channel: str | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
+        force: bool = False,
+        path: str | None = None,
+        resources: Mapping[str, str] | None = None,
+        revision: int | None = None,
+        storage: Mapping[str, str] | None = None,
+        trust: bool = False,
+    ):
+        """Refresh (upgrade) an application's charm.
+
+        Args:
+            app: Name of application to refresh.
+            base: Select a different base than is currently running.
+            channel: Channel to use when deploying from Charmhub, for example, ``latest/edge``.
+            config: Application configuration as key-value pairs.
+            force: If true, bypass checks such as supported bases.
+            path: Refresh to a charm located at this path.
+            resources: Specify named resources to use for deployment, for example:
+                ``{'bin': '/path/to/some/binary'}``.
+            revision: Charmhub revision number to deploy.
+            storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
+            trust: If true, allows charm to run hooks that require access to cloud credentials.
+        """
+        args = ['refresh', app]
+
+        if base is not None:
+            args.extend(['--base', base])
+        if channel is not None:
+            args.extend(['--channel', channel])
+        if config is not None:
+            for k, v in config.items():
+                args.extend(['--config', _format_config(k, v)])
+        if force:
+            args.extend(['--force', '--force-base', '--force-units'])
+        if path is not None:
+            args.extend(['--path', path])
+        if resources is not None:
+            for k, v in resources.items():
+                args.extend(['--resource', f'{k}={v}'])
+        if revision is not None:
+            args.extend(['--revision', str(revision)])
+        if storage is not None:
+            for k, v in storage.items():
+                args.extend(['--storage', f'{k}={v}'])
+        if trust:
+            args.append('--trust')
+
+        self.cli(*args)
+
     def remove_application(
         self,
         *app: str,
