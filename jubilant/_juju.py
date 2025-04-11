@@ -174,12 +174,13 @@ class Juju:
         return stdout
 
     def _cli(
-        self, *args: str, include_model: bool = True, stdin: str | None = None
+        self, *args: str, include_model: bool = True, stdin: str | None = None, log: bool = True
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model) + args[1:]
-        logger.info('cli: juju %s', shlex.join(args))
+        if log:
+            logger.info('cli: juju %s', shlex.join(args))
         try:
             process = subprocess.run(
                 [self.cli_binary, *args],
@@ -274,7 +275,7 @@ class Juju:
         Args:
             charm: Name of charm or bundle to deploy, or path to a local file (must start with
                 ``/`` or ``.``).
-            app: Optional application name within the model; defaults to the charm name.
+            app: Optional application name within the model. Defaults to the charm name.
             attach_storage: Existing storage(s) to attach to the deployed unit, for example,
                 ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
             base: The base on which to deploy, for example, ``ubuntu@22.04``.
@@ -360,14 +361,15 @@ class Juju:
             self.model = None
 
     @overload
-    def exec(self, *command: str, machine: int, wait: float | None = None) -> Task: ...
+    def exec(self, command: str, *args: str, machine: int, wait: float | None = None) -> Task: ...
 
     @overload
-    def exec(self, *command: str, unit: str, wait: float | None = None) -> Task: ...
+    def exec(self, command: str, *args: str, unit: str, wait: float | None = None) -> Task: ...
 
     def exec(
         self,
-        *command: str,
+        command: str,
+        *args: str,
         machine: int | None = None,
         unit: str | None = None,
         wait: float | None = None,
@@ -381,7 +383,10 @@ class Juju:
         with a new ``exec_multiple`` method or similar.
 
         Args:
-            command: Command to run, along with its arguments.
+            command: Command to run. Because the command is executed using the shell,
+                arguments may also be included here as a single string, for example
+                ``juju.exec('echo foo', ...)``.
+            args: Arguments of the command.
             machine: ID of machine to run the command on.
             unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
             wait: Maximum time to wait for command to finish; :class:`TimeoutError` is raised if
@@ -398,19 +403,20 @@ class Juju:
         if (machine is not None and unit is not None) or (machine is None and unit is None):
             raise TypeError('must specify "machine" or "unit", but not both')
 
-        args = ['exec', '--format', 'json']
+        cli_args = ['exec', '--format', 'json']
         if machine is not None:
-            args.extend(['--machine', str(machine)])
+            cli_args.extend(['--machine', str(machine)])
         else:
             assert unit is not None
-            args.extend(['--unit', unit])
+            cli_args.extend(['--unit', unit])
         if wait is not None:
-            args.extend(['--wait', f'{wait}s'])
-        args.append('--')
-        args.extend(command)
+            cli_args.extend(['--wait', f'{wait}s'])
+        cli_args.append('--')
+        cli_args.append(command)
+        cli_args.extend(args)
 
         try:
-            stdout, stderr = self._cli(*args)
+            stdout, stderr = self._cli(*cli_args)
         except CLIError as exc:
             if 'timed out' in exc.stderr:
                 msg = f'timed out waiting for command, stderr:\n{exc.stderr}'
@@ -697,6 +703,49 @@ class Juju:
             if params_file is not None:
                 os.remove(params_file.name)
 
+    def ssh(
+        self,
+        target: str | int,
+        command: str,
+        *args: str,
+        container: str | None = None,
+        host_key_checks: bool = True,
+        ssh_options: Iterable[str] = (),
+        user: str | None = None,
+    ) -> str:
+        """Executes a command using SSH on a machine or container and returns its standard output.
+
+        Args:
+            target: Where to run the command; this is a unit name such as ``mysql/0`` or a machine
+                ID such as ``0``.
+            command: Command to run. Because the command is executed using the shell,
+                arguments may also be included here as a single string, for example
+                ``juju.ssh('mysql/0', 'echo foo', ...)``.
+            args: Arguments of the command.
+            container: Name of container for Kubernetes charms. Defaults to the charm container.
+            host_key_checks: Set to False to disable host key checking (insecure).
+            ssh_options: OpenSSH client options, for example ``['-i', '/path/to/private.key']``.
+            user: User account to make connection with. Defaults to ``ubuntu`` account.
+        """
+        # Need this check because str is also an iterable of str.
+        if isinstance(ssh_options, str):
+            raise TypeError('ssh_options must be an iterable of str, not str')
+
+        cli_args = ['ssh']
+        if container is not None:
+            cli_args.extend(['--container', container])
+        if not host_key_checks:
+            cli_args.append('--no-host-key-checks')
+        if user is not None:
+            cli_args.append(f'{user}@{target}')
+        else:
+            cli_args.append(str(target))
+        cli_args.extend(ssh_options)
+        cli_args.append(command)
+        cli_args.extend(args)
+
+        return self.cli(*cli_args)
+
     def status(self) -> Status:
         """Fetch the status of the current model, including its applications and units."""
         stdout = self.cli('status', '--format', 'json')
@@ -775,9 +824,15 @@ class Juju:
 
         while time.monotonic() - start < timeout:
             prev_status = status
-            status = self.status()
+
+            stdout, _ = self._cli('status', '--format', 'json', log=False)
+            result = json.loads(stdout)
+            status = Status._from_dict(result)
+
             if status != prev_status:
-                logger.info('wait: status changed:\n%s', _status_diff(prev_status, status))
+                diff = _status_diff(prev_status, status)
+                if diff:
+                    logger.info('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 raise WaitError(f'error function {error.__qualname__} returned false\n{status}')
