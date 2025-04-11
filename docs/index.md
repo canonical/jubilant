@@ -34,6 +34,7 @@ The library provides:
 
 ```{grid-item-card} [How-to guides](how-to/index)
 **Step-by-step guides** covering key operations and common tasks
+- [Migrate from pytest-operator](how-to/migrate-from-pytest-operator)
 ```
 ````
 
