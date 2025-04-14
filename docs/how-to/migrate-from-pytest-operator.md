@@ -1,5 +1,8 @@
 # How to migrate from pytest-operator to Jubilant
 
+- TODO: replace " with '
+- TODO: get rid of tabs
+
 Many charm integration tests use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) and [python-libjuju](https://github.com/juju/python-libjuju). This guide explains how to migrate your integration tests from those libraries to Jubilant.
 
 To get help while you're migrating tests, please keep the [API reference](/reference/jubilant) handy, and make use of your IDE's autocompletion features -- we've tried to provide good type annotations and docstrings.
@@ -92,7 +95,7 @@ A few things to note:
 
 If you don't want to deploy your application in every test, you can add a module-scoped `app` fixture that deploys your charm and waits for it to go active.
 
-The following fixture assumes that the charm has already been packed with `charmcraft pack` -- for example, in a previous CI step:
+The following fixture assumes that the charm has already been packed with `charmcraft pack` in a previous CI step (Jubilant has no equivalent of `ops_test.build_charm`):
 
 ```python
 # tests/integration/conftest.py
@@ -145,8 +148,112 @@ def test_active(juju: jubilant.Juju, app: str):
 
 ## Updating the tests themselves
 
-Many features of pytest-operator and python-libjuju map quite directly to Jubilant, except without using `async`. For example, to deploy using
+Many features of pytest-operator and python-libjuju map quite directly to Jubilant, except without using `async`. As a summary:
+
+- Remove `async` and `await` keywords, and replace `pytest_asyncio.fixture` with `pytest.fixture`
+- Replace introspection of python-libjuju's `Application` and `Unit` objects with [`juju.status`](jubilant.Juju.status)
+- Replace `model.wait_for_idle` with [`juju.wait`](jubilant.Juju.wait) with an appropriate *ready* callable
+- Replace `unit.run` with [`juju.exec`](jubilant.Juju.exec); note the different return type and error handling
+- Replace other python-libjuju methods with equivalent [`Juju`](jubilant.Juju) methods
+- TODO
+
+Let's look at some of these in more detail.
+
+### Deploy
+
+To migrate a charm deployment from pytest-operator, drop the `await`, change `series` to `base`, and replace `model.wait_for_idle` with [`juju.wait`](jubilant.Juju.wait):
+
+```python
+# pytest-operator
+postgres_app = await model.deploy(
+    "postgresql-k8s",
+    channel="14/stable",
+    series="jammy",
+    revision=300,
+    trust=True,
+    config={"profile": "testing"},
+)
+await model.wait_for_idle(apps=[postgres_app.name], status="active")
+
+# jubilant
+juju.deploy(
+    "postgresql-k8s",
+    channel="14/stable",
+    base="ubuntu@22.04",
+    revision=300,
+    trust=True,
+    config={"profile": "testing"},
+)
+juju.wait(lambda status: status.apps['postgresql-k8s'].is_active)
+```
+
+### Fetching status
+
+A python-libjuju model is updated automatically in the background. In Jubilant you use ordinary Python function calls to fetch updates:
+
+```python
+# pytest-operator
+async def test_active(app: Application):
+    assert app.units[0].workload_status == ActiveStatus.name
+
+# jubilant
+def test_active(juju: jubilant.Juju, app: str):
+    status = juju.status()
+    assert status.apps[app].units[app + "/0"].is_active
+```
+
+### Waiting for status
+
+However, more commonly you want to wait for certain conditions to be true. In python-libjuju you used `model.wait_for_idle`; in Jubilant you use [`juju.wait`](jubilant.Juju.wait), which has a simpler and more consistent approach.
+
+It takes a single callback that takes a [`Status`](jubilant.Status) and must return True three times in a row (configurable). Optionally, you can provide
+
+For example,
+
+TODO
+
+
+### Integrating two applications
+
+To integrate a bunch of charms, remove the `async`-related code and replace `model.add_relation` with [`juju.integrate`](jubilant.Juju.integrate):
+
+```python
+# pytest-operator
+await asyncio.gather(
+    model.add_relation("discourse-k8s", "postgresql-k8s:database"),
+    model.add_relation("discourse-k8s", "redis-k8s"),
+    model.add_relation("discourse-k8s", "nginx-ingress-integrator"),
+)
+await model.wait_for_idle(status="active")
+
+# jubilant
+juju.integrate("discourse-k8s", "postgresql-k8s:database")
+juju.integrate("discourse-k8s", "redis-k8s")
+juju.integrate("discourse-k8s", "nginx-ingress-integrator")
+juju.wait(jubilant.all_active)
+```
+
+### Executing a command
+
+In `pytest-operator` tests, you used `unit.run` to execute a command. With Jubilant (and Juju 3.x) you use [`juju.exec`](jubilant.Juju.exec). Jubilant's `exec` returns a [`jubilant.Task`](jubilant.Task), but it also checks errors for you:
+
+```python
+# pytest-operator
+unit = model.applications[app_name].units[0]
+action = await unit.run('/bin/bash -c "..."')
+await action.wait()
+logger.info(action.results)
+assert action.results["return-code"] == 0, "Enable plugins failed"
+
+# jubilant
+task = juju.exec('/bin/bash -c "..."', unit="discourse-k8s/0")
+logger.info(task.results)
+```
+
+### Running an action
 
 Some are simpler, for example 
+
+### The `cli` fallback
 
 TODO
