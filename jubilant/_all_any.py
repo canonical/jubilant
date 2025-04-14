@@ -6,7 +6,7 @@ from .statustypes import Status
 
 
 def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications or units in *status* are in "active" status.
+    """Report whether all applications and units in *status* are in "active" status.
 
     Args:
         status: The status object being tested.
@@ -17,7 +17,7 @@ def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
 
 
 def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications or units in *status* are in "blocked" status.
+    """Report whether all applications and units in *status* are in "blocked" status.
 
     Args:
         status: The status object being tested.
@@ -28,7 +28,7 @@ def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
 
 
 def all_error(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications or units in *status* are in "error" status.
+    """Report whether all applications and units in *status* are in "error" status.
 
     Args:
         status: The status object being tested.
@@ -39,7 +39,7 @@ def all_error(status: Status, apps: Iterable[str] | None = None) -> bool:
 
 
 def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications or units in *status* are in "maintenance" status.
+    """Report whether all applications and units in *status* are in "maintenance" status.
 
     Args:
         status: The status object being tested.
@@ -50,7 +50,7 @@ def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
 
 
 def all_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications or units in *status* are in "waiting" status.
+    """Report whether all applications and units in *status* are in "waiting" status.
 
     Args:
         status: The status object being tested.
