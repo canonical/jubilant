@@ -2,7 +2,7 @@
 
 In this tutorial, we'll learn how to install Jubilant, use it to run Juju commands, and write a simple charm integration test.
 
-The tutorial assumes that you have a basic understanding of Juju and have already installed it. [Learn how to install the Juju CLI.](https://documentation.ubuntu.com/juju/latest/howto/manage-juju/index.html#install-juju)
+The tutorial assumes that you have a basic understanding of Juju and have already installed it. [Learn how to install the Juju CLI.](https://documentation.ubuntu.com/juju/3.6/howto/manage-juju/index.html#install-juju)
 
 
 ## Install Jubilant

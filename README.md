@@ -19,7 +19,7 @@ $ pip install jubilant
 $ uv add jubilant
 ```
 
-Because Jubilant calls the Juju CLI, you'll also need to [install Juju](https://documentation.ubuntu.com/juju/latest/howto/manage-juju/index.html#install-juju).
+Because Jubilant calls the Juju CLI, you'll also need to [install Juju](https://documentation.ubuntu.com/juju/3.6/howto/manage-juju/index.html#install-juju).
 
 To use Jubilant in Python code:
 
