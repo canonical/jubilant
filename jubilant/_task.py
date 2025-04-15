@@ -3,6 +3,24 @@ from __future__ import annotations
 import dataclasses
 from typing import Any, Literal
 
+from . import _pretty
+
+
+class TaskError(Exception):
+    """Exception raised when an action or exec command fails."""
+
+    task: Task
+    """Associated task."""
+
+    def __init__(self, task: Task):
+        self.task = task
+
+    def __str__(self) -> str:
+        return (
+            f'task {self.task.id} failed with status {self.task.status!r} '
+            + f'and return code {self.task.return_code}\n{_pretty.dump(self.task)}'
+        )
+
 
 @dataclasses.dataclass(frozen=True)
 class Task:
@@ -62,13 +80,3 @@ class Task:
         """If task was not successful, raise a :class:`TaskError`."""
         if not self.success:
             raise TaskError(self)
-
-
-class TaskError(Exception):
-    """Exception raised when an action or exec command fails."""
-
-    task: Task
-    """Associated task."""
-
-    def __init__(self, task: Task):
-        self.task = task
