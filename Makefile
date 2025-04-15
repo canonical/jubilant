@@ -13,7 +13,7 @@ coverage-html:  # Write and open HTML coverage report from last unit test run
 	open htmlcov/index.html 2>/dev/null
 
 docs:  # Build documentation
-	$(MAKE) -C docs run
+	MAKEFLAGS='' $(MAKE) -C docs run
 
 fix:  # Fix linting issues
 	uv run ruff check --fix
