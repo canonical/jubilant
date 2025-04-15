@@ -15,11 +15,11 @@ Let's look at each of these in turn.
 
 ## Update your dependencies
 
-The first thing you'll need to do is add `jubilant` as a dependency to your `tox.ini` or `pyproject.toml` dependencies. Before Jubilant 1.0 is released, you should consider locking it to a specific version.
+The first thing you'll need to do is add `jubilant` as a dependency to your `tox.ini` or `pyproject.toml` dependencies. Before Jubilant 1.0 is released, we recommend locking it to a specific version.
 
 You can also remove the dependencies on `juju` (python-libjuju), `pytest-operator`, and `pytest-asyncio`.
 
-If using `tox.ini`, the diff might look something like this:
+If you're using `tox.ini`, the diff might look like:
 
 ```diff
  [testenv:integration]
@@ -34,6 +34,8 @@ If using `tox.ini`, the diff might look something like this:
      -r{toxinidir}/requirements.txt
 ```
 
+If you're migrating a large number of tests, you may want to do it in stages. In that case, keep the old dependencies in place till the end, and migrate tests one at a time, so that both pytest-operator and Jubilant tests can run together.
+
 
 ## Add fixtures to `conftest.py`
 
@@ -41,7 +43,7 @@ The pytest-operator library includes pytest fixtures, but Jubilant does not incl
 
 ### A `juju` model fixture
 
-Jubilant expects that a Juju controller has already been set up, either using [Concierge](https://github.com/jnsgruk/concierge) or a manual approach. However, you'll want a fixture to create a temporary model. We recommend naming the fixture `juju`:
+Jubilant expects that a Juju controller has already been set up, either using [Concierge](https://github.com/jnsgruk/concierge) or a manual approach. However, you'll want a fixture that creates a temporary model. We recommend naming the fixture `juju`:
 
 ```python
 # tests/integration/conftest.py
@@ -71,7 +73,7 @@ def pytest_addoption(parser):
     )
 ```
 
-In your tests, use the fixture as follows:
+In your tests, use the fixture like this:
 
 ```python
 # tests/integration/test_charm.py
@@ -81,16 +83,16 @@ def test_active(juju: jubilant.Juju):
     juju.wait(jubilant.all_active)
 ```
 
-A few things to note:
+A few things to note about the fixture:
 
-* This adds a command-line parameter `--keep-models` (to match pytest-operator's). If that is set, the fixture keeps the temporary model around after running the tests.
+* It includes a command-line parameter `--keep-models`, to match pytest-operator. If the parameter is set, the fixture keeps the temporary model around after running the tests.
 * It sets [`juju.wait_timeout`](jubilant.Juju.wait_timeout) to 10 minutes, to match python-libjuju's default `wait_for_idle` timeout.
-* If any of the tests fail, the fixture uses `juju.debug_log` to display the last 1000 lines of `juju debug-log` output.
-* The fixture is module-scoped, like pytest-operator's `ops_test` fixture. This means that a new model is created for every `test_*.py` file, but not for every test.
+* If any of the tests fail, it uses `juju.debug_log` to display the last 1000 lines of `juju debug-log` output.
+* It is module-scoped, like pytest-operator's `ops_test` fixture. This means that a new model is created for every `test_*.py` file, but not for every test.
 
 ### An application fixture
 
-If you don't want to deploy your application in a test itself, you can add a module-scoped `app` fixture that deploys your charm and waits for it to go active.
+If you don't want to deploy your application in each test, you can add a module-scoped `app` fixture that deploys your charm and waits for it to go active.
 
 The following fixture assumes that the charm has already been packed with `charmcraft pack` in a previous CI step (Jubilant has no equivalent of `ops_test.build_charm`):
 
@@ -203,13 +205,13 @@ def test_active(juju: jubilant.Juju, app: str):
 
 However, instead of calling `status` directly, it's usually better to wait for a certain condition to be true. In python-libjuju you used `model.wait_for_idle`; in Jubilant you use [`juju.wait`](jubilant.Juju.wait), which has a simpler and more consistent API.
 
-It takes a *ready* callable which takes a [`Status`](jubilant.Status) -- `wait` polls `juju status` every second and calls the ready callable, which must return True three times in a row (configurable).
+The `wait` method takes a *ready* callable, which takes a [`Status`](jubilant.Status) object. Internally, `wait` polls `juju status` every second and calls the *ready* callable, which must return True three times in a row (this is configurable).
 
-You can optionally provide an *error* callable, which also takes a `Status`, and if that returns True, `wait` raises a [`WaitError`](jubilant.WaitError) immediately.
+You can optionally provide an *error* callable, which also takes a `Status` object. If the *error* callable returns True, `wait` raises a [`WaitError`](jubilant.WaitError) immediately.
 
 Jubilant provides helper functions to use for the *ready* and *error* callables, such as [`jubilant.all_active`](jubilant.all_active) and [`jubilant.any_error`](jubilant.any_error). These check whether the status of all (or any) applications and their units are in a given state.
 
-For example, a simple `wait` call that waits for all applications and units to go "active" and raises an error if any go into "error", would look like this:
+For example, here's a simple `wait` call that waits for all applications and units to go "active" and raises an error if any go into "error":
 
 ```python
 # pytest-operator
@@ -223,13 +225,13 @@ def test_active(juju: jubilant.Juju):
     juju.wait(jubilant.all_active, error=jubilant.any_error)
 ```
 
-It's common to use a `lambda` function to customize the callables further. For example, to wait specifically till `mysql` and `redis` are active:
+It's common to use a `lambda` function to customize the callables further. For example, to wait specifically for `mysql` and `redis` to go active:
 
 ```python
 juju.wait(lambda status: jubilant.all_active(status, ['mysql', 'redis']))
 ```
 
-The `wait` method also has other options (see the [reference docs](jubilant.Juju.wait)):
+The `wait` method also has other options (see [`juju.wait`](jubilant.Juju.wait) for details):
 
 ```python
 juju.deploy('mycharm')
@@ -265,7 +267,7 @@ juju.wait(jubilant.all_active)
 
 ### Executing a command
 
-In `pytest-operator` tests, you used `unit.run` to execute a command. With Jubilant (like Juju 3.x) you use [`juju.exec`](jubilant.Juju.exec). Jubilant's `exec` returns a [`jubilant.Task`](jubilant.Task), and it also checks errors for you:
+In `pytest-operator` tests, you used `unit.run` to execute a command. With Jubilant (as with Juju 3.x) you use [`juju.exec`](jubilant.Juju.exec). Jubilant's `exec` returns a [`jubilant.Task`](jubilant.Task), and it also checks errors for you:
 
 ```python
 # pytest-operator
@@ -298,7 +300,7 @@ password = task.results['password']
 
 ### The `cli` fallback
 
-Similar to how you could call `ops_test.juju`, with Jubilant you can call [`juju.cli`](jubilant.Juju.cli) as a fallback to execute an arbitrary Juju command. Once again, it checks errors for you (and raises [`CLIError`](jubilant.CLIError) if the command's exit code is nonzero):
+Similar to how you could call `ops_test.juju`, with Jubilant you can call [`juju.cli`](jubilant.Juju.cli) to execute an arbitrary Juju command. The `cli` method checks errors for you and raises a [`CLIError`](jubilant.CLIError) if the command's exit code is nonzero:
 
 ```python
 # pytest-operator
@@ -322,7 +324,7 @@ juju.cli(
 ```
 
 
-## Further information
+## See more
 
-- [Jubilant's API reference](jubilant)
-- [This discourse-k8s migration PR](https://github.com/canonical/discourse-k8s-operator/pull/326) shows what migrating a real charm's integration tests looks like
+- [Jubilant's API reference](/reference/jubilant)
+- [This discourse-k8s migration PR](https://github.com/canonical/discourse-k8s-operator/pull/326) shows how we migrated a real charm's integration tests
