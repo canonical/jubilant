@@ -16,10 +16,7 @@ class TaskError(Exception):
         self.task = task
 
     def __str__(self) -> str:
-        return (
-            f'task {self.task.id} failed with status {self.task.status!r} '
-            + f'and return code {self.task.return_code}\n{_pretty.dump(self.task)}'
-        )
+        return f'task error: {self.task}'
 
 
 @dataclasses.dataclass(frozen=True)
@@ -53,6 +50,27 @@ class Task:
 
     log: list[str] = dataclasses.field(default_factory=list)
     """List of messages logged by the action hook."""
+
+    def __str__(self) -> str:
+        details: list[str] = []
+        if self.results:
+            details.append(f'Results: {self.results}')
+        if self.stdout:
+            details.append(f'Stdout:\n{self.stdout}')
+        if self.stderr:
+            details.append(f'Stderr:\n{self.stderr}')
+        if self.message:
+            details.append(f'Message: {self.message}')
+        if self.log:
+            log_str = '\n'.join(self.log)
+            details.append(f'Log:\n{log_str}')
+        s = f'Task {self.id}: status {self.status!r}, return code {self.return_code}'
+        if details:
+            s += ', details:\n' + '\n'.join(details)
+        return s
+
+    def __repr__(self) -> str:
+        return _pretty.dump(self)
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Task:

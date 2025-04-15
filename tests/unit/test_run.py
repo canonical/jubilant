@@ -89,10 +89,6 @@ def test_failure(run: mocks.Run):
     )
     assert not excinfo.value.task.success
 
-    exc_str = str(excinfo.value)
-    assert exc_str.startswith("task 42 failed with status 'failed' and return code 0")
-    assert "message='Failure message'" in exc_str
-
 
 def test_exception_task_failed(run: mocks.Run):
     out_json = """
