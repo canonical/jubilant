@@ -218,3 +218,70 @@ DATABASE_WEBAPP_JSON = """
     }
 }
 """
+
+JUJU29_JSON = """
+{
+    "model": {
+        "name": "jubilant-0b6f94f3",
+        "type": "caas",
+        "controller": "microk8s-localhost",
+        "cloud": "microk8s",
+        "region": "localhost",
+        "version": "2.9.51",
+        "model-status": {
+            "current": "available",
+            "since": "16 Apr 2025 20:40:45Z"
+        },
+        "sla": "unsupported"
+    },
+    "machines": {},
+    "applications": {
+        "tls-certificates-requirer": {
+            "charm": "local:jammy/tls-certificates-requirer-0",
+            "series": "jammy",
+            "os": "ubuntu",
+            "charm-origin": "local",
+            "charm-name": "tls-certificates-requirer",
+            "charm-rev": 0,
+            "scale": 1,
+            "provider-id": "f995d1da-c34b-4d33-afcd-561b848dd8b9",
+            "address": "10.152.183.114",
+            "exposed": false,
+            "application-status": {
+                "current": "waiting",
+                "message": "installing agent",
+                "since": "16 Apr 2025 20:46:20Z"
+            },
+            "relations": {
+                "replicas": [
+                    "tls-certificates-requirer"
+                ]
+            },
+            "units": {
+                "tls-certificates-requirer/0": {
+                    "workload-status": {
+                        "current": "waiting",
+                        "message": "installing agent",
+                        "since": "16 Apr 2025 20:46:20Z"
+                    },
+                    "juju-status": {
+                        "current": "allocating",
+                        "since": "16 Apr 2025 20:46:14Z"
+                    },
+                    "address": "10.1.216.142",
+                    "provider-id": "tls-certificates-requirer-0"
+                }
+            },
+            "endpoint-bindings": {
+                "": "alpha",
+                "certificates": "alpha",
+                "replicas": "alpha"
+            }
+        }
+    },
+    "storage": {},
+    "controller": {
+        "timestamp": "20:46:20Z"
+    }
+}
+"""

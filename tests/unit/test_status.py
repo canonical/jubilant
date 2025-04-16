@@ -4,7 +4,7 @@ import jubilant
 from jubilant import statustypes
 
 from . import mocks
-from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
+from .fake_statuses import JUJU29_JSON, MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 
 def test_minimal(run: mocks.Run):
@@ -50,3 +50,15 @@ def test_status_eq():
     )
     assert status1 == status1b
     assert status1 == status2
+
+
+def test_juju_2_9_status(run: mocks.Run):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=JUJU29_JSON)
+    juju = jubilant.Juju()
+
+    status = juju.status()
+
+    assert status.model.type == 'caas'
+    assert status.apps['tls-certificates-requirer'].is_waiting
+    assert status.apps['tls-certificates-requirer'].units['tls-certificates-requirer/0'].is_waiting
+    assert not status.apps['tls-certificates-requirer'].units['tls-certificates-requirer/0'].leader

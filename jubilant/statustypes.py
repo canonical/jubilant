@@ -85,6 +85,8 @@ class AppStatusRelation:
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> AppStatusRelation:
+        if not hasattr(d, 'get'):
+            return cls()
         return cls(
             related_app=d.get('related-application') or '',
             interface=d.get('interface') or '',
