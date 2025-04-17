@@ -18,6 +18,8 @@ def setup(juju: jubilant.Juju):
 
 
 def test_run_success(juju: jubilant.Juju):
+    juju.config('testdb', {'testoption': 'foobar'})
+
     task = juju.run('testdb/0', 'do-thing', {'param1': 'value1'})
     assert task.success
     assert task.return_code == 0
