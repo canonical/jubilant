@@ -59,11 +59,11 @@ jobs:
       - name: Run unit tests
         run: make unit
 
-  integration:
+  integration-k8s:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-k8s
       cancel-in-progress: true
 
     steps:
@@ -83,4 +83,30 @@ jobs:
         run: make pack
 
       - name: Run integration tests
-        run: make integration
+        run: make integration-k8s
+
+  integration-machine:
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-machine
+      cancel-in-progress: true
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install concierge
+        run: sudo snap install --classic concierge
+
+      - name: Prepare Juju
+        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p machine
+
+      - name: Pack test charms
+        run: make pack
+
+      - name: Run integration tests
+        run: make integration-machine

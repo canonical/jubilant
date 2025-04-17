@@ -175,7 +175,7 @@ We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up 
 You've now learned the basics of Jubilant! To learn more:
 
 - Look over the [`jubilant` API reference](/reference/jubilant)
-- See [Jubilant's own integration tests](https://github.com/canonical/jubilant/blob/main/tests/integration/test_basic.py) for more examples of using `Juju` methods
+- See [Jubilant's own integration tests](https://github.com/canonical/jubilant/tree/main/tests/integration) for more examples of using `Juju` methods
 - See [Jubilant's `conftest.py`](https://github.com/canonical/jubilant/blob/main/tests/integration/conftest.py) with a `juju` fixture that has a `--keep-models` command-line argument, and prints the `juju debug-log` on test failure
 
 If you have any problems or want to request new features, please [open an issue](https://github.com/canonical/jubilant/issues/new).
