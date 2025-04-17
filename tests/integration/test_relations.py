@@ -5,7 +5,7 @@ import jubilant
 from . import helpers
 
 
-def test_all(juju: jubilant.Juju):
+def test_integrate_and_remove_relation(juju: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
     juju.deploy(helpers.find_charm('testapp'))
 

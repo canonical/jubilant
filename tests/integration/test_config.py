@@ -10,8 +10,6 @@ from . import helpers
 @pytest.fixture(scope='module', autouse=True)
 def setup(juju: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
-
-    # The unit should come up as "unknown".
     juju.wait(
         lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
     )
