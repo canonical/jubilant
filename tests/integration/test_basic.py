@@ -1,11 +1,9 @@
-import pathlib
-
 import pytest
 import requests
 
 import jubilant
 
-CHARMS_PATH = pathlib.Path(__file__).parent / 'charms'
+from . import helpers
 
 
 def test_deploy(juju: jubilant.Juju):
@@ -49,7 +47,7 @@ def test_add_and_remove(juju: jubilant.Juju):
 # Tests config get, config set, trust, run, exec, and cli with input
 def test_charm_basics(juju: jubilant.Juju):
     charm = 'testdb'
-    juju.deploy(charm_path(charm))
+    juju.deploy(helpers.find_charm(charm))
 
     # Unit should come up as "unknown"
     juju.wait(
@@ -141,8 +139,8 @@ def test_charm_basics(juju: jubilant.Juju):
 
 
 def test_integrate(juju: jubilant.Juju):
-    juju.deploy(charm_path('testdb'))
-    juju.deploy(charm_path('testapp'))
+    juju.deploy(helpers.find_charm('testdb'))
+    juju.deploy(helpers.find_charm('testapp'))
 
     juju.integrate('testdb', 'testapp')
     status = juju.wait(jubilant.all_active)
@@ -157,12 +155,3 @@ def test_integrate(juju: jubilant.Juju):
             not status.apps['testdb'].relations and not status.apps['testapp'].relations
         )
     )
-
-
-def charm_path(name: str) -> pathlib.Path:
-    """Return full absolute path to given test charm."""
-    # .charm filename has platform in it, so search with *.charm
-    charms = [p.absolute() for p in (CHARMS_PATH / name).glob('*.charm')]
-    assert charms, f'{name} .charm file not found'
-    assert len(charms) == 1, f'{name} has more than one .charm file, unsure which to use'
-    return charms[0]
