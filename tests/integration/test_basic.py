@@ -136,22 +136,3 @@ def test_charm_basics(juju: jubilant.Juju):
     # Test cli with input
     stdout = juju.cli('ssh', '--container', 'charm', charm + '/0', 'cat', stdin='foo')
     assert stdout == 'foo'
-
-
-def test_integrate(juju: jubilant.Juju):
-    juju.deploy(helpers.find_charm('testdb'))
-    juju.deploy(helpers.find_charm('testapp'))
-
-    juju.integrate('testdb', 'testapp')
-    status = juju.wait(jubilant.all_active)
-    assert status.apps['testdb'].relations['db'][0].related_app == 'testapp'
-    assert status.apps['testapp'].relations['db'][0].related_app == 'testdb'
-    assert status.apps['testdb'].app_status.message == 'relation created'
-    assert status.apps['testapp'].app_status.message == 'relation changed: dbkey=dbvalue'
-
-    juju.remove_relation('testdb', 'testapp')
-    juju.wait(
-        lambda status: (
-            not status.apps['testdb'].relations and not status.apps['testapp'].relations
-        )
-    )
