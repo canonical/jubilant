@@ -24,17 +24,6 @@ def test_deploy(juju: jubilant.Juju):
     juju.refresh('snappass-test')
 
 
-# TODO: this should be moved elsewhere
-def test_ssh(juju: jubilant.Juju):
-    # Test ssh with --container argument
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
-    assert output.split() == ['redis', 'snappass']
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
-    assert 'pebble' in output.split()
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
-    assert 'pebble' in output.split()
-
-
 def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.add_unit('snappass-test')
     juju.wait(
@@ -50,7 +39,6 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.wait(lambda status: not status.apps)
 
 
-# This test must be last, because it removes the application.
 def test_remove_application(juju: jubilant.Juju):
     juju.remove_application('snappass-test')
     juju.wait(lambda status: not status.apps)
