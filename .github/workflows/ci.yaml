@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-k8s
       cancel-in-progress: true
 
     steps:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.workflow }}-${{ github.ref }}-machine
       cancel-in-progress: true
 
     steps:
@@ -103,7 +103,7 @@ jobs:
         run: sudo snap install --classic concierge
 
       - name: Prepare Juju
-        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p lxd
+        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p machine
 
       - name: Pack test charms
         run: make pack
