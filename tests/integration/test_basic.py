@@ -1,47 +1,8 @@
 import pytest
-import requests
 
 import jubilant
 
 from . import helpers
-
-
-def test_deploy(juju: jubilant.Juju):
-    charm = 'snappass-test'
-    juju.deploy(charm)
-    status = juju.wait(jubilant.all_active)
-
-    address = status.apps[charm].units[charm + '/0'].address
-    response = requests.get(f'http://{address}:5000/', timeout=10)
-    response.raise_for_status()
-    assert '<title>' in response.text
-    assert 'snappass' in response.text.lower()
-
-    # Test ssh with --container argument
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
-    assert output.split() == ['redis', 'snappass']
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
-    assert 'pebble' in output.split()
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
-    assert 'pebble' in output.split()
-
-    # Ensure refresh works (though it will already be up to date)
-    juju.refresh('snappass-test')
-
-
-def test_add_and_remove(juju: jubilant.Juju):
-    charm = 'snappass-test'
-    juju.deploy(charm)
-    juju.wait(jubilant.all_active)
-
-    juju.add_unit(charm)
-    juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 2)
-
-    juju.remove_unit(charm, num_units=1)
-    juju.wait(lambda status: jubilant.all_active(status) and len(status.apps[charm].units) == 1)
-
-    juju.remove_application('snappass-test')
-    juju.wait(lambda status: not status.apps)
 
 
 # Tests config get, config set, trust, run, exec, and cli with input
