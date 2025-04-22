@@ -39,6 +39,20 @@ class WaitError(Exception):
 class SecretURI(str):
     """A string subclass that represents a secret URI ("secret:...")."""
 
+    @property
+    def unique_identifier(self) -> str:
+        """Unique identifier of this secret URI.
+
+        This is the secret's globally-unique identifier (currently a 20-character Xid,
+        for example "9m4e2mr0ui3e8a215n4g").
+        """
+        if '/' in self:
+            return self.rsplit('/', maxsplit=1)[-1]
+        elif self.startswith('secret:'):
+            return self[len('secret:') :]
+        else:
+            return str(self)
+
 
 ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
