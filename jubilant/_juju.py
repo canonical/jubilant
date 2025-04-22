@@ -127,6 +127,36 @@ class Juju:
         self.cli(*args, include_model=False)
         self.model = model
 
+    def add_secret(
+        self,
+        name: str,
+        content: Mapping[str, str],
+        *,
+        info: str | None = None,
+    ) -> SecretURI:
+        """Add a new named secret and returns its secret URI.
+
+        Args:
+            name: Name for the secret.
+            content: Key-value pairs that represent the secret content, for example
+                ``{'password': 'hunter2'}``.
+            info: Optional description for the secret.
+        """
+        args = ['add-secret', name]
+        if info is not None:
+            args.extend(['--info', info])
+
+        with tempfile.NamedTemporaryFile('w+', delete=False, dir=self._temp_dir) as file:
+            _yaml.safe_dump(content, file)
+            args.extend(['--file', file.name])
+
+        try:
+            output = self.cli(*args)
+        finally:
+            os.remove(file.name)
+
+        return SecretURI(output.strip())
+
     def add_unit(
         self,
         app: str,
