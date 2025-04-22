@@ -40,3 +40,16 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 def test_remove_application(juju: jubilant.Juju):
     juju.remove_application('snappass-test')
     juju.wait(lambda status: not status.apps)
+
+
+def test_deploy_with_resources(juju: jubilant.Juju):
+    juju.deploy(
+        'snappass-test',
+        'snappass-with-resources',
+        base='ubuntu@22.04',
+        resources={
+            'snappass-image': 'benhoyt/snappass-test',
+            'redis-image': 'redis',
+        },
+    )
+    juju.wait(lambda status: status.apps['snappass-with-resources'].is_active)
