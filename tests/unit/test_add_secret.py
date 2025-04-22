@@ -11,11 +11,12 @@ import jubilant
 
 
 def test_normal(monkeypatch: pytest.MonkeyPatch):
-    path = ''
+    path = None
 
     def mock_run(args: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
         nonlocal path
-        assert args[:-1] == [
+        *most_args, path = args
+        assert most_args == [
             'juju',
             'add-secret',
             'sec1',
@@ -23,7 +24,6 @@ def test_normal(monkeypatch: pytest.MonkeyPatch):
             'A description.',
             '--file',
         ]
-        (path,) = args[-1:]  # Ensure there's no extra args
         with open(path) as f:
             params = yaml.safe_load(f)
         assert params == {'username': 'usr', 'password': 'hunter2'}
@@ -40,5 +40,5 @@ def test_normal(monkeypatch: pytest.MonkeyPatch):
 
     assert isinstance(secret_uri, jubilant.SecretURI)
     assert secret_uri == 'secret:0123456789abcdefghji'  # noqa: S105
-    assert path
+    assert path is not None
     assert not os.path.exists(path)

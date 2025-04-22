@@ -169,11 +169,12 @@ def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
     "status": "completed"
   }
 }"""
-    params_path = ''
+    params_path = None
 
     def mock_run(args: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
         nonlocal params_path
-        assert args[:-1] == [
+        *most_args, params_path = args
+        assert most_args == [
             cli_binary,
             'run',
             '--format',
@@ -182,7 +183,6 @@ def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
             'get-password',
             '--params',
         ]
-        (params_path,) = args[-1:]  # Ensure there's no extra args
         with open(params_path) as f:
             params = yaml.safe_load(f)
         assert params == {'foo': 1, 'bar': ['ab', 'cd']}
@@ -199,5 +199,5 @@ def test_params(monkeypatch: pytest.MonkeyPatch, cli_binary: str):
         results={'username': 'user', 'password': 'pass'},
     )
     assert task.success
-    assert params_path
+    assert params_path is not None
     assert not os.path.exists(params_path)
