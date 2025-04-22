@@ -46,7 +46,7 @@ def test_deploy_with_resources(juju: jubilant.Juju):
     juju.deploy(
         'snappass-test',
         'snappass-with-resources',
-        base='ubuntu@22.04',
+        base='ubuntu@20.04',
         resources={
             'snappass-image': 'benhoyt/snappass-test',
             'redis-image': 'redis',
