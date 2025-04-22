@@ -44,12 +44,11 @@ def test_add_secret(juju: jubilant.Juju):
     uri = juju.add_secret(
         'sec1', {'username': 'usr', 'password': 'hunter2'}, info='A description.'
     )
+    assert uri.startswith('secret:')
 
-    id = str(uri[len('secret:') :] if uri.startswith('secret:') else uri)
     output = juju.cli('show-secret', 'sec1', '--reveal', '--format', 'json')
     result = json.loads(output)
-    secret = result[id]
-
+    secret = result[uri[len('secret:'):]]
     assert secret['name'] == 'sec1'
     assert secret['description'] == 'A description.'
     assert secret['content']['Data'] == {'username': 'usr', 'password': 'hunter2'}
