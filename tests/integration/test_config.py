@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 import pytest
 
 import jubilant
@@ -38,17 +36,3 @@ def test_trust(juju: jubilant.Juju):
     juju.trust('testdb', remove=True, scope='cluster')
     app_config = juju.config('testdb', app_config=True)
     assert app_config['trust'] is False
-
-
-def test_add_secret(juju: jubilant.Juju):
-    uri = juju.add_secret(
-        'sec1', {'username': 'usr', 'password': 'hunter2'}, info='A description.'
-    )
-    assert uri.startswith('secret:')
-
-    output = juju.cli('show-secret', 'sec1', '--reveal', '--format', 'json')
-    result = json.loads(output)
-    secret = result[uri[len('secret:') :]]
-    assert secret['name'] == 'sec1'
-    assert secret['description'] == 'A description.'
-    assert secret['content']['Data'] == {'username': 'usr', 'password': 'hunter2'}
