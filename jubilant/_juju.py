@@ -703,6 +703,36 @@ class Juju:
             if params_file is not None:
                 os.remove(params_file.name)
 
+    def scp(
+        self,
+        source: str,
+        destination: str,
+        *,
+        container: str | None = None,
+        host_key_checks: bool = True,
+        scp_options: Iterable[str] = (),
+    ) -> None:
+        """Securely transfer files within a model.
+
+        Args:
+            source: Source of file, in format ``[[<user>@]<target>:]<path>``.
+            destination: Destination for file, in format ``[<user>@]<target>:[<path>]``.
+            container: Name of container for Kubernetes charms. Defaults to the charm container.
+            host_key_checks: Set to False to disable host key checking (insecure).
+            scp_options: ``scp`` client options, for example ``['-r', '-C']``.
+        """
+        args = ['scp']
+        if container is not None:
+            args.extend(['--container', container])
+        if not host_key_checks:
+            args.append('--no-host-key-checks')
+        args.append('--')
+        args.extend(scp_options)
+        args.append(source)
+        args.append(destination)
+
+        self.cli(*args)
+
     def ssh(
         self,
         target: str | int,
