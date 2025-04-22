@@ -1,3 +1,5 @@
+import pathlib
+
 import jubilant
 
 from . import mocks
@@ -61,3 +63,10 @@ def test_all_args(run: mocks.Run):
         storage={'data': 'tmpfs,1G'},
         trust=True,
     )
+
+
+def test_path(run: mocks.Run):
+    run.handle(['juju', 'refresh', 'xyz', '--path', 'foo'])
+    juju = jubilant.Juju()
+
+    juju.refresh('xyz', path=pathlib.Path('foo'))

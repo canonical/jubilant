@@ -4,6 +4,7 @@ import functools
 import json
 import logging
 import os
+import pathlib
 import shlex
 import shutil
 import subprocess
@@ -78,7 +79,7 @@ class Juju:
         *,
         model: str | None = None,
         wait_timeout: float = 3 * 60.0,
-        cli_binary: str | os.PathLike[str] | None = None,
+        cli_binary: str | pathlib.Path | None = None,
     ):
         self.model = model
         self.wait_timeout = wait_timeout
@@ -254,7 +255,7 @@ class Juju:
 
     def deploy(
         self,
-        charm: str | os.PathLike[str],
+        charm: str | pathlib.Path,
         app: str | None = None,
         *,
         attach_storage: str | Iterable[str] | None = None,
@@ -502,7 +503,7 @@ class Juju:
         channel: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
         force: bool = False,
-        path: str | None = None,
+        path: str | pathlib.Path | None = None,
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
         storage: Mapping[str, str] | None = None,
@@ -535,7 +536,7 @@ class Juju:
         if force:
             args.extend(['--force', '--force-base', '--force-units'])
         if path is not None:
-            args.extend(['--path', path])
+            args.extend(['--path', str(path)])
         if resources is not None:
             for k, v in resources.items():
                 args.extend(['--resource', f'{k}={v}'])
@@ -705,8 +706,8 @@ class Juju:
 
     def scp(
         self,
-        source: str,
-        destination: str,
+        source: str | pathlib.Path,
+        destination: str | pathlib.Path,
         *,
         container: str | None = None,
         host_key_checks: bool = True,
@@ -716,7 +717,7 @@ class Juju:
 
         Args:
             source: Source of file, in format ``[[<user>@]<target>:]<path>``.
-            destination: Destination for file, in format ``[<user>@]<target>:[<path>]``.
+            destination: Destination for file, in format ``[<user>@]<target>[:<path>]``.
             container: Name of container for Kubernetes charms. Defaults to the charm container.
             host_key_checks: Set to False to disable host key checking (insecure).
             scp_options: ``scp`` client options, for example ``['-r', '-C']``.
@@ -728,8 +729,8 @@ class Juju:
             args.append('--no-host-key-checks')
         args.append('--')
         args.extend(scp_options)
-        args.append(source)
-        args.append(destination)
+        args.append(str(source))
+        args.append(str(destination))
 
         self.cli(*args)
 

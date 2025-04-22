@@ -1,3 +1,5 @@
+import pathlib
+
 import jubilant
 
 from . import mocks
@@ -77,3 +79,10 @@ def test_list_args(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.deploy('charm', attach_storage=['stg1', 'stg2'], to=['to1', 'to2'])
+
+
+def test_path(run: mocks.Run):
+    run.handle(['juju', 'deploy', 'xyz'])
+    juju = jubilant.Juju()
+
+    juju.deploy(pathlib.Path('xyz'))
