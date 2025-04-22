@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+
 import pytest
 
 import jubilant
@@ -22,6 +24,24 @@ def test_config(juju: jubilant.Juju):
     juju.config('testdb', {'testoption': 'foobar'})
     config = juju.config('testdb')
     assert config['testoption'] == 'foobar'
+
+
+@contextlib.contextmanager
+def fast_forward(juju: jubilant.Juju):
+    """Context manager that temporarily speeds up update-status hooks."""
+    old = juju.model_config()['update-status-hook-interval']
+    juju.model_config({'update-status-hook-interval': '10s'})
+    try:
+        yield
+    finally:
+        juju.model_config({'update-status-hook-interval': old})
+
+
+def test_model_config(juju: jubilant.Juju):
+    assert juju.model_config()['update-status-hook-interval'] == '5m'
+    with fast_forward(juju):
+        assert juju.model_config()['update-status-hook-interval'] == '10s'
+    assert juju.model_config()['update-status-hook-interval'] == '5m'
 
 
 def test_trust(juju: jubilant.Juju):

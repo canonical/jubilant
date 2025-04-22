@@ -87,9 +87,9 @@ def test_set(run: mocks.Run):
 
 
 def test_set_with_model(run: mocks.Run):
-    run.handle(['juju', 'config', 'app2', 'foo=bar'])
+    run.handle(['juju', 'config', '--model', 'mdl', 'app2', 'foo=bar'])
 
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(model='mdl')
     retval = juju.config('app2', {'foo': 'bar'})
     assert retval is None
 

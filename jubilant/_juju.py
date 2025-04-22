@@ -215,7 +215,7 @@ class Juju:
 
         Args:
             app: Application name to get or set config for.
-            values: Mapping of config names to values. Reset values that are
+            values: Mapping of config names to values to set. Reset values that are
                 ``None``.
             app_config: When getting config, set this to True to get the
                 (poorly-named) "application-config" values instead of charm config.
@@ -468,6 +468,41 @@ class Juju:
                 args.extend(['--via', via])
             else:
                 args.extend(['--via', ','.join(via)])
+        self.cli(*args)
+
+    @overload
+    def model_config(self) -> Mapping[str, ConfigValue]: ...
+
+    @overload
+    def model_config(self, values: Mapping[str, ConfigValue | None]) -> None: ...
+
+    def model_config(
+        self, values: Mapping[str, ConfigValue | None] | None = None
+    ) -> Mapping[str, ConfigValue] | None:
+        """Get or set the configuration of the model.
+
+        If called with no arguments, get the model config and return it.
+        If called with the *values* argument, set the model config values and return ``None``.
+
+        Args:
+            values: Mapping of model config names to values to set, for example
+                ``{'update-status-hook-interval': '10s'}``. Reset values that are ``None``.
+        """
+        if values is None:
+            stdout = self.cli('model-config', '--format', 'json')
+            result = json.loads(stdout)
+            return {k: v['Value'] for k, v in result.items() if 'Value' in v}
+
+        reset: list[str] = []
+        args = ['model-config']
+        for k, v in values.items():
+            if v is None:
+                reset.append(k)
+            else:
+                args.append(_format_config(k, v))
+        if reset:
+            args.extend(['--reset', ','.join(reset)])
+
         self.cli(*args)
 
     def offer(self, app: str, *endpoint: str, name: str | None = None) -> None:
