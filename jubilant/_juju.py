@@ -17,6 +17,7 @@ from ._task import Task
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
+logger_wait = logging.getLogger('jubilant.wait')
 
 
 class CLIError(subprocess.CalledProcessError):
@@ -832,7 +833,7 @@ class Juju:
             if status != prev_status:
                 diff = _status_diff(prev_status, status)
                 if diff:
-                    logger.info('wait: status changed:\n%s', diff)
+                    logger_wait.info('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 raise WaitError(f'error function {error.__qualname__} returned false\n{status}')
