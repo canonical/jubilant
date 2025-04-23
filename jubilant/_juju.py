@@ -302,6 +302,7 @@ class Juju:
         *,
         attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
+        bind: str | None = None,
         channel: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
@@ -322,6 +323,7 @@ class Juju:
             attach_storage: Existing storage(s) to attach to the deployed unit, for example,
                 ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
             base: The base on which to deploy, for example, ``ubuntu@22.04``.
+            bind: Configure application endpoint bindings to spaces.
             channel: Channel to use when deploying from Charmhub, for example, ``latest/edge``.
             config: Application configuration as key-value pairs, for example,
                 ``{'name': 'My Wiki'}``.
@@ -347,6 +349,8 @@ class Juju:
                 args.extend(['--attach-storage', ','.join(attach_storage)])
         if base is not None:
             args.extend(['--base', base])
+        if bind is not None:
+            args.extend(['--bind', bind])
         if channel is not None:
             args.extend(['--channel', channel])
         if config is not None:
