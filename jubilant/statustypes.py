@@ -61,7 +61,7 @@ class StatusInfo:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> StatusInfo:
         if 'status-error' in d:
-            return cls(current='error', message=d['status-error'])
+            return cls(current='failed', message=d['status-error'])
         return cls(
             current=d.get('current') or '',
             message=d.get('message') or '',
@@ -104,8 +104,8 @@ class UnitStatus:
     def _from_dict(cls, d: dict[str, Any]) -> UnitStatus:
         if 'status-error' in d:
             return cls(
-                workload_status=StatusInfo(current='error', message=d['status-error']),
-                juju_status=StatusInfo(current='error', message=d['status-error']),
+                workload_status=StatusInfo(current='failed', message=d['status-error']),
+                juju_status=StatusInfo(current='failed', message=d['status-error']),
             )
         return cls(
             workload_status=(
@@ -184,12 +184,12 @@ class AppStatus:
     def _from_dict(cls, d: dict[str, Any]) -> AppStatus:
         if 'status-error' in d:
             return cls(
-                charm='<error>',
-                charm_origin='<error>',
-                charm_name='<error>',
+                charm='<failed>',
+                charm_origin='<failed>',
+                charm_name='<failed>',
                 charm_rev=-1,
                 exposed=False,
-                app_status=StatusInfo(current='error', message=d['status-error']),
+                app_status=StatusInfo(current='failed', message=d['status-error']),
             )
         return cls(
             charm=d['charm'],
@@ -570,8 +570,8 @@ class MachineStatus:
     def _from_dict(cls, d: dict[str, Any]) -> MachineStatus:
         if 'status-error' in d:
             return cls(
-                juju_status=StatusInfo(current='error', message=d['status-error']),
-                machine_status=StatusInfo(current='error', message=d['status-error']),
+                juju_status=StatusInfo(current='failed', message=d['status-error']),
+                machine_status=StatusInfo(current='failed', message=d['status-error']),
             )
         return cls(
             juju_status=(
@@ -668,7 +668,7 @@ class OfferStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> OfferStatus:
         if 'status-error' in d:
-            return cls(app=f'<error> ({d["status-error"]})', endpoints={})
+            return cls(app=f'<failed> ({d["status-error"]})', endpoints={})
         return cls(
             app=d['application'],
             endpoints={k: RemoteEndpoint._from_dict(v) for k, v in d['endpoints'].items()},
@@ -691,8 +691,8 @@ class RemoteAppStatus:
     def _from_dict(cls, d: dict[str, Any]) -> RemoteAppStatus:
         if 'status-error' in d:
             return cls(
-                url='<error>',
-                app_status=StatusInfo(current='error', message=d['status-error']),
+                url='<failed>',
+                app_status=StatusInfo(current='failed', message=d['status-error']),
             )
         return cls(
             url=d['url'],
