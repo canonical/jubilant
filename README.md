@@ -29,6 +29,9 @@ import jubilant
 juju = jubilant.Juju()
 juju.deploy('snappass-test')
 juju.wait(jubilant.all_active)
+
+# Or specify application names more specifically:
+juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
 Below is an example of a charm integration test. First we define a module-scoped [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant's`temp_model` context manager creates the model during test setup and destroys it during teardown:

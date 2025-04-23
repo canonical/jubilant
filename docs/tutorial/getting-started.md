@@ -76,8 +76,10 @@ Integration tests in a test file would use the fixture, operating on the tempora
 ```python
 def test_deploy(juju: jubilant.Juju):
     juju.deploy('snappass-test')
-    status = juju.wait(jubilant.all_active)
-    assert status.apps['snappass-test'].scale == 1
+    juju.wait(jubilant.all_active)
+
+    # Or wait more specifically for only 'snappass-test' to be active:
+    juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
 You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, to create a new model for every test function (pytest's default behavior), omit the scope:
@@ -93,9 +95,20 @@ def juju():
 
 When waiting on a condition with [`Juju.wait`](jubilant.Juju.wait), you can use pre-defined helpers including [](jubilant.all_active) and [](jubilant.any_error). You can also define custom conditions for the *ready* and *error* parameters. This is typically done with inline `lambda` functions.
 
-For example, to test that the `myapp` charm starts up with application status "unknown":
+For example, to deploy and wait till all the specified applications (`blog`, `mysql`, and `redis`) are "active":
 
+```python
+def test_active_apps(juju: jubilant.Juju):
+    for app in ['blog', 'mysql', 'redis']:
+        juju.deploy(app)
+    juju.integrate('blog', 'mysql')
+    juju.integrate('blog', 'redis')
+    juju.wait(lambda status: jubilant.all_active(status, 'blog', 'mysql', 'redis'))
 ```
+
+Or to test that the `myapp` charm starts up with application status "unknown":
+
+```python
 def test_unknown(juju: jubilant.Juju):
     juju.deploy('myapp')
     juju.wait(
@@ -107,7 +120,7 @@ There are also `is_*` properties on the [`AppStatus`](jubilant.statustypes.AppSt
 
 For example, to wait till `myapp` is active and `yourapp` is blocked, and to raise an error if any app or unit goes into error state:
 
-```
+```python
 def test_custom_wait(juju: jubilant.Juju):
     juju.deploy('myapp')
     juju.deploy('yourapp')

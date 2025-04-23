@@ -5,8 +5,16 @@ from collections.abc import Iterable
 from .statustypes import Status
 
 
-def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications and units in *status* are in "active" status.
+def all_active(status: Status, *apps: str) -> bool:
+    """Report whether all apps and units in *status* (or in *apps* if provided) are "active".
+
+    Examples::
+
+        # Use the callable directly to wait for all apps in status to be active.
+        juju.wait(jubilant.all_active)
+
+        # Use a lambda to wait for all apps specified (blog, mysql) to be active.
+        juju.wait(lambda status: jubilant.all_active(status, 'blog', 'mysql'))
 
     Args:
         status: The status object being tested.
@@ -16,8 +24,10 @@ def all_active(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _all_statuses_are('active', status, apps)
 
 
-def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications and units in *status* are in "blocked" status.
+def all_blocked(status: Status, *apps: str) -> bool:
+    """Report whether all apps and units in *status* (or in *apps* if provided) are "blocked".
+
+    See :func:`all_active` for examples.
 
     Args:
         status: The status object being tested.
@@ -27,8 +37,10 @@ def all_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _all_statuses_are('blocked', status, apps)
 
 
-def all_error(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications and units in *status* are in "error" status.
+def all_error(status: Status, *apps: str) -> bool:
+    """Report whether all apps and units in *status* (or in *apps* if provided) are "error".
+
+    See :func:`all_active` for examples.
 
     Args:
         status: The status object being tested.
@@ -38,8 +50,10 @@ def all_error(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _all_statuses_are('error', status, apps)
 
 
-def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications and units in *status* are in "maintenance" status.
+def all_maintenance(status: Status, *apps: str) -> bool:
+    """Report whether all apps and units in *status* (or in *apps* if provided) are "maintenance".
+
+    See :func:`all_active` for examples.
 
     Args:
         status: The status object being tested.
@@ -49,8 +63,10 @@ def all_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _all_statuses_are('maintenance', status, apps)
 
 
-def all_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether all applications and units in *status* are in "waiting" status.
+def all_waiting(status: Status, *apps: str) -> bool:
+    """Report whether all apps and units in *status* (or in *apps* if provided) are "waiting".
+
+    See :func:`all_active` for examples.
 
     Args:
         status: The status object being tested.
@@ -60,8 +76,10 @@ def all_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _all_statuses_are('waiting', status, apps)
 
 
-def any_active(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether any application or unit in *status* is in "active" status.
+def any_active(status: Status, *apps: str) -> bool:
+    """Report whether any app or unit in *status* (or in *apps* if provided) is "active".
+
+    See :func:`any_error` for examples.
 
     Args:
         status: The status object being tested.
@@ -71,8 +89,10 @@ def any_active(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _any_status_is('active', status, apps)
 
 
-def any_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether any application or unit in *status* is in "blocked" status.
+def any_blocked(status: Status, *apps: str) -> bool:
+    """Report whether any app or unit in *status* (or in *apps* if provided) is "blocked".
+
+    See :func:`any_error` for examples.
 
     Args:
         status: The status object being tested.
@@ -82,8 +102,19 @@ def any_blocked(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _any_status_is('blocked', status, apps)
 
 
-def any_error(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether any application or unit in *status* is in "error" status.
+def any_error(status: Status, *apps: str) -> bool:
+    """Report whether any app or unit in *status* (or in *apps* if provided) is "error".
+
+    Examples::
+
+        # Use the callable directly to raise an error if any apps go into error.
+        juju.wait(jubilant.all_active, error=jubilant.any_error)
+
+        # Use a lambda to wait for any of the apps specified (blog, mysql) to go into error.
+        juju.wait(
+            jubilant.all_active,
+            error=lambda status: jubilant.any_error(status, 'blog', 'mysql')),
+        )
 
     Args:
         status: The status object being tested.
@@ -93,8 +124,10 @@ def any_error(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _any_status_is('error', status, apps)
 
 
-def any_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether any application or unit in *status* is in "maintenance" status.
+def any_maintenance(status: Status, *apps: str) -> bool:
+    """Report whether any app or unit in *status* (or in *apps* if provided) is "maintenance".
+
+    See :func:`any_error` for examples.
 
     Args:
         status: The status object being tested.
@@ -104,8 +137,10 @@ def any_maintenance(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _any_status_is('maintenance', status, apps)
 
 
-def any_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
-    """Report whether any application or unit in *status* is in "waiting" status.
+def any_waiting(status: Status, *apps: str) -> bool:
+    """Report whether any app or unit in *status* (or in *apps* if provided) is "waiting".
+
+    See :func:`any_error` for examples.
 
     Args:
         status: The status object being tested.
@@ -115,11 +150,8 @@ def any_waiting(status: Status, apps: Iterable[str] | None = None) -> bool:
     return _any_status_is('waiting', status, apps)
 
 
-def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
-    if isinstance(apps, (str, bytes)):
-        raise TypeError('"apps" must be an iterable of names (like a list), not a string')
-
-    if apps is None:
+def _all_statuses_are(expected: str, status: Status, apps: Iterable[str]) -> bool:
+    if not apps:
         apps = status.apps.keys()
 
     for app in apps:
@@ -134,11 +166,8 @@ def _all_statuses_are(expected: str, status: Status, apps: Iterable[str] | None)
     return True
 
 
-def _any_status_is(expected: str, status: Status, apps: Iterable[str] | None) -> bool:
-    if isinstance(apps, (str, bytes)):
-        raise TypeError('"apps" must be an iterable of names (like a list), not a string')
-
-    if apps is None:
+def _any_status_is(expected: str, status: Status, apps: Iterable[str]) -> bool:
+    if not apps:
         apps = status.apps.keys()
 
     for app in apps:

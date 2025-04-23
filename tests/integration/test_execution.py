@@ -104,7 +104,7 @@ def test_exec_error_machine_on_k8s(juju: jubilant.Juju):
 def test_ssh_and_scp(juju: jubilant.Juju):
     # The 'testdb' charm doesn't have any containers, so use 'snappass-test'.
     juju.deploy('snappass-test')
-    juju.wait(lambda status: jubilant.all_active(status, ['snappass-test']))
+    juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 
     output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
     assert output.split() == ['redis', 'snappass']

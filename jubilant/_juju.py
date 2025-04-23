@@ -825,8 +825,11 @@ class Juju:
 
             juju = jubilant.Juju()
             juju.deploy('snappass-test')
+            juju.wait(jubilant.all_active)
+
+            # Or wait specifically for 'snappass-test' to be active, and raise on any error.
             juju.wait(
-                lambda status: status.apps['snappass-test'].is_active,
+                lambda status: jubilant.all_active(status, 'snappass-test'),
                 error=jubilant.any_error,
             )
 

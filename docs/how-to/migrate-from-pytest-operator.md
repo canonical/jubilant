@@ -81,6 +81,9 @@ In your tests, use the fixture like this:
 def test_active(juju: jubilant.Juju):
     juju.deploy('mycharm')
     juju.wait(jubilant.all_active)
+
+    # Or wait more specifically for only 'mycharm' to be active:
+    juju.wait(lambda status: jubilant.all_active(status, 'mycharm'))
 ```
 
 A few things to note about the fixture:
@@ -183,7 +186,7 @@ juju.deploy(
     trust=True,
     config={'profile': 'testing'},
 )
-juju.wait(lambda status: status.apps['postgresql-k8s'].is_active)
+juju.wait(lambda status: jubilant.all_active(status, 'postgresql-k8s'))
 ```
 
 ### Fetching status
@@ -228,7 +231,7 @@ def test_active(juju: jubilant.Juju):
 It's common to use a `lambda` function to customize the callables further. For example, to wait specifically for `mysql` and `redis` to go active:
 
 ```python
-juju.wait(lambda status: jubilant.all_active(status, ['mysql', 'redis']))
+juju.wait(lambda status: jubilant.all_active(status, 'mysql', 'redis'))
 ```
 
 The `wait` method also has other options (see [`juju.wait`](jubilant.Juju.wait) for details):
@@ -236,7 +239,7 @@ The `wait` method also has other options (see [`juju.wait`](jubilant.Juju.wait) 
 ```python
 juju.deploy('mycharm')
 juju.wait(
-    ready=lambda status: status.apps['mycharm'].is_active,
+    ready=lambda status: jubilant.all_active(status, 'mycharm'),
     error=jubilant.any_error,
     delay=0.2,    # poll "juju status" every 200ms (default 1s)
     timeout=60,   # set overall timeout to 60s (default juju.wait_timeout)
