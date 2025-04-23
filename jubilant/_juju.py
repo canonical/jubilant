@@ -40,6 +40,20 @@ class WaitError(Exception):
 class SecretURI(str):
     """A string subclass that represents a secret URI ("secret:...")."""
 
+    @property
+    def unique_identifier(self) -> str:
+        """Unique identifier of this secret URI.
+
+        This is the secret's globally-unique identifier (currently a 20-character Xid,
+        for example "9m4e2mr0ui3e8a215n4g").
+        """
+        if '/' in self:
+            return self.rsplit('/', maxsplit=1)[-1]
+        elif self.startswith('secret:'):
+            return self[len('secret:') :]
+        else:
+            return str(self)
+
 
 ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
@@ -128,6 +142,33 @@ class Juju:
         self.cli(*args, include_model=False)
         self.model = model
 
+    def add_secret(
+        self,
+        name: str,
+        content: Mapping[str, str],
+        *,
+        info: str | None = None,
+    ) -> SecretURI:
+        """Add a new named secret and returns its secret URI.
+
+        Args:
+            name: Name for the secret.
+            content: Key-value pairs that represent the secret content, for example
+                ``{'password': 'hunter2'}``.
+            info: Optional description for the secret.
+        """
+        args = ['add-secret', name]
+        if info is not None:
+            args.extend(['--info', info])
+
+        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
+            _yaml.safe_dump(content, file)
+            file.flush()
+            args.extend(['--file', file.name])
+            output = self.cli(*args)
+
+        return SecretURI(output.strip())
+
     def add_unit(
         self,
         app: str,
@@ -211,13 +252,13 @@ class Juju:
         """Get or set the configuration of a deployed application.
 
         If called with only the *app* argument, get the config and return it.
-        If called with the *values* argument, set the config values and return
-        ``None``.
+
+        If called with the *values* argument, set the config values and return None.
+        For values in *values* that are None, reset them to their defaults.
 
         Args:
             app: Application name to get or set config for.
-            values: Mapping of config names to values. Reset values that are
-                ``None``.
+            values: Mapping of config names to values to set. Reset values that are None.
             app_config: When getting config, set this to True to get the
                 (poorly-named) "application-config" values instead of charm config.
         """
@@ -469,6 +510,43 @@ class Juju:
                 args.extend(['--via', via])
             else:
                 args.extend(['--via', ','.join(via)])
+        self.cli(*args)
+
+    @overload
+    def model_config(self) -> Mapping[str, ConfigValue]: ...
+
+    @overload
+    def model_config(self, values: Mapping[str, ConfigValue | None]) -> None: ...
+
+    def model_config(
+        self, values: Mapping[str, ConfigValue | None] | None = None
+    ) -> Mapping[str, ConfigValue] | None:
+        """Get or set the configuration of the model.
+
+        If called with no arguments, get the model config and return it.
+
+        If called with the *values* argument, set the model config values and return None.
+        For values in *values* that are None, reset them to their defaults.
+
+        Args:
+            values: Mapping of model config names to values to set, for example
+                ``{'update-status-hook-interval': '10s'}``. Reset values that are None.
+        """
+        if values is None:
+            stdout = self.cli('model-config', '--format', 'json')
+            result = json.loads(stdout)
+            return {k: v['Value'] for k, v in result.items() if 'Value' in v}
+
+        reset: list[str] = []
+        args = ['model-config']
+        for k, v in values.items():
+            if v is None:
+                reset.append(k)
+            else:
+                args.append(_format_config(k, v))
+        if reset:
+            args.extend(['--reset', ','.join(reset)])
+
         self.cli(*args)
 
     def offer(self, app: str, *endpoint: str, name: str | None = None) -> None:
