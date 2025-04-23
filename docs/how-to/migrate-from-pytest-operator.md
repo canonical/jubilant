@@ -325,7 +325,7 @@ juju.cli(
 
 ### A `fast_forward` context manager
 
-Pytest-operator has a `fast_forward` context manager which temporarily speeds up `update-status` hooks to fire every 10 seconds (instead of Juju's default of every 5 minutes). Jubilant doesn't provide this context manager, as we don't recommend it for new tests, but if you need it for migrating existing tests, you can define it as:
+Pytest-operator has a `fast_forward` context manager which temporarily speeds up `update-status` hooks to fire every 10 seconds (instead of Juju's default of every 5 minutes). Jubilant doesn't provide this context manager, as we don't recommend it for new tests. If you need it for migrating existing tests, you can define it as:
 
 ```python
 @contextlib.contextmanager

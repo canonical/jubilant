@@ -210,13 +210,13 @@ class Juju:
         """Get or set the configuration of a deployed application.
 
         If called with only the *app* argument, get the config and return it.
-        If called with the *values* argument, set the config values and return
-        ``None``.
+
+        If called with the *values* argument, set the config values and return None.
+        For values in *values* that are None, reset them to their defaults.
 
         Args:
             app: Application name to get or set config for.
-            values: Mapping of config names to values to set. Reset values that are
-                ``None``.
+            values: Mapping of config names to values to set. Reset values that are None.
             app_config: When getting config, set this to True to get the
                 (poorly-named) "application-config" values instead of charm config.
         """
@@ -482,11 +482,13 @@ class Juju:
         """Get or set the configuration of the model.
 
         If called with no arguments, get the model config and return it.
-        If called with the *values* argument, set the model config values and return ``None``.
+
+        If called with the *values* argument, set the model config values and return None.
+        For values in *values* that are None, reset them to their defaults.
 
         Args:
             values: Mapping of model config names to values to set, for example
-                ``{'update-status-hook-interval': '10s'}``. Reset values that are ``None``.
+                ``{'update-status-hook-interval': '10s'}``. Reset values that are None.
         """
         if values is None:
             stdout = self.cli('model-config', '--format', 'json')
