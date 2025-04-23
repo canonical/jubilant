@@ -82,7 +82,7 @@ def test_active(juju: jubilant.Juju):
     juju.deploy('mycharm')
     juju.wait(jubilant.all_active)
 
-    # Or wait more specifically for only 'mycharm' to be active:
+    # Or wait for just 'mycharm' to be active (ignore other apps):
     juju.wait(lambda status: jubilant.all_active(status, 'mycharm'))
 ```
 

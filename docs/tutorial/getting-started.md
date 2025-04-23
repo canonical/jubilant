@@ -78,7 +78,7 @@ def test_deploy(juju: jubilant.Juju):
     juju.deploy('snappass-test')
     juju.wait(jubilant.all_active)
 
-    # Or wait more specifically for only 'snappass-test' to be active:
+    # Or wait for just 'snappass-test' to be active (ignore other apps):
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
@@ -103,7 +103,9 @@ def test_active_apps(juju: jubilant.Juju):
         juju.deploy(app)
     juju.integrate('blog', 'mysql')
     juju.integrate('blog', 'redis')
-    juju.wait(lambda status: jubilant.all_active(status, 'blog', 'mysql', 'redis'))
+    juju.wait(
+        lambda status: jubilant.all_active(status, 'blog', 'mysql', 'redis'),
+    )
 ```
 
 Or to test that the `myapp` charm starts up with application status "unknown":
@@ -116,7 +118,7 @@ def test_unknown(juju: jubilant.Juju):
     )
 ```
 
-There are also `is_*` properties on the [`AppStatus`](jubilant.statustypes.AppStatus) and [`UnitStatus`](jubilant.statustypes.UnitStatus) classes for the common statuses: `is_active`, `is_blocked`, `is_error`, `is_maintenance`, and `is_waiting`.
+There are also `is_*` properties on the [`AppStatus`](jubilant.statustypes.AppStatus) and [`UnitStatus`](jubilant.statustypes.UnitStatus) classes for the common statuses: `is_active`, `is_blocked`, `is_error`, `is_maintenance`, and `is_waiting`. These test the status of a single application or unit, whereas the `jubilant.all_*` and `jubilant.any_*` functions test the statuses of multiple applications *and* all their units.
 
 For example, to wait till `myapp` is active and `yourapp` is blocked, and to raise an error if any app or unit goes into error state:
 

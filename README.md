@@ -30,7 +30,7 @@ juju = jubilant.Juju()
 juju.deploy('snappass-test')
 juju.wait(jubilant.all_active)
 
-# Or specify application names more specifically:
+# Or only wait for specific applications:
 juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
