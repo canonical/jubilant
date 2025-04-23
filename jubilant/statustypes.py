@@ -25,7 +25,6 @@ __all__ = [
     'RemoteAppStatus',
     'RemoteEndpoint',
     'Status',
-    'StatusError',
     'StatusInfo',
     'StorageAttachments',
     'StorageInfo',
@@ -35,10 +34,6 @@ __all__ = [
     'VolumeAttachments',
     'VolumeInfo',
 ]
-
-
-class StatusError(Exception):
-    """Raised when ``juju status`` returns a status-error for certain types."""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -66,7 +61,7 @@ class StatusInfo:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> StatusInfo:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(current='error', message=d['status-error'])
         return cls(
             current=d.get('current') or '',
             message=d.get('message') or '',
@@ -108,7 +103,10 @@ class UnitStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> UnitStatus:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(
+                workload_status=StatusInfo(current='error', message=d['status-error']),
+                juju_status=StatusInfo(current='error', message=d['status-error']),
+            )
         return cls(
             workload_status=(
                 StatusInfo._from_dict(d['workload-status'])
@@ -185,7 +183,14 @@ class AppStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> AppStatus:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(
+                charm='<error>',
+                charm_origin='<error>',
+                charm_name='<error>',
+                charm_rev=-1,
+                exposed=False,
+                app_status=StatusInfo(current='error', message=d['status-error']),
+            )
         return cls(
             charm=d['charm'],
             charm_origin=d['charm-origin'],
@@ -564,7 +569,10 @@ class MachineStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> MachineStatus:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(
+                juju_status=StatusInfo(current='error', message=d['status-error']),
+                machine_status=StatusInfo(current='error', message=d['status-error']),
+            )
         return cls(
             juju_status=(
                 StatusInfo._from_dict(d['juju-status']) if 'juju-status' in d else StatusInfo()
@@ -660,7 +668,7 @@ class OfferStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> OfferStatus:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(app=f'<error> ({d["status-error"]})', endpoints={})
         return cls(
             app=d['application'],
             endpoints={k: RemoteEndpoint._from_dict(v) for k, v in d['endpoints'].items()},
@@ -682,7 +690,10 @@ class RemoteAppStatus:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> RemoteAppStatus:
         if 'status-error' in d:
-            raise StatusError(d['status-error'])
+            return cls(
+                url='<error>',
+                app_status=StatusInfo(current='error', message=d['status-error']),
+            )
         return cls(
             url=d['url'],
             endpoints=(
