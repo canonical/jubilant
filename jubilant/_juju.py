@@ -48,8 +48,10 @@ class SecretURI(str):
         for example "9m4e2mr0ui3e8a215n4g").
         """
         if '/' in self:
+            # Handle 'secret://MODEL-UUID/UNIQUE-IDENTIFIER'
             return self.rsplit('/', maxsplit=1)[-1]
         elif self.startswith('secret:'):
+            # Handle common case of 'secret:UNIQUE-IDENTIFIER'
             return self[len('secret:') :]
         else:
             return str(self)
