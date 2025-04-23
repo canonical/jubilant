@@ -160,14 +160,11 @@ class Juju:
         if info is not None:
             args.extend(['--info', info])
 
-        with tempfile.NamedTemporaryFile('w+', delete=False, dir=self._temp_dir) as file:
+        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
             _yaml.safe_dump(content, file)
+            file.flush()
             args.extend(['--file', file.name])
-
-        try:
             output = self.cli(*args)
-        finally:
-            os.remove(file.name)
 
         return SecretURI(output.strip())
 
