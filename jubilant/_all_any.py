@@ -19,7 +19,7 @@ def all_active(status: Status, *apps: str) -> bool:
     Args:
         status: The status object being tested.
         apps: An optional list of application names. If provided, only these applications
-            (and their units) are tested.
+            (and their units) are tested, and each must be present in ``status.apps``.
     """
     return _all_statuses_are('active', status, apps)
 
@@ -32,7 +32,7 @@ def all_blocked(status: Status, *apps: str) -> bool:
     Args:
         status: The status object being tested.
         apps: An optional list of application names. If provided, only these applications
-            (and their units) are tested.
+            (and their units) are tested, and each must be present in ``status.apps``.
     """
     return _all_statuses_are('blocked', status, apps)
 
@@ -45,7 +45,7 @@ def all_error(status: Status, *apps: str) -> bool:
     Args:
         status: The status object being tested.
         apps: An optional list of application names. If provided, only these applications
-            (and their units) are tested.
+            (and their units) are tested, and each must be present in ``status.apps``.
     """
     return _all_statuses_are('error', status, apps)
 
@@ -58,7 +58,7 @@ def all_maintenance(status: Status, *apps: str) -> bool:
     Args:
         status: The status object being tested.
         apps: An optional list of application names. If provided, only these applications
-            (and their units) are tested.
+            (and their units) are tested, and each must be present in ``status.apps``.
     """
     return _all_statuses_are('maintenance', status, apps)
 
@@ -71,7 +71,7 @@ def all_waiting(status: Status, *apps: str) -> bool:
     Args:
         status: The status object being tested.
         apps: An optional list of application names. If provided, only these applications
-            (and their units) are tested.
+            (and their units) are tested, and each must be present in ``status.apps``.
     """
     return _all_statuses_are('waiting', status, apps)
 

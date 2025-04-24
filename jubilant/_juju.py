@@ -907,7 +907,8 @@ class Juju:
             juju.deploy('snappass-test')
             juju.wait(jubilant.all_active)
 
-            # Or wait specifically for 'snappass-test' to be active, and raise on any error.
+            # Or something more complex: wait specifically for 'snappass-test' to be active,
+            # and raise if any app or unit is seen in "error" status while waiting.
             juju.wait(
                 lambda status: jubilant.all_active(status, 'snappass-test'),
                 error=jubilant.any_error,

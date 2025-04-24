@@ -78,7 +78,7 @@ def test_deploy(juju: jubilant.Juju):
     juju.deploy('snappass-test')
     juju.wait(jubilant.all_active)
 
-    # Or wait for just 'snappass-test' to be active (ignore other apps):
+    # Or wait for just 'snappass-test' to be active (ignoring other apps):
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 

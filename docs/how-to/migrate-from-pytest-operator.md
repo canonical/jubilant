@@ -82,7 +82,7 @@ def test_active(juju: jubilant.Juju):
     juju.deploy('mycharm')
     juju.wait(jubilant.all_active)
 
-    # Or wait for just 'mycharm' to be active (ignore other apps):
+    # Or wait for just 'mycharm' to be active (ignoring other apps):
     juju.wait(lambda status: jubilant.all_active(status, 'mycharm'))
 ```
 
@@ -228,10 +228,15 @@ def test_active(juju: jubilant.Juju):
     juju.wait(jubilant.all_active, error=jubilant.any_error)
 ```
 
-It's common to use a `lambda` function to customize the callables further. For example, to wait specifically for `mysql` and `redis` to go active:
+It's common to use a `lambda` function to customize the callable or compose multiple checks. For example, to wait specifically for `mysql` and `redis` to go active and `logger` to be blocked:
 
 ```python
-juju.wait(lambda status: jubilant.all_active(status, 'mysql', 'redis'))
+juju.wait(
+    lambda status: (
+        jubilant.all_active(status, 'mysql', 'redis') and
+        jubilant.all_blocked(status, 'logger'),
+    ),
+)
 ```
 
 The `wait` method also has other options (see [`juju.wait`](jubilant.Juju.wait) for details):
