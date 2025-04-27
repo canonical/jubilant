@@ -302,7 +302,7 @@ class Juju:
         *,
         attach_storage: str | Iterable[str] | None = None,
         base: str | None = None,
-        bind: str | None = None,
+        bind: Mapping[str, str] | str | None = None,
         channel: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
@@ -323,7 +323,9 @@ class Juju:
             attach_storage: Existing storage(s) to attach to the deployed unit, for example,
                 ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
             base: The base on which to deploy, for example, ``ubuntu@22.04``.
-            bind: Configure application endpoint bindings to spaces.
+            bind: Either a mapping of endpoint-to-space bindings, for example
+                ``{'database-peers': 'internal-space'}``, or a single space name, which is
+                equivalent to binding all endpoints to that space.
             channel: Channel to use when deploying from Charmhub, for example, ``latest/edge``.
             config: Application configuration as key-value pairs, for example,
                 ``{'name': 'My Wiki'}``.
@@ -350,6 +352,8 @@ class Juju:
         if base is not None:
             args.extend(['--base', base])
         if bind is not None:
+            if not isinstance(bind, str):
+                bind = ','.join(f'{k}={v}' for k, v in bind.items())
             args.extend(['--bind', bind])
         if channel is not None:
             args.extend(['--channel', channel])

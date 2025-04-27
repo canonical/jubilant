@@ -31,7 +31,7 @@ def test_all_args(run: mocks.Run):
             '--base',
             'ubuntu@22.04',
             '--bind',
-            'binding',
+            'end1=space1,end2=space2',
             '--channel',
             'latest/edge',
             '--config',
@@ -63,7 +63,7 @@ def test_all_args(run: mocks.Run):
         'app',
         attach_storage='stg',
         base='ubuntu@22.04',
-        bind='binding',
+        bind={'end1': 'space1', 'end2': 'space2'},
         channel='latest/edge',
         config={'x': True, 'y': 1, 'z': 'ss'},
         constraints={'mem': '8G'},
@@ -75,6 +75,13 @@ def test_all_args(run: mocks.Run):
         to='lxd:25',
         trust=True,
     )
+
+
+def test_bind_str(run: mocks.Run):
+    run.handle(['juju', 'deploy', 'charm', '--bind', 'binding'])
+    juju = jubilant.Juju()
+
+    juju.deploy('charm', bind='binding')
 
 
 def test_list_args(run: mocks.Run):
