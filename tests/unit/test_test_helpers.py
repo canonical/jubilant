@@ -40,12 +40,12 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     assert run.calls[2].args[1] == 'destroy-model'
 
 
-def test_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
-    run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234'])
+    run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234', '--controller', 'ctrl'])
     run.handle(['juju', 'deploy', '--model', 'jubilant-abcd1234', 'app1'])
 
-    with jubilant.temp_model(keep=True) as juju:
+    with jubilant.temp_model(keep=True, controller='ctrl') as juju:
         assert juju.model == 'jubilant-abcd1234'
         assert len(run.calls) == 1
         assert run.calls[0].args[1] == 'add-model'
