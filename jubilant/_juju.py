@@ -242,29 +242,44 @@ class Juju:
     def config(self, app: str, *, app_config: bool = False) -> Mapping[str, ConfigValue]: ...
 
     @overload
-    def config(self, app: str, values: Mapping[str, ConfigValue | None]) -> None: ...
+    def config(
+        self,
+        app: str,
+        values: Mapping[str, ConfigValue],
+        *,
+        reset: Iterable[str] = (),
+    ) -> None: ...
+
+    @overload
+    def config(self, app: str, *, reset: Iterable[str]) -> None: ...
 
     def config(
         self,
         app: str,
-        values: Mapping[str, ConfigValue | None] | None = None,
+        values: Mapping[str, ConfigValue] | None = None,
         *,
         app_config: bool = False,
+        reset: Iterable[str] = (),
     ) -> Mapping[str, ConfigValue] | None:
         """Get or set the configuration of a deployed application.
 
         If called with only the *app* argument, get the config and return it.
 
-        If called with the *values* argument, set the config values and return None.
-        For values in *values* that are None, reset them to their defaults.
+        If called with the *values* or *reset* arguments, set the config values and return None,
+        and reset any keys in *reset* to their defaults.
 
         Args:
             app: Application name to get or set config for.
-            values: Mapping of config names to values to set. Reset values that are None.
+            values: Mapping of config names to values to set.
             app_config: When getting config, set this to True to get the
                 (poorly-named) "application-config" values instead of charm config.
+            reset: List of keys to reset to their defaults.
         """
-        if values is None:
+        # Need this check because str is also an iterable of str.
+        if isinstance(reset, str):
+            raise TypeError('reset must be an iterable of str, not str')
+
+        if values is None and not reset:
             stdout = self.cli('config', '--format', 'json', app)
             outer = json.loads(stdout)
             inner = outer['application-config'] if app_config else outer['settings']
@@ -275,13 +290,9 @@ class Juju:
             }
             return result
 
-        reset: list[str] = []
         args = ['config', app]
-        for k, v in values.items():
-            if v is None:
-                reset.append(k)
-            else:
-                args.append(_format_config(k, v))
+        if values:
+            args.extend(_format_config(k, v) for k, v in values.items())
         if reset:
             args.extend(['--reset', ','.join(reset)])
 
@@ -526,34 +537,40 @@ class Juju:
     def model_config(self) -> Mapping[str, ConfigValue]: ...
 
     @overload
-    def model_config(self, values: Mapping[str, ConfigValue | None]) -> None: ...
+    def model_config(
+        self, values: Mapping[str, ConfigValue], *, reset: Iterable[str] = ()
+    ) -> None: ...
+
+    @overload
+    def model_config(self, *, reset: Iterable[str]) -> None: ...
 
     def model_config(
-        self, values: Mapping[str, ConfigValue | None] | None = None
+        self, values: Mapping[str, ConfigValue] | None = None, reset: Iterable[str] = ()
     ) -> Mapping[str, ConfigValue] | None:
         """Get or set the configuration of the model.
 
         If called with no arguments, get the model config and return it.
 
-        If called with the *values* argument, set the model config values and return None.
-        For values in *values* that are None, reset them to their defaults.
+        If called with the *values* or *reset* arguments, set the model config values and return
+        None, and reset any keys in *reset* to their defaults.
 
         Args:
             values: Mapping of model config names to values to set, for example
-                ``{'update-status-hook-interval': '10s'}``. Reset values that are None.
+                ``{'update-status-hook-interval': '10s'}``.
+            reset: List of keys to reset to their defaults.
         """
-        if values is None:
+        # Need this check because str is also an iterable of str.
+        if isinstance(reset, str):
+            raise TypeError('reset must be an iterable of str, not str')
+
+        if values is None and not reset:
             stdout = self.cli('model-config', '--format', 'json')
             result = json.loads(stdout)
             return {k: v['Value'] for k, v in result.items() if 'Value' in v}
 
-        reset: list[str] = []
         args = ['model-config']
-        for k, v in values.items():
-            if v is None:
-                reset.append(k)
-            else:
-                args.append(_format_config(k, v))
+        if values:
+            args.extend(_format_config(k, v) for k, v in values.items())
         if reset:
             args.extend(['--reset', ','.join(reset)])
 
@@ -811,6 +828,10 @@ class Juju:
             host_key_checks: Set to False to disable host key checking (insecure).
             scp_options: ``scp`` client options, for example ``['-r', '-C']``.
         """
+        # Need this check because str is also an iterable of str.
+        if isinstance(scp_options, str):
+            raise TypeError('scp_options must be an iterable of str, not str')
+
         args = ['scp']
         if container is not None:
             args.extend(['--container', container])

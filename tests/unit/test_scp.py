@@ -1,5 +1,7 @@
 import pathlib
 
+import pytest
+
 import jubilant
 
 from . import mocks
@@ -44,3 +46,10 @@ def test_path_destination(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.scp('SRC', pathlib.Path('DST'))
+
+
+def test_type_error():
+    juju = jubilant.Juju()
+
+    with pytest.raises(TypeError):
+        juju.scp('src', 'dst', scp_options='invalid')

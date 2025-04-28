@@ -25,16 +25,19 @@ def test_config(juju: jubilant.Juju):
     config = juju.config('testdb')
     assert config['testoption'] == 'foobar'
 
+    juju.config('testdb', reset=['testoption'])
+    config = juju.config('testdb')
+    assert config['testoption'] == ''
+
 
 @contextlib.contextmanager
 def fast_forward(juju: jubilant.Juju):
     """Context manager that temporarily speeds up update-status hooks."""
-    old = juju.model_config()['update-status-hook-interval']
     juju.model_config({'update-status-hook-interval': '10s'})
     try:
         yield
     finally:
-        juju.model_config({'update-status-hook-interval': old})
+        juju.model_config(reset=['update-status-hook-interval'])
 
 
 def test_model_config(juju: jubilant.Juju):

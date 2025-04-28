@@ -1,3 +1,5 @@
+import pytest
+
 import jubilant
 
 from . import mocks
@@ -98,7 +100,7 @@ def test_reset(run: mocks.Run):
     run.handle(['juju', 'config', 'app1', '--reset', 'x,why,zed'])
 
     juju = jubilant.Juju()
-    retval = juju.config('app1', {'x': None, 'why': None, 'zed': None})
+    retval = juju.config('app1', reset=['x', 'why', 'zed'])
     assert retval is None
 
 
@@ -106,5 +108,11 @@ def test_set_with_reset(run: mocks.Run):
     run.handle(['juju', 'config', 'app1', 'foo=bar', '--reset', 'baz,buzz'])
 
     juju = jubilant.Juju()
-    retval = juju.config('app1', {'foo': 'bar', 'baz': None, 'buzz': None})
+    retval = juju.config('app1', {'foo': 'bar'}, reset=['baz', 'buzz'])
     assert retval is None
+
+
+def test_type_error():
+    juju = jubilant.Juju()
+    with pytest.raises(TypeError):
+        juju.config('app1', reset='foo')
