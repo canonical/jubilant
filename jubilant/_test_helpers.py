@@ -1,12 +1,14 @@
 import contextlib
 import secrets
-from typing import Generator
+from typing import Generator, Union
 
 from ._juju import Juju
 
 
 @contextlib.contextmanager
-def temp_model(keep: bool = False, controller: str | None = None) -> Generator[Juju, None, None]:
+def temp_model(
+    keep: bool = False, controller: Union[str, None] = None
+) -> Generator[Juju, None, None]:
     """Context manager to create a temporary model for running tests in.
 
     This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
