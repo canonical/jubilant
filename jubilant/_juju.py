@@ -559,25 +559,22 @@ class Juju:
 
         self.cli(*args)
 
-    def offer(self, app: str, *endpoint: str, name: str | None = None) -> None:
+    def offer(self, app: str, *, endpoint: str | Iterable[str], name: str | None = None) -> None:
         """Offer application endpoints for use in other models.
 
         Examples::
 
-            juju.offer('mysql', 'db')
-            juju.offer('mymodel.mysql', 'db', 'log', name='altname')
+            juju.offer('mysql', endpoint='db')
+            juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
 
         Args:
             app: Application name to offer endpoints for.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
         """
-        if ':' in app:
-            raise TypeError('must provide endpoint in "endpoint" argument not in "app"')
-        if not endpoint:
-            raise TypeError('must provide at least one endpoint')
-
-        app_endpoint = app + ':' + ','.join(endpoint)
+        if not isinstance(endpoint, str):
+            endpoint = ','.join(endpoint)
+        app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
         if name is not None:
             args.append(name)
