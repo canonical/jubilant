@@ -17,7 +17,7 @@ def pytest_addoption(parser: pytest.OptionGroup):
 
 
 @pytest.fixture(scope='module')
-def juju(request: pytest.FixtureRequest) -> Generator[jubilant.Juju, None, None]:
+def juju(request: pytest.FixtureRequest) -> Generator[jubilant.Juju]:
     """Module-scoped pytest fixture that wraps :meth:`jubilant.with_model`."""
     keep_models = cast(bool, request.config.getoption('--keep-models'))
     with jubilant.temp_model(keep=keep_models) as juju:

@@ -73,7 +73,7 @@ def dump(value: object, indent: str = '') -> str:
         return repr(value)
 
 
-def gron(value: object, prefix: str = '') -> Generator[str, None, None]:
+def gron(value: object, prefix: str = '') -> Generator[str]:
     """Yield gron-style lines of all fields within value, recursively.
 
     This handles dataclasses, lists, and dicts. It's inspired by gron:
@@ -120,7 +120,7 @@ def gron(value: object, prefix: str = '') -> Generator[str, None, None]:
         yield f'{prefix} = {value!r}'
 
 
-def diff(seq1: Sequence[str], seq2: Sequence[str]) -> Generator[str, None, None]:
+def diff(seq1: Sequence[str], seq2: Sequence[str]) -> Generator[str]:
     """Compare seq1 and seq1; yield lines that have been removed, changed, or added.
 
     Example::
