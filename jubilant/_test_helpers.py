@@ -6,7 +6,7 @@ from ._juju import Juju
 
 
 @contextlib.contextmanager
-def temp_model(keep: bool = False) -> Generator[Juju, None, None]:
+def temp_model(keep: bool = False, controller: str | None = None) -> Generator[Juju, None, None]:
     """Context manager to create a temporary model for running tests in.
 
     This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
@@ -16,12 +16,16 @@ def temp_model(keep: bool = False) -> Generator[Juju, None, None]:
 
     Args:
         keep: If true, keep the created model around when the context manager exits.
+        controller: The controller where the temp model will be deployed.
     """
     juju = Juju()
     model = 'jubilant-' + secrets.token_hex(4)  # 4 bytes (8 hex digits) should be plenty
-    juju.add_model(model)
+    juju.add_model(model, controller=controller)
     try:
         yield juju
     finally:
         if not keep:
             juju.destroy_model(model, destroy_storage=True, force=True)
+
+
+To test a CMR in an integration test, it would be great to surface the controller option from the add_model method to the temp_model method so I can choose whether to deploy the model to LXD or microk8s.
