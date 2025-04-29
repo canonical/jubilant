@@ -187,3 +187,17 @@ def add_app(status_dict: dict[str, Any], src_app: str, dest_app: str):
     unit = status_dict['applications'][src_app]['units'][f'{src_app}/0']
     status_dict['applications'][dest_app] = copy.deepcopy(app)
     status_dict['applications'][dest_app]['units'] = {f'{dest_app}/0': copy.deepcopy(unit)}
+
+
+def test_all_idle_agents():
+    status_dict = json.loads(SNAPPASS_JSON)
+    status = jubilant.Status._from_dict(status_dict)
+    assert jubilant.all_idle_agents(status)
+    assert jubilant.all_idle_agents(status, 'snappass-test')
+    assert not jubilant.all_idle_agents(status, 'foo')
+
+    status_dict['applications']['snappass-test']['units']['snappass-test/0']['juju-status'][
+        'current'
+    ] = 'error'
+    status = jubilant.Status._from_dict(status_dict)
+    assert not jubilant.all_idle_agents(status)
