@@ -3,9 +3,9 @@
 from . import statustypes
 from ._all_any import (
     all_active,
+    all_agents_idle,
     all_blocked,
     all_error,
-    all_idle_agents,
     all_maintenance,
     all_waiting,
     any_active,
@@ -29,9 +29,9 @@ __all__ = [
     'TaskError',
     'WaitError',
     'all_active',
+    'all_agents_idle',
     'all_blocked',
     'all_error',
-    'all_idle_agents',
     'all_maintenance',
     'all_waiting',
     'any_active',
