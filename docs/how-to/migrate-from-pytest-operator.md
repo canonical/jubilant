@@ -15,7 +15,7 @@ Let's look at each of these in turn.
 
 ## Update your dependencies
 
-The first thing you'll need to do is add `jubilant` as a dependency to your `tox.ini` or `pyproject.toml` dependencies. Before Jubilant 1.0 is released, we recommend locking it to a specific version.
+The first thing you'll need to do is add `jubilant` as a dependency to your `tox.ini` or `pyproject.toml` dependencies.
 
 You can also remove the dependencies on `juju` (python-libjuju), `pytest-operator`, and `pytest-asyncio`.
 
@@ -27,7 +27,7 @@ If you're using `tox.ini`, the diff might look like:
      boto3
      cosl
 -    juju>=3.0
-+    jubilant==0.4.0
++    jubilant~=1.0
      pytest
 -    pytest-operator
 -    pytest-asyncio
