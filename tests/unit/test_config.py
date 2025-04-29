@@ -96,7 +96,15 @@ def test_set_with_model(run: mocks.Run):
     assert retval is None
 
 
-def test_reset(run: mocks.Run):
+def test_reset_str(run: mocks.Run):
+    run.handle(['juju', 'config', 'app1', '--reset', 'rst'])
+
+    juju = jubilant.Juju()
+    retval = juju.config('app1', reset='rst')
+    assert retval is None
+
+
+def test_reset_list(run: mocks.Run):
     run.handle(['juju', 'config', 'app1', '--reset', 'x,why,zed'])
 
     juju = jubilant.Juju()
@@ -112,7 +120,7 @@ def test_set_with_reset(run: mocks.Run):
     assert retval is None
 
 
-def test_type_error():
+def test_format_config_type_error():
     juju = jubilant.Juju()
     with pytest.raises(TypeError):
-        juju.config('app1', reset='foo')
+        juju.config('app1', {'foo': None})  # type: ignore
