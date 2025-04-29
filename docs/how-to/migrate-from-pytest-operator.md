@@ -212,7 +212,7 @@ The `wait` method takes a *ready* callable, which takes a [`Status`](jubilant.St
 
 You can optionally provide an *error* callable, which also takes a `Status` object. If the *error* callable returns True, `wait` raises a [`WaitError`](jubilant.WaitError) immediately.
 
-Jubilant provides helper functions to use for the *ready* and *error* callables, such as [`jubilant.all_active`](jubilant.all_active) and [`jubilant.any_error`](jubilant.any_error). These check whether the status of all (or any) applications and their units are in a given state.
+Jubilant provides helper functions to use for the *ready* and *error* callables, such as [`jubilant.all_active`](jubilant.all_active) and [`jubilant.any_error`](jubilant.any_error). These check whether the workload status of all (or any) applications and their units are in a given state.
 
 For example, here's a simple `wait` call that waits for all applications and units to go "active" and raises an error if any go into "error":
 
@@ -226,6 +226,20 @@ async def test_active(model: Model):
 def test_active(juju: jubilant.Juju):
     juju.deploy('mycharm')
     juju.wait(jubilant.all_active, error=jubilant.any_error)
+```
+
+It's usually best to wait on workload status with the `all_*` and `any_*` helpers. However, if you want to wait specifically for unit agent status to be idle, you can use [`jubilant.all_agents_idle`](jubilant.all_agents_idle):
+
+```python
+# pytest-operator
+async def test_idle(model: Model):
+    await model.deploy('mycharm')
+    await model.wait_for_idle()
+
+# jubilant
+def test_active(juju: jubilant.Juju):
+    juju.deploy('mycharm')
+    juju.wait(jubilant.all_agents_idle)
 ```
 
 It's common to use a `lambda` function to customize the callable or compose multiple checks. For example, to wait specifically for `mysql` and `redis` to go active and `logger` to be blocked:
