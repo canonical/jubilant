@@ -364,9 +364,8 @@ class Juju:
             args.extend(['--base', base])
         if bind is not None:
             if not isinstance(bind, str):
-                args.extend([f'--bind={k}={v}' for k, v in bind.items()])
-            else:
-                args.extend(['--bind', bind])
+                bind = ' '.join(f'{k}={v}' for k, v in bind.items())
+            args.extend(['--bind', bind])
         if channel is not None:
             args.extend(['--channel', channel])
         if config is not None:
