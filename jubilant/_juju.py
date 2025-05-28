@@ -119,6 +119,8 @@ class Juju:
         *,
         controller: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
+        cloud: str | None = None,
+        credential: str | None = None,
     ) -> None:
         """Add a named model and set this instance's model to it.
 
@@ -132,14 +134,21 @@ class Juju:
                 controller.
             config: Model configuration as key-value pairs, for example,
                 ``{'image-stream': 'daily'}``.
+            cloud: Name of cloud to use for the model, if any.
+            credential: Name of cloud credential to use for the model, if any.
         """
         args = ['add-model', '--no-switch', model]
+
+        if cloud is not None:
+            args.append(cloud)
 
         if controller is not None:
             args.extend(['--controller', controller])
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
+        if credential is not None:
+            args.extend(['--credential', credential])
 
         self.cli(*args, include_model=False)
         self.model = model
