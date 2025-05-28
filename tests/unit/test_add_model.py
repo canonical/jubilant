@@ -19,6 +19,7 @@ def test_all_args(run: mocks.Run):
             'add-model',
             '--no-switch',
             'm',
+            'lc',
             '--controller',
             'c',
             '--config',
@@ -27,10 +28,14 @@ def test_all_args(run: mocks.Run):
             'y=1',
             '--config',
             'z=ss',
+            '--credential',
+            'cc',
         ]
     )
     juju = jubilant.Juju()
 
-    juju.add_model('m', controller='c', config={'x': True, 'y': 1, 'z': 'ss'})
+    juju.add_model(
+        'm', 'lc', controller='c', config={'x': True, 'y': 1, 'z': 'ss'}, credential='cc'
+    )
 
     assert juju.model == 'm'
