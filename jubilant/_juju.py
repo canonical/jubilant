@@ -601,7 +601,7 @@ class Juju:
         if name is not None:
             args.append(name)
 
-        self.cli(*args)
+        self.cli(*args, include_model=False)
 
     def refresh(
         self,

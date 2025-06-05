@@ -11,7 +11,8 @@ def test(run: mocks.Run):
 
 
 def test_with_model(run: mocks.Run):
-    run.handle(['juju', 'offer', '--model', 'mdl', 'mysql:db'])
+    # "juju offer" isn't a model-based command
+    run.handle(['juju', 'offer', 'mysql:db'])
     juju = jubilant.Juju(model='mdl')
 
     juju.offer('mysql', endpoint='db')
