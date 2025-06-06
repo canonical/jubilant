@@ -34,7 +34,7 @@ jobs:
         # unit tests.
       - name: Install dependencies
         run: |
-          uv export > requirements.txt
+          uv export --no-emit-project --frozen > requirements.txt
           pip install flake8 pylint -r requirements.txt
 
       - name: TICS GitHub Action
