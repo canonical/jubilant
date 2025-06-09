@@ -772,3 +772,29 @@ class Status:
             if getattr(self, field.name) != getattr(other, field.name):
                 return False
         return True
+
+    def get_units(self, app: str) -> dict[str, UnitStatus]:
+        """Get all units of the given *app*, including units of subordinate apps.
+
+        For subordinate apps, this finds and returns the subordinate units using the app's
+        ``subordinate_to`` list. For principal (non-subordinate) apps, this is equivalent to
+        ``status.apps[app].units``.
+
+        Returns:
+            Dict of units where the key is the unit name and the value is the :class:`UnitStatus`.
+            If *app* is not found, return an empty dict.
+        """
+        app_info = self.apps.get(app)
+        if app_info is None:
+            return {}
+        if not app_info.subordinate_to:
+            return app_info.units
+
+        units: dict[str, UnitStatus] = {}
+        app_prefix = app + '/'
+        for principal in app_info.subordinate_to:
+            for unit_info in self.apps[principal].units.values():
+                for sub_name, sub in unit_info.subordinates.items():
+                    if sub_name.startswith(app_prefix):
+                        units[sub_name] = sub  # noqa: PERF403
+        return units
