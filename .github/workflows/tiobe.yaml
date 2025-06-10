@@ -25,8 +25,9 @@ jobs:
       # and keeps this isolated.
       - name: Run unit tests
         run: |
+          make unit
           mkdir .report
-          uvx coverage xml -o .report/coverage.xml || touch .report/coverage.xml && echo 0
+          uvx coverage xml -o .report/coverage.xml
 
       # Note that these are dependencies for the tools that the TIOBE action will run,
       # which is done in the global environment, rather than a venv, as we do with the
