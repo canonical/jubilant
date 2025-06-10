@@ -36,11 +36,12 @@ jobs:
         run: |
           uv export --no-emit-project --frozen --no-hashes > requirements.txt
           pip install flake8 pylint -r requirements.txt
+          pylint .
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@009979693978bfefad2ad15c1020066694968dc7  # v3.4.0
         with:
-          mode: diagnostic
+          mode: qserver
           viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
           ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
           project: jubilant
