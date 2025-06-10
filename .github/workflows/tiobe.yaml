@@ -35,7 +35,9 @@ jobs:
       - name: Install dependencies
         run: |
           uv export --no-emit-project --frozen --no-hashes > requirements.txt
-          pip install flake8 pylint -r requirements.txt
+          uv venv
+          uv pip install flake8 pylint -r requirements.txt
+          source .venv/bin/activate
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: TICS GitHub Action
