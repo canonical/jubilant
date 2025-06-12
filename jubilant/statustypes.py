@@ -94,11 +94,11 @@ class UnitStatus:
     leader: bool = False
     upgrading_from: str = ''
     machine: str = ''
-    open_ports: list[str] = dataclasses.field(default_factory=list)
+    open_ports: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     public_address: str = ''
     address: str = ''
     provider_id: str = ''
-    subordinates: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)
+    subordinates: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> UnitStatus:
@@ -174,11 +174,11 @@ class AppStatus:
     address: str = ''
     life: str = ''
     app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
-    relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)
-    subordinate_to: list[str] = dataclasses.field(default_factory=list)
-    units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)
+    relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)  # type: ignore
+    subordinate_to: list[str] = dataclasses.field(default_factory=list)  # type: ignore
+    units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     version: str = ''
-    endpoint_bindings: dict[str, str] = dataclasses.field(default_factory=dict)
+    endpoint_bindings: dict[str, str] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> AppStatus:
@@ -336,9 +336,9 @@ class FilesystemAttachment:
 
 @dataclasses.dataclass(frozen=True)
 class FilesystemAttachments:
-    machines: dict[str, FilesystemAttachment] = dataclasses.field(default_factory=dict)
-    containers: dict[str, FilesystemAttachment] = dataclasses.field(default_factory=dict)
-    units: dict[str, UnitStorageAttachment] = dataclasses.field(default_factory=dict)
+    machines: dict[str, FilesystemAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
+    containers: dict[str, FilesystemAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
+    units: dict[str, UnitStorageAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> FilesystemAttachments:
@@ -413,9 +413,9 @@ class VolumeAttachment:
 
 @dataclasses.dataclass(frozen=True)
 class VolumeAttachments:
-    machines: dict[str, VolumeAttachment] = dataclasses.field(default_factory=dict)
-    containers: dict[str, VolumeAttachment] = dataclasses.field(default_factory=dict)
-    units: dict[str, UnitStorageAttachment] = dataclasses.field(default_factory=dict)
+    machines: dict[str, VolumeAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
+    containers: dict[str, VolumeAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
+    units: dict[str, UnitStorageAttachment] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> VolumeAttachments:
@@ -474,9 +474,9 @@ class VolumeInfo:
 
 @dataclasses.dataclass(frozen=True)
 class CombinedStorage:
-    storage: dict[str, StorageInfo] = dataclasses.field(default_factory=dict)
-    filesystems: dict[str, FilesystemInfo] = dataclasses.field(default_factory=dict)
-    volumes: dict[str, VolumeInfo] = dataclasses.field(default_factory=dict)
+    storage: dict[str, StorageInfo] = dataclasses.field(default_factory=dict)  # type: ignore
+    filesystems: dict[str, FilesystemInfo] = dataclasses.field(default_factory=dict)  # type: ignore
+    volumes: dict[str, VolumeInfo] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> CombinedStorage:
@@ -532,7 +532,7 @@ class NetworkInterface:
     is_up: bool
 
     gateway: str = ''
-    dns_nameservers: list[str] = dataclasses.field(default_factory=list)
+    dns_nameservers: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     space: str = ''
 
     @classmethod
@@ -552,19 +552,19 @@ class MachineStatus:
     juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     hostname: str = ''
     dns_name: str = ''
-    ip_addresses: list[str] = dataclasses.field(default_factory=list)
+    ip_addresses: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     instance_id: str = ''
     display_name: str = ''
     machine_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     modification_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     base: FormattedBase | None = None
-    network_interfaces: dict[str, NetworkInterface] = dataclasses.field(default_factory=dict)
-    containers: dict[str, MachineStatus] = dataclasses.field(default_factory=dict)
+    network_interfaces: dict[str, NetworkInterface] = dataclasses.field(default_factory=dict)  # type: ignore
+    containers: dict[str, MachineStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     constraints: str = ''
     hardware: str = ''
     controller_member_status: str = ''
     ha_primary: bool = False
-    lxd_profiles: dict[str, LxdProfileContents] = dataclasses.field(default_factory=dict)
+    lxd_profiles: dict[str, LxdProfileContents] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> MachineStatus:
@@ -682,10 +682,10 @@ class OfferStatus:
 class RemoteAppStatus:
     url: str
 
-    endpoints: dict[str, RemoteEndpoint] = dataclasses.field(default_factory=dict)
+    endpoints: dict[str, RemoteEndpoint] = dataclasses.field(default_factory=dict)  # type: ignore
     life: str = ''
     app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
-    relations: dict[str, list[str]] = dataclasses.field(default_factory=dict)
+    relations: dict[str, list[str]] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> RemoteAppStatus:
@@ -719,8 +719,8 @@ class Status:
     machines: dict[str, MachineStatus]
     apps: dict[str, AppStatus]
 
-    app_endpoints: dict[str, RemoteAppStatus] = dataclasses.field(default_factory=dict)
-    offers: dict[str, OfferStatus] = dataclasses.field(default_factory=dict)
+    app_endpoints: dict[str, RemoteAppStatus] = dataclasses.field(default_factory=dict)  # type: ignore
+    offers: dict[str, OfferStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     storage: CombinedStorage = dataclasses.field(default_factory=CombinedStorage)
     controller: ControllerStatus = dataclasses.field(default_factory=ControllerStatus)
 

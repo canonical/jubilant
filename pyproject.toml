@@ -128,7 +128,6 @@ pythonVersion = "3.8"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 reportPrivateUsage = false  # silence errors about use of _from_dict outside class
-reportUnknownVariableType = false  # silence errors from dataclasses.field(default_factory=list)
 
 [tool.pytest.ini_options]
 pythonpath = [
