@@ -13,7 +13,7 @@ from . import helpers
 def setup(juju: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
     juju.wait(
-        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+        lambda status: status.apps['testdb'].leader_unit.workload_status.current == 'unknown'
     )
 
 

@@ -254,6 +254,26 @@ class AppStatus:
         """Report whether the application status for this app is "waiting"."""
         return self.app_status.current == 'waiting'
 
+    @property
+    def leader_unit(self) -> UnitStatus:
+        """Return the leader unit's status.
+
+        For example, instead of this kind of duplication::
+
+            address = status.apps['snappass-test'].units['snappass-test/0'].address
+
+        You can simplify using ``leader_unit``:
+
+            address = status.apps['snappass-test'].leader_unit.address
+
+        Raises:
+            ValueError: if this application has no units marked as leader.
+        """
+        for unit in self.units.values():
+            if unit.leader:
+                return unit
+        raise ValueError('application has no leader unit')
+
 
 @dataclasses.dataclass(frozen=True)
 class EntityStatus:

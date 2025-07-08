@@ -1,8 +1,10 @@
 import json
 
+import pytest
+
 import jubilant
 
-from .fake_statuses import STATUS_ERRORS_JSON, SUBORDINATES_JSON
+from .fake_statuses import SNAPPASS_JSON, STATUS_ERRORS_JSON, SUBORDINATES_JSON
 
 
 def test_juju_status_error():
@@ -62,3 +64,20 @@ def test_get_units():
     assert units['nrpe/2'].public_address == '10.103.56.129'
 
     assert status.get_units('foo') == {}
+
+
+def test_leader_unit():
+    status_dict = json.loads(SNAPPASS_JSON)
+    status = jubilant.Status._from_dict(status_dict)
+    leader = status.apps['snappass-test'].leader_unit
+    assert leader.provider_id == 'snappass-test-0'
+
+    status_dict['applications']['snappass-test']['units']['snappass-test/0']['leader'] = False
+    status = jubilant.Status._from_dict(status_dict)
+    with pytest.raises(ValueError):
+        _ = status.apps['snappass-test'].leader_unit
+
+    status_dict['applications']['snappass-test']['units'] = {}
+    status = jubilant.Status._from_dict(status_dict)
+    with pytest.raises(ValueError):
+        _ = status.apps['snappass-test'].leader_unit
