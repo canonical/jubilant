@@ -328,6 +328,7 @@ class Juju:
         constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
+        overlays: Iterable[str | pathlib.Path] = (),
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
         storage: Mapping[str, str] | None = None,
@@ -352,6 +353,7 @@ class Juju:
             constraints: Hardware constraints for new machines, for example, ``{'mem': '8G'}``.
             force: If true, bypass checks such as supported bases.
             num_units: Number of units to deploy for principal charms.
+            overlays: File paths of bundles to overlay on the primary bundle, applied in order.
             resources: Specify named resources to use for deployment, for example:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
@@ -360,6 +362,10 @@ class Juju:
                 to deploy to a new LXD container on machine 25, use ``lxd:25``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
+        # Need this check because str is also an iterable of str.
+        if isinstance(overlays, str):
+            raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
+
         args = ['deploy', str(charm)]
         if app is not None:
             args.append(app)
@@ -387,6 +393,8 @@ class Juju:
             args.append('--force')
         if num_units != 1:
             args.extend(['--num-units', str(num_units)])
+        for overlay in overlays:
+            args.extend(['--overlay', str(overlay)])
         if resources is not None:
             for k, v in resources.items():
                 args.extend(['--resource', f'{k}={v}'])
