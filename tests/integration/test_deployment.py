@@ -15,7 +15,7 @@ def setup(juju: jubilant.Juju):
 def test_deploy(juju: jubilant.Juju):
     # Setup has already done "juju deploy", this tests it.
     status = juju.status()
-    address = status.apps['snappass-test'].units['snappass-test/0'].address
+    address = status.apps['snappass-test'].leader_unit.address
     response = requests.get(f'http://{address}:5000/', timeout=10)
     response.raise_for_status()
     assert '<title>' in response.text
