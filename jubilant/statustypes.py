@@ -258,11 +258,11 @@ class AppStatus:
     def leader_unit(self) -> UnitStatus:
         """Return the leader unit's status.
 
-        For example, instead of this kind of duplication::
+        For example, instead of duplicating the application name::
 
             address = status.apps['snappass-test'].units['snappass-test/0'].address
 
-        You can simplify using ``leader_unit``:
+        You can simplify to::
 
             address = status.apps['snappass-test'].leader_unit.address
 
