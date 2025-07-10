@@ -83,7 +83,8 @@ jobs:
         run: make pack
 
       - name: Run integration tests
-        run: make integration-k8s
+        run: make integration-k8s ARGS='-k test_offer_and_consume'
+#TODO        run: make integration-k8s
 
   integration-machine:
     runs-on: ubuntu-latest

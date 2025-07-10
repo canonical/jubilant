@@ -7,13 +7,13 @@ from . import helpers
 
 def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
-    juju.offer('testdb', endpoint='db', name='db1')
+    juju.offer(f'{juju.model}.testdb', endpoint='db', name='testdbx')
 
     out = juju.cli('offers')
     print('OFFERS1\n' + out)
 
     model2.deploy(helpers.find_charm('testapp'))
-    model2.consume(f'{juju.model}.db1', 'dbalias')
+    model2.consume(f'{juju.model}.testdbx', 'dbalias')
 
     out = model2.cli('offers')
     print('OFFERS2\n' + out)
