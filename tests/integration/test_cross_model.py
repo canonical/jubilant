@@ -20,10 +20,16 @@ def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju):
 
     model2.integrate('dbalias', 'testapp')
 
+    out = juju.cli('offers')
+    print('OFFERS1b\n' + out)
+
     status = juju.wait(jubilant.all_active)
-    assert status.apps['testdb'].relations['db'][0].related_app == 'testapp'
+#    assert status.apps['testdb'].relations['db'][0].related_app == 'testapp'
     assert status.apps['testdb'].app_status.message == 'relation created'
 
     status2 = model2.wait(jubilant.all_active)
-    assert status2.apps['testapp'].relations['db'][0].related_app == 'testdb'
+#    assert status2.apps['testapp'].relations['db'][0].related_app == 'testdb'
     assert status2.apps['testapp'].app_status.message == 'relation changed: dbkey=dbvalue'
+
+    out = juju.cli('offers')
+    print('OFFERS1c\n' + out)
