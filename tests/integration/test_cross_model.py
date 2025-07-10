@@ -33,3 +33,5 @@ def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju):
 
     out = juju.cli('offers')
     print('OFFERS1c\n' + out)
+
+    assert 1 == 2
