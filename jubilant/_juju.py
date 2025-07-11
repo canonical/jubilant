@@ -614,7 +614,8 @@ class Juju:
 
         Args:
             app: Application name to offer endpoints for.
-            controller: Controller to operate in.
+            controller: Name of controller to operate in. If not specified, use the current
+                controller.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
         """
