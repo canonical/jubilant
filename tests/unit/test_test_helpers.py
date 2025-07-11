@@ -40,13 +40,25 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     assert run.calls[2].args[1] == 'destroy-model'
 
 
-def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+@pytest.mark.parametrize('keep', [True, False])
+def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch, keep: bool):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
-    run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234', '--controller', 'ctrl'])
-    run.handle(['juju', 'deploy', '--model', 'jubilant-abcd1234', 'app1'])
+    run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234', '--controller', 'ctl'])
+    run.handle(['juju', 'deploy', '--model', 'ctl:jubilant-abcd1234', 'app1'])
+    if not keep:
+        run.handle(
+            [
+                'juju',
+                'destroy-model',
+                'ctl:jubilant-abcd1234',
+                '--no-prompt',
+                '--destroy-storage',
+                '--force',
+            ]
+        )
 
-    with jubilant.temp_model(keep=True, controller='ctrl') as juju:
-        assert juju.model == 'jubilant-abcd1234'
+    with jubilant.temp_model(keep=keep, controller='ctl') as juju:
+        assert juju.model == 'ctl:jubilant-abcd1234'
         assert len(run.calls) == 1
         assert run.calls[0].args[1] == 'add-model'
 
@@ -55,5 +67,11 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
         assert len(run.calls) == 2
         assert run.calls[1].args[1] == 'deploy'
 
-    assert juju.model == 'jubilant-abcd1234'
-    assert len(run.calls) == 2
+    if keep:
+        assert juju.model == 'ctl:jubilant-abcd1234'
+        assert len(run.calls) == 2
+    else:
+        assert juju.model is None
+        assert len(run.calls) == 3
+        assert run.calls[2].args[1] == 'destroy-model'
+        assert run.calls[2].args[2] == 'ctl:jubilant-abcd1234'

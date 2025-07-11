@@ -74,6 +74,7 @@ class Juju:
 
     Args:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
+            If the model is in another controller, prefix the model name with ``<controller>:``.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
         cli_binary: Path to the Juju CLI binary. If not specified, uses ``juju`` and assumes it is
@@ -81,7 +82,11 @@ class Juju:
     """
 
     model: str | None
-    """If not None, operate on this Juju model, otherwise use the current Juju model."""
+    """If not None, operate on this Juju model, otherwise use the current Juju model.
+    
+    If the model is in another controller, prefix the model name with ``<controller>:``; for
+    example, ``juju = jubilant.Juju(model='mycontroller:my-model')``.
+    """
 
     wait_timeout: float
     """The default timeout for :meth:`wait` (in seconds) if that method's *timeout* parameter is
@@ -142,8 +147,11 @@ class Juju:
         if cloud is not None:
             args.append(cloud)
 
-        if controller is not None:
+        if controller is None:
+            model_name = model
+        else:
             args.extend(['--controller', controller])
+            model_name = f'{controller}:{model}'
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
@@ -151,7 +159,7 @@ class Juju:
             args.extend(['--credential', credential])
 
         self.cli(*args, include_model=False)
-        self.model = model
+        self.model = model_name
 
     def add_secret(
         self,
@@ -589,7 +597,14 @@ class Juju:
 
         self.cli(*args)
 
-    def offer(self, app: str, *, endpoint: str | Iterable[str], name: str | None = None) -> None:
+    def offer(
+        self,
+        app: str,
+        *,
+        controller: str | None = None,
+        endpoint: str | Iterable[str],
+        name: str | None = None,
+    ) -> None:
         """Offer application endpoints for use in other models.
 
         Examples::
@@ -599,6 +614,7 @@ class Juju:
 
         Args:
             app: Application name to offer endpoints for.
+            controller: Controller to operate in.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
         """
@@ -606,6 +622,8 @@ class Juju:
             endpoint = ','.join(endpoint)
         app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
+        if controller:
+            args.extend(['--controller', controller])
         if name is not None:
             args.append(name)
 
