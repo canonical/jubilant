@@ -27,4 +27,5 @@ def temp_model(keep: bool = False, controller: str | None = None) -> Generator[J
         yield juju
     finally:
         if not keep:
-            juju.destroy_model(model, destroy_storage=True, force=True)
+            assert juju.model is not None
+            juju.destroy_model(juju.model, destroy_storage=True, force=True)

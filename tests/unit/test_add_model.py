@@ -38,4 +38,4 @@ def test_all_args(run: mocks.Run):
         'm', 'lc', controller='c', config={'x': True, 'y': 1, 'z': 'ss'}, credential='cc'
     )
 
-    assert juju.model == 'm'
+    assert juju.model == 'c:m'

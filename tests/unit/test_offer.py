@@ -18,6 +18,13 @@ def test_with_model(run: mocks.Run):
     juju.offer('mysql', endpoint='db')
 
 
+def test_with_controller(run: mocks.Run):
+    run.handle(['juju', 'offer', 'mysql:db', '--controller', 'otherc'])
+    juju = jubilant.Juju(model='ctl:mdl')
+
+    juju.offer('mysql', endpoint='db', controller='otherc')
+
+
 def test_name(run: mocks.Run):
     run.handle(['juju', 'offer', 'mysql:db', 'nam'])
     juju = jubilant.Juju()
