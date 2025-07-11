@@ -16,7 +16,7 @@ def temp_model(keep: bool = False, controller: str | None = None) -> Generator[J
 
     Provides a :class:`Juju` instance to operate on.
 
-    If you want to configure ``Juju()`` parameters such as ``wait_timeout``, set the appropriate
+    If you want to configure its parameters, such as ``wait_timeout``, set the appropriate
     attribute inside the ``with`` statement. For example, to create a pytest fixture using
     ``temp_model``::
 
