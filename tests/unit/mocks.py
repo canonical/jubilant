@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import subprocess
+from typing import Any
 
 
 @dataclasses.dataclass(frozen=True)
@@ -80,3 +81,32 @@ class Time:
 
     def sleep(self, seconds: float):
         self._monotonic += seconds
+
+
+class File:
+    """Mock for tempfile.NamedTemporaryFile.
+
+    Captures any writes to any temporary files. Each separate call to write
+    adds it to its own row in a log, and each flush only increments the flush count.
+    A temporary file name is also provided both to the mock and to the caller.
+    """
+
+    def __init__(self):
+        self.write_log: list[str] = []
+        self.flush_count: int = 0
+        self.name = 'path/to/temp_file_name'
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args: Any):
+        return
+
+    def write(self, data: str) -> None:
+        self.write_log.append(data)
+
+    def flush(self) -> None:
+        self.flush_count += 1
