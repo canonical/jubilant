@@ -83,7 +83,7 @@ class Juju:
 
     model: str | None
     """If not None, operate on this Juju model, otherwise use the current Juju model.
-    
+
     If the model is in another controller, prefix the model name with ``<controller>:``; for
     example, ``juju = jubilant.Juju(model='mycontroller:my-model')``.
     """
