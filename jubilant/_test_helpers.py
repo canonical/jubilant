@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import contextlib
 import secrets
+from collections.abc import Mapping
 from typing import Generator
 
-from ._juju import Juju
+from ._juju import ConfigValue, Juju
 
 
 @contextlib.contextmanager
-def temp_model(keep: bool = False, controller: str | None = None) -> Generator[Juju]:
+def temp_model(
+    keep: bool = False,
+    controller: str | None = None,
+    cloud: str | None = None,
+    config: Mapping[str, ConfigValue] | None = None,
+    credential: str | None = None,
+) -> Generator[Juju]:
     """Context manager to create a temporary model for running tests in.
 
     This creates a new model with a random name in the format ``jubilant-abcd1234``, and destroys
@@ -29,10 +36,14 @@ def temp_model(keep: bool = False, controller: str | None = None) -> Generator[J
     Args:
         keep: If true, keep the created model around when the context manager exits.
         controller: Name of controller where the temporary model will be added.
+        cloud: Name of cloud or region (or cloud/region) to use for the temporary model.
+        config: Temporary model configuration as key-value pairs, for example,
+            ``{'image-stream': 'daily'}``.
+        credential: Name of cloud credential to use for the temporary model.
     """
     juju = Juju()
     model = 'jubilant-' + secrets.token_hex(4)  # 4 bytes (8 hex digits) should be plenty
-    juju.add_model(model, controller=controller)
+    juju.add_model(model, cloud=cloud, controller=controller, config=config, credential=credential)
     try:
         yield juju
     finally:
