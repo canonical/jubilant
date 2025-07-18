@@ -23,3 +23,11 @@ def time(monkeypatch: pytest.MonkeyPatch) -> Generator[mocks.Time]:
     monkeypatch.setattr('time.monotonic', time_mock.monotonic)
     monkeypatch.setattr('time.sleep', time_mock.sleep)
     yield time_mock
+
+
+@pytest.fixture
+def file(monkeypatch: pytest.MonkeyPatch) -> Generator[mocks.File]:
+    """Pytest fixture that patches tempfile.NamedTemporaryFile with mocks.File."""
+    file_mock = mocks.File()
+    monkeypatch.setattr('tempfile.NamedTemporaryFile', file_mock)
+    yield file_mock
