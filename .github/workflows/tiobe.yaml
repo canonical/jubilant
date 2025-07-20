@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv export --no-emit-project --frozen --no-hashes > requirements.txt
-          pip install flake8 pylint -r requirements.txt
+          pip install flake8 pylint -r requirements.txt --break-system-packages
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@009979693978bfefad2ad15c1020066694968dc7  # v3.4.0
