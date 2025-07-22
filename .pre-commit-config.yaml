@@ -16,17 +16,12 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: detect-private-key
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
-    hooks:
-    - id: codespell
-      additional_dependencies:
-        - tomli
   - repo: local
-    # Define ruff and zizmor as local so that we run them with uv to
+    # Define ruff, codespell, and zizmor as local so that we run them with uv to
     # get the same version as run manually or in CI.
     # See https://github.com/astral-sh/ruff-pre-commit/blob/main/.pre-commit-hooks.yaml
     # and https://github.com/zizmorcore/zizmor-pre-commit/blob/main/.pre-commit-hooks.yaml
+    # and https://github.com/codespell-project/codespell/blob/main/.pre-commit-hooks.yaml
     # for the origin.
     hooks:
      - id: ruff-check
@@ -59,3 +54,12 @@ repos:
        entry: uv run zizmor
        args:
          - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
+     - id: codespell
+       name: codespell
+       description: Checks for common misspellings in text files.
+       entry: uv run codespell
+       language: python
+       types: [text]
+       args: []
+       require_serial: true
+       additional_dependencies: [tomli]

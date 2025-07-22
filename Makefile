@@ -8,6 +8,11 @@ help:  # Display help
 
 all: format lint static unit  # Run all quick, local commands
 
+install-dev:  # Install development tooling
+	uv tool install codespell
+	uv tool install ruff
+	uv tool install zizmor
+
 coverage-html:  # Write and open HTML coverage report from last unit test run
 	uv run coverage html
 	open htmlcov/index.html 2>/dev/null
