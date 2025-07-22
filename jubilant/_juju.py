@@ -331,9 +331,9 @@ class Juju:
         """
         offer_path = model_and_app
         if owner is not None:
-            offer_path = owner + '/' + offer_path
+            offer_path = f'{owner}/{offer_path}'
         if controller is not None:
-            offer_path = controller + ':' + offer_path
+            offer_path = f'{controller}:{offer_path}'
         args = ['consume', offer_path]
         if alias is not None:
             args.append(alias)
