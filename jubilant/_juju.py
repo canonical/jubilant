@@ -313,6 +313,41 @@ class Juju:
 
         self.cli(*args)
 
+    def consume(
+        self,
+        model_and_app: str,
+        alias: str | None = None,
+        *,
+        controller: str | None = None,
+        owner: str | None = None,
+    ) -> None:
+        """Add a remote offer to the model.
+
+        Examples::
+
+            juju.consume('othermodel.mysql', 'sql')
+            juju.consume('othermodel.mysql', controller='ctrl2', owner='admin')
+
+        Args:
+            model_and_app: Dotted application and model name to offer endpoints for, for example
+                ``othermodel.mysql``.
+            alias: A local alias for the offer, for use with :meth:`integrate`. Defaults to the
+                application name.
+            controller: Remote offer's controller. Defaults to the current controller.
+            owner: Remote model's owner. Defaults to the user that is currently logged in to the
+                controller providing the offer.
+        """
+        offer_path = model_and_app
+        if owner is not None:
+            offer_path = f'{owner}/{offer_path}'
+        if controller is not None:
+            offer_path = f'{controller}:{offer_path}'
+        args = ['consume', offer_path]
+        if alias is not None:
+            args.append(alias)
+
+        self.cli(*args)
+
     def debug_log(self, *, limit: int = 0) -> str:
         """Return debug log messages from a model.
 
@@ -613,7 +648,8 @@ class Juju:
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
 
         Args:
-            app: Application name to offer endpoints for.
+            app: Application name to offer endpoints for. May include a dotted model name, for
+                example ``mymodel.mysql``.
             controller: Name of controller to operate in. If not specified, use the current
                 controller.
             endpoint: Endpoint or endpoints to offer.

@@ -16,6 +16,16 @@ def temp_model(keep: bool = False, controller: str | None = None) -> Generator[J
 
     Provides a :class:`Juju` instance to operate on.
 
+    If you want to configure its parameters, such as ``wait_timeout``, set the appropriate
+    attribute inside the ``with`` statement. For example, to create a pytest fixture using
+    ``temp_model``::
+
+        @pytest.fixture(scope='module')
+        def juju():
+            with jubilant.temp_model() as juju:
+                juju.wait_timeout = 10 * 60
+                yield juju  # run the test
+
     Args:
         keep: If true, keep the created model around when the context manager exits.
         controller: Name of controller where the temporary model will be added.
