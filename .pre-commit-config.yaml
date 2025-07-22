@@ -16,21 +16,46 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: detect-private-key
-  # Run the Ruff linter.
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.2
-    hooks:
-      - id: ruff
-      - id: ruff-format
-  # Spellcheck the code.
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
     - id: codespell
       additional_dependencies:
         - tomli
-  # Check workflow security.
-  - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.11.0
+  - repo: local
+    # Define ruff and zizmor as local so that we run them with uv to
+    # get the same version as run manually or in CI.
+    # See https://github.com/astral-sh/ruff-pre-commit/blob/main/.pre-commit-hooks.yaml
+    # and https://github.com/zizmorcore/zizmor-pre-commit/blob/main/.pre-commit-hooks.yaml
+    # for the origin.
     hooks:
-    - id: zizmor
+     - id: ruff-check
+       name: ruff check
+       description: "Run 'ruff check' for extremely fast Python linting"
+       entry: uv run ruff check --force-exclude
+       language: python
+       types_or: [python, pyi, jupyter]
+       args: []
+       require_serial: true
+       additional_dependencies: [uv]
+       minimum_pre_commit_version: "2.9.2"
+     - id: ruff-format
+       name: ruff format
+       description: "Run 'ruff format' for extremely fast Python formatting"
+       entry: uv run ruff format --force-exclude
+       language: python
+       types_or: [python, pyi, jupyter]
+       args: []
+       require_serial: true
+       additional_dependencies: [uv]
+       minimum_pre_commit_version: "2.9.2"
+     - id: zizmor
+       name: zizmor
+       description: "Find security issues in GitHub Actions CI/CD setups"
+       language: python
+       types: [yaml]
+       files: (\.github/workflows/.*)|(action\.ya?ml)$
+       require_serial: true
+       entry: uv run zizmor
+       args:
+         - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
