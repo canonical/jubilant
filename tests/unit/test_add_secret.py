@@ -1,44 +1,30 @@
 from __future__ import annotations
 
-import os.path
-import subprocess
-from typing import Any
-
-import pytest
-import yaml
-
 import jubilant
+from tests.unit import mocks
 
 
-def test_normal(monkeypatch: pytest.MonkeyPatch):
-    path = None
-
-    def mock_run(args: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
-        nonlocal path
-        *most_args, path = args
-        assert most_args == [
-            'juju',
-            'add-secret',
-            'sec1',
-            '--info',
-            'A description.',
-            '--file',
-        ]
-        with open(path) as f:
-            params = yaml.safe_load(f)
-        assert params == {'username': 'usr', 'password': 'hunter2'}
-        return subprocess.CompletedProcess(
-            args=args, returncode=0, stdout='secret:0123456789abcdefghji\n'
-        )
-
-    monkeypatch.setattr('subprocess.run', mock_run)
+def test_normal(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
+    run.handle(
+        ['juju', 'add-secret', 'my-secret', '--file', mock_file.name],
+        stdout='secret:0123456789abcdefghji\n',
+    )
     juju = jubilant.Juju()
 
-    secret_uri = juju.add_secret(
-        'sec1', {'username': 'usr', 'password': 'hunter2'}, info='A description.'
-    )
+    secret_uri = juju.add_secret('my-secret', {'username': 'admin'})
 
-    assert isinstance(secret_uri, jubilant.SecretURI)
-    assert secret_uri == 'secret:0123456789abcdefghji'  # noqa: S105
-    assert path is not None
-    assert not os.path.exists(path)
+    assert secret_uri.startswith('secret:')
+    assert mock_file.writes == ['username: admin\n']
+
+
+def test_with_info(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
+    run.handle(
+        ['juju', 'add-secret', 'my-secret', '--info', 'A description.', '--file', mock_file.name],
+        stdout='secret:0123456789abcdefghji\n',
+    )
+    juju = jubilant.Juju()
+
+    juju.add_secret('my-secret', {'username': 'admin'}, info='A description.')
+
+    assert len(mock_file.writes) == 1
+    assert mock_file.writes[0] == 'username: admin\n'

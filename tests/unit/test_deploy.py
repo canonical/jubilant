@@ -31,7 +31,7 @@ def test_all_args(run: mocks.Run):
             '--base',
             'ubuntu@22.04',
             '--bind',
-            'end1=space1,end2=space2',
+            'end1=space1 end2=space2',
             '--channel',
             'latest/edge',
             '--config',

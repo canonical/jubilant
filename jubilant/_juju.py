@@ -15,6 +15,7 @@ from typing import Any, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import Task
+from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
@@ -35,26 +36,6 @@ class CLIError(subprocess.CalledProcessError):
 
 class WaitError(Exception):
     """Raised when :meth:`Juju.wait`'s *error* callable returns False."""
-
-
-class SecretURI(str):
-    """A string subclass that represents a secret URI ("secret:...")."""
-
-    @property
-    def unique_identifier(self) -> str:
-        """Unique identifier of this secret URI.
-
-        This is the secret's globally-unique identifier (currently a 20-character Xid,
-        for example "9m4e2mr0ui3e8a215n4g").
-        """
-        if '/' in self:
-            # Handle 'secret://MODEL-UUID/UNIQUE-IDENTIFIER'
-            return self.rsplit('/', maxsplit=1)[-1]
-        elif self.startswith('secret:'):
-            # Handle common case of 'secret:UNIQUE-IDENTIFIER'
-            return self[len('secret:') :]
-        else:
-            return str(self)
 
 
 ConfigValue = Union[bool, int, float, str, SecretURI]
@@ -151,13 +132,13 @@ class Juju:
         *,
         info: str | None = None,
     ) -> SecretURI:
-        """Add a new named secret and returns its secret URI.
+        """Add a new named secret and return its secret URI.
 
         Args:
             name: Name for the secret.
             content: Key-value pairs that represent the secret content, for example
                 ``{'password': 'hunter2'}``.
-            info: Optional description for the secret.
+            info: Description for the secret.
         """
         args = ['add-secret', name]
         if info is not None:
@@ -330,7 +311,7 @@ class Juju:
         Args:
             charm: Name of charm or bundle to deploy, or path to a local file (must start with
                 ``/`` or ``.``).
-            app: Optional application name within the model. Defaults to the charm name.
+            app: Custom application name within the model. Defaults to the charm name.
             attach_storage: Existing storage(s) to attach to the deployed unit, for example,
                 ``foo/0`` or ``mydisk/1``. Not available for Kubernetes models.
             base: The base on which to deploy, for example, ``ubuntu@22.04``.
@@ -364,7 +345,7 @@ class Juju:
             args.extend(['--base', base])
         if bind is not None:
             if not isinstance(bind, str):
-                bind = ','.join(f'{k}={v}' for k, v in bind.items())
+                bind = ' '.join(f'{k}={v}' for k, v in bind.items())
             args.extend(['--bind', bind])
         if channel is not None:
             args.extend(['--channel', channel])
@@ -502,6 +483,18 @@ class Juju:
         task = Task._from_dict(result)
         task.raise_on_failure()
         return task
+
+    def grant_secret(self, identifier: str | SecretURI, app: str | Iterable[str]) -> None:
+        """Grant access to a secret for one or more applications.
+
+        Args:
+            identifier: The name or URI of the secret to grant access to.
+            app: Name or names of applications to grant access to.
+        """
+        if not isinstance(app, str):
+            app = ','.join(app)
+        args = ['grant-secret', identifier, app]
+        self.cli(*args)
 
     def integrate(self, app1: str, app2: str, *, via: str | Iterable[str] | None = None) -> None:
         """Integrate two applications, creating a relation between them.
@@ -689,6 +682,18 @@ class Juju:
             args.append('--force')
         self.cli(*args)
 
+    def remove_secret(self, identifier: str | SecretURI, *, revision: int | None = None) -> None:
+        """Remove a secret from the model.
+
+        Args:
+            identifier: The name or URI of the secret to remove.
+            revision: The revision of the secret to remove. If not specified, remove all revisions.
+        """
+        args = ['remove-secret', identifier]
+        if revision is not None:
+            args.extend(['--revision', str(revision)])
+        self.cli(*args)
+
     def remove_unit(
         self,
         *app_or_unit: str,
@@ -753,7 +758,7 @@ class Juju:
             unit: Name of unit to run the action on, for example ``mysql/0`` or
                 ``mysql/leader``.
             action: Name of action to run.
-            params: Optional named parameters to pass to the action.
+            params: Named parameters to pass to the action.
             wait: Maximum time to wait for action to finish; :class:`TimeoutError` is raised if
                 this is reached. Default is to wait indefinitely.
 
@@ -776,7 +781,6 @@ class Juju:
             ) as params_file:
                 _yaml.safe_dump(params, params_file)
             args.extend(['--params', params_file.name])
-
         try:
             try:
                 stdout, stderr = self._cli(*args)
@@ -836,6 +840,88 @@ class Juju:
         args.append(str(destination))
 
         self.cli(*args)
+
+    def secrets(self, *, owner: str | None = None) -> list[Secret]:
+        """Get all secrets in the model.
+
+        Args:
+            owner: The owner of the secrets to retrieve.
+
+        Returns:
+            A list of all secrets in the model.
+        """
+        args = ['secrets']
+        if owner is not None:
+            args.extend(['--owner', owner])
+        stdout = self.cli(*args, '--format', 'json')
+        output = json.loads(stdout)
+        return [
+            Secret._from_dict({'uri': uri_from_juju, **obj})
+            for uri_from_juju, obj in output.items()
+        ]
+
+    @overload
+    def show_secret(
+        self,
+        identifier: str | SecretURI,
+        *,
+        reveal: Literal[True],
+        revision: int | None = None,
+        revisions: Literal[False] = False,
+    ) -> RevealedSecret: ...
+
+    @overload
+    def show_secret(
+        self,
+        identifier: str | SecretURI,
+        *,
+        reveal: Literal[False] = False,
+        revision: int | None = None,
+        revisions: Literal[False] = False,
+    ) -> Secret: ...
+
+    @overload
+    def show_secret(
+        self,
+        identifier: str | SecretURI,
+        *,
+        reveal: Literal[False] = False,
+        revision: None = None,
+        revisions: Literal[True],
+    ) -> Secret: ...
+
+    def show_secret(
+        self,
+        identifier: str | SecretURI,
+        *,
+        reveal: bool = False,
+        revision: int | None = None,
+        revisions: bool = False,
+    ) -> Secret | RevealedSecret:
+        """Get the content of a secret.
+
+        Args:
+            identifier: Name or URI of the secret to return.
+            reveal: Whether to reveal the secret content.
+            revision: Revision number of the secret to reveal. If not specified,
+                the latest revision is revealed.
+            revisions: Whether to include all revisions of the secret. Mutually
+                exclusive with *reveal* and *revision*.
+        """
+        args = ['show-secret', identifier, '--format', 'json']
+        if reveal:
+            args.append('--reveal')
+        if revisions:
+            args.append('--revisions')
+        if revision is not None:
+            args.extend(['--revision', str(revision)])
+        stdout = self.cli(*args)
+        output = json.loads(stdout)
+        uri_from_juju, obj = next(iter(output.items()))
+        secret = {'uri': uri_from_juju, **obj}
+        if reveal:
+            return RevealedSecret._from_dict(secret)
+        return Secret._from_dict(secret)
 
     def ssh(
         self,
@@ -904,6 +990,39 @@ class Juju:
             args.extend(['--scope', scope])
 
         self.cli(*args)
+
+    def update_secret(
+        self,
+        identifier: str | SecretURI,
+        content: Mapping[str, str],
+        *,
+        info: str | None = None,
+        name: str | None = None,
+        auto_prune: bool = False,
+    ) -> None:
+        """Update the content of a secret.
+
+        Args:
+            identifier: The name or URI of the secret to update.
+            content: Key-value pairs that represent the secret content, for example
+                ``{'password': 'hunter2'}``.
+            info: New description for the secret.
+            name: New name for the secret.
+            auto_prune: automatically remove revisions that are no longer tracked by any observers.
+        """
+        args = ['update-secret', identifier]
+        if info is not None:
+            args.extend(['--info', info])
+        if name is not None:
+            args.extend(['--name', name])
+        if auto_prune:
+            args.append('--auto-prune')
+
+        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
+            _yaml.safe_dump(content, file)
+            file.flush()
+            args.extend(['--file', file.name])
+            self.cli(*args)
 
     def wait(
         self,

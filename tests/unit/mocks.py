@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import subprocess
+from typing import Any
 
 
 @dataclasses.dataclass(frozen=True)
@@ -80,3 +81,32 @@ class Time:
 
     def sleep(self, seconds: float):
         self._monotonic += seconds
+
+
+class NamedTemporaryFile:
+    """Mock for tempfile.NamedTemporaryFile.
+
+    Captures any writes to the file. Each call to write
+    adds to the *writes* list, and each flush increments the number of flushes.
+    """
+
+    def __init__(self):
+        self.writes: list[str] = []
+        self.num_flushes: int = 0
+        self.name = 'path/to/temp_file_name'
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        assert 'w+' in args
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args: Any):
+        return
+
+    def write(self, data: str) -> None:
+        self.writes.append(data)
+
+    def flush(self) -> None:
+        self.num_flushes += 1
