@@ -29,7 +29,7 @@ class Task:
     status: Literal['aborted', 'cancelled', 'completed', 'error', 'failed']
     """Status of the action (Juju operation). Typically "completed" or "failed"."""
 
-    results: dict[str, Any] = dataclasses.field(default_factory=dict)
+    results: dict[str, Any] = dataclasses.field(default_factory=dict)  # type: ignore
     """Results of the action provided by the charm.
 
     This excludes the special "return-code", "stdout", and "stderr" keys
@@ -48,7 +48,7 @@ class Task:
     message: str = ''
     """Failure message, if the charm provided a message when it failed the action."""
 
-    log: list[str] = dataclasses.field(default_factory=list)
+    log: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     """List of messages logged by the action hook."""
 
     def __str__(self) -> str:

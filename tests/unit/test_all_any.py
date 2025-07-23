@@ -8,7 +8,7 @@ import pytest
 
 import jubilant
 
-from .fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON
+from .fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON, SUBORDINATES_JSON
 
 
 class AllAnyFunc(Protocol):
@@ -201,3 +201,25 @@ def test_all_agents_idle():
     ] = 'error'
     status = jubilant.Status._from_dict(status_dict)
     assert not jubilant.all_agents_idle(status)
+
+
+def test_all_subordinates():
+    status_dict = json.loads(SUBORDINATES_JSON)
+    status_dict['applications']['ubuntu']['units']['ubuntu/1']['subordinates']['nrpe/1'][
+        'workload-status'
+    ]['current'] = 'active'
+    status = jubilant.Status._from_dict(status_dict)
+    assert not jubilant.all_blocked(status, 'nrpe')
+    assert status.apps['nrpe'].is_blocked
+    assert status.apps['ubuntu'].is_active
+    assert status.apps['ubun2'].is_active
+
+
+def test_any_subordinates():
+    status_dict = json.loads(SUBORDINATES_JSON)
+    status_dict['applications']['nrpe']['application-status']['current'] = 'active'
+    status = jubilant.Status._from_dict(status_dict)
+    assert jubilant.any_blocked(status)
+    assert status.apps['nrpe'].is_active
+    assert status.apps['ubuntu'].is_active
+    assert status.apps['ubun2'].is_active

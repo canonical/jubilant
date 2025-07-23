@@ -29,7 +29,7 @@ Documentation = "https://canonical-jubilant.readthedocs-hosted.com/"
 [dependency-groups]
 dev = [
     "ops==2.20.0",  # for static type checking test charms
-    "pyright==1.1.398",
+    "pyright==1.1.402",
     "pytest==8.3.5",
     "pytest-cov==5.0.0",
     "requests>=2.32.3",
@@ -127,7 +127,7 @@ include = ["jubilant", "tests"]
 pythonVersion = "3.8"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
-reportPrivateUsage = false
+reportPrivateUsage = false  # silence errors about use of _from_dict outside class
 
 [tool.pytest.ini_options]
 pythonpath = [

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import jubilant
 
 
@@ -13,6 +15,14 @@ def test_init_args():
     juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert juju.model == 'm'
+    assert juju.wait_timeout == 7
+    assert juju.cli_binary == '/bin/juju3'
+
+
+def test_init_args_controller():
+    juju = jubilant.Juju(model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3')
+
+    assert juju.model == 'ctl:m'
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
 

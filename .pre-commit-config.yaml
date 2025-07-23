@@ -1,0 +1,65 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-json
+      - id: check-yaml
+      - id: check-toml
+      - id: mixed-line-ending
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: detect-private-key
+  - repo: local
+    # Define ruff, codespell, and zizmor as local so that we run them with uv to
+    # get the same version as run manually or in CI.
+    # See https://github.com/astral-sh/ruff-pre-commit/blob/main/.pre-commit-hooks.yaml
+    # and https://github.com/zizmorcore/zizmor-pre-commit/blob/main/.pre-commit-hooks.yaml
+    # and https://github.com/codespell-project/codespell/blob/main/.pre-commit-hooks.yaml
+    # for the origin.
+    hooks:
+     - id: ruff-check
+       name: ruff check
+       description: "Run 'ruff check' for extremely fast Python linting"
+       entry: uv run ruff check --force-exclude
+       language: python
+       types_or: [python, pyi, jupyter]
+       args: []
+       require_serial: true
+       additional_dependencies: [uv]
+       minimum_pre_commit_version: "2.9.2"
+     - id: ruff-format
+       name: ruff format
+       description: "Run 'ruff format' for extremely fast Python formatting"
+       entry: uv run ruff format --force-exclude
+       language: python
+       types_or: [python, pyi, jupyter]
+       args: []
+       require_serial: true
+       additional_dependencies: [uv]
+       minimum_pre_commit_version: "2.9.2"
+     - id: zizmor
+       name: zizmor
+       description: "Find security issues in GitHub Actions CI/CD setups"
+       language: python
+       types: [yaml]
+       files: (\.github/workflows/.*)|(action\.ya?ml)$
+       require_serial: true
+       entry: uv run zizmor
+       args:
+         - "--no-progress" # https://github.com/zizmorcore/zizmor/issues/582
+     - id: codespell
+       name: codespell
+       description: Checks for common misspellings in text files.
+       entry: uv run codespell
+       language: python
+       types: [text]
+       args: []
+       require_serial: true
+       additional_dependencies: [tomli]

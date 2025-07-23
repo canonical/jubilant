@@ -2,52 +2,7 @@ import json
 
 import jubilant
 
-STATUS_ERRORS_JSON = """
-{
-    "model": {
-        "name": "tt",
-        "type": "caas",
-        "controller": "microk8s-localhost",
-        "cloud": "microk8s",
-        "version": "3.6.1",
-        "model-status": {
-            "status-error": "model status error!"
-        }
-    },
-    "machines": {
-        "machine-failed": {
-            "status-error": "machine status error!"
-        }
-    },
-    "applications": {
-        "app-failed": {
-            "status-error": "app status error!"
-        },
-        "unit-failed": {
-            "charm": "unit-failed",
-            "charm-origin": "origin",
-            "charm-name": "unit-failed",
-            "charm-rev": 0,
-            "exposed": false,
-            "units": {
-                "unit-failed/0": {
-                    "status-error": "unit status error!"
-                }
-            }
-        }
-    },
-    "offers": {
-        "offer-failed": {
-            "status-error": "offer status error!"
-        }
-    },
-    "application-endpoints": {
-        "remote-app-failed": {
-            "status-error": "remote app status error!"
-        }
-    }
-}
-"""
+from .fake_statuses import STATUS_ERRORS_JSON, SUBORDINATES_JSON
 
 
 def test_juju_status_error():
@@ -90,3 +45,20 @@ def test_juju_status_error():
             current='failed', message='remote app status error!'
         ),
     )
+
+
+def test_get_units():
+    status = jubilant.Status._from_dict(json.loads(SUBORDINATES_JSON))
+
+    assert sorted(status.get_units('ubuntu')) == ['ubuntu/1']
+    assert status.get_units('ubuntu') == status.apps['ubuntu'].units
+
+    assert sorted(status.get_units('ubun2')) == ['ubun2/0']
+    assert status.get_units('ubun2') == status.apps['ubun2'].units
+
+    assert sorted(status.get_units('nrpe')) == ['nrpe/1', 'nrpe/2']
+    units = status.get_units('nrpe')
+    assert units['nrpe/1'].public_address == '10.103.56.99'
+    assert units['nrpe/2'].public_address == '10.103.56.129'
+
+    assert status.get_units('foo') == {}

@@ -11,10 +11,18 @@ def test(run: mocks.Run):
 
 
 def test_with_model(run: mocks.Run):
-    run.handle(['juju', 'offer', '--model', 'mdl', 'mysql:db'])
+    # "juju offer" isn't a model-based command
+    run.handle(['juju', 'offer', 'mysql:db'])
     juju = jubilant.Juju(model='mdl')
 
     juju.offer('mysql', endpoint='db')
+
+
+def test_with_controller(run: mocks.Run):
+    run.handle(['juju', 'offer', 'mysql:db', '--controller', 'otherc'])
+    juju = jubilant.Juju(model='ctl:mdl')
+
+    juju.offer('mysql', endpoint='db', controller='otherc')
 
 
 def test_name(run: mocks.Run):

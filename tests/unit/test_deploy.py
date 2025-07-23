@@ -1,5 +1,7 @@
 import pathlib
 
+import pytest
+
 import jubilant
 
 from . import mocks
@@ -45,6 +47,10 @@ def test_all_args(run: mocks.Run):
             '--force',
             '--num-units',
             '3',
+            '--overlay',
+            'one.yaml',
+            '--overlay',
+            'dir/two.yaml',
             '--resource',
             'bin=/path',
             '--revision',
@@ -69,6 +75,7 @@ def test_all_args(run: mocks.Run):
         constraints={'mem': '8G'},
         force=True,
         num_units=3,
+        overlays=['one.yaml', pathlib.Path('dir', 'two.yaml')],
         resources={'bin': '/path'},
         revision=42,
         storage={'data': 'tmpfs,1G'},
@@ -89,6 +96,13 @@ def test_list_args(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.deploy('charm', attach_storage=['stg1', 'stg2'], to=['to1', 'to2'])
+
+
+def test_overlays_str():
+    juju = jubilant.Juju()
+
+    with pytest.raises(TypeError):
+        juju.deploy('charm', overlays='bad')
 
 
 def test_path(run: mocks.Run):

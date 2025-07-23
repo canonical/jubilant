@@ -42,11 +42,44 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
 def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
-    run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234', '--controller', 'ctrl'])
-    run.handle(['juju', 'deploy', '--model', 'jubilant-abcd1234', 'app1'])
+    run.handle(
+        [
+            'juju',
+            'add-model',
+            '--no-switch',
+            'jubilant-abcd1234',
+            'localhost',
+            '--controller',
+            'ctl',
+            '--config',
+            'x=true',
+            '--config',
+            'y=1',
+            '--config',
+            'z=ss',
+            '--credential',
+            'cc',
+        ]
+    )
+    run.handle(['juju', 'deploy', '--model', 'ctl:jubilant-abcd1234', 'app1'])
+    run.handle(
+        [
+            'juju',
+            'destroy-model',
+            'ctl:jubilant-abcd1234',
+            '--no-prompt',
+            '--destroy-storage',
+            '--force',
+        ]
+    )
 
-    with jubilant.temp_model(keep=True, controller='ctrl') as juju:
-        assert juju.model == 'jubilant-abcd1234'
+    with jubilant.temp_model(
+        controller='ctl',
+        config={'x': True, 'y': 1, 'z': 'ss'},
+        credential='cc',
+        cloud='localhost',
+    ) as juju:
+        assert juju.model == 'ctl:jubilant-abcd1234'
         assert len(run.calls) == 1
         assert run.calls[0].args[1] == 'add-model'
 
@@ -55,5 +88,50 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
         assert len(run.calls) == 2
         assert run.calls[1].args[1] == 'deploy'
 
-    assert juju.model == 'jubilant-abcd1234'
+    assert juju.model is None
+    assert len(run.calls) == 3
+    assert run.calls[2].args[1] == 'destroy-model'
+    assert run.calls[2].args[2] == 'ctl:jubilant-abcd1234'
+
+
+def test_other_args_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr('secrets.token_hex', mock_token_hex)
+    run.handle(
+        [
+            'juju',
+            'add-model',
+            '--no-switch',
+            'jubilant-abcd1234',
+            'localhost',
+            '--controller',
+            'ctl',
+            '--config',
+            'x=true',
+            '--config',
+            'y=1',
+            '--config',
+            'z=ss',
+            '--credential',
+            'cc',
+        ]
+    )
+    run.handle(['juju', 'deploy', '--model', 'ctl:jubilant-abcd1234', 'app1'])
+
+    with jubilant.temp_model(
+        keep=True,
+        controller='ctl',
+        config={'x': True, 'y': 1, 'z': 'ss'},
+        credential='cc',
+        cloud='localhost',
+    ) as juju:
+        assert juju.model == 'ctl:jubilant-abcd1234'
+        assert len(run.calls) == 1
+        assert run.calls[0].args[1] == 'add-model'
+
+        juju.deploy('app1')
+
+        assert len(run.calls) == 2
+        assert run.calls[1].args[1] == 'deploy'
+
+    assert juju.model == 'ctl:jubilant-abcd1234'
     assert len(run.calls) == 2

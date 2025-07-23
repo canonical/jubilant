@@ -55,6 +55,7 @@ class Juju:
 
     Args:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
+            If the model is in another controller, prefix the model name with ``<controller>:``.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
         cli_binary: Path to the Juju CLI binary. If not specified, uses ``juju`` and assumes it is
@@ -62,7 +63,11 @@ class Juju:
     """
 
     model: str | None
-    """If not None, operate on this Juju model, otherwise use the current Juju model."""
+    """If not None, operate on this Juju model, otherwise use the current Juju model.
+
+    If the model is in another controller, prefix the model name with ``<controller>:``; for
+    example, ``juju = jubilant.Juju(model='mycontroller:my-model')``.
+    """
 
     wait_timeout: float
     """The default timeout for :meth:`wait` (in seconds) if that method's *timeout* parameter is
@@ -97,9 +102,11 @@ class Juju:
     def add_model(
         self,
         model: str,
+        cloud: str | None = None,
         *,
         controller: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
+        credential: str | None = None,
     ) -> None:
         """Add a named model and set this instance's model to it.
 
@@ -109,21 +116,31 @@ class Juju:
 
         Args:
             model: Name of model to add.
+            cloud: Name of cloud or region (or cloud/region) to use for the model.
             controller: Name of controller to operate in. If not specified, use the current
                 controller.
             config: Model configuration as key-value pairs, for example,
                 ``{'image-stream': 'daily'}``.
+            credential: Name of cloud credential to use for the model.
         """
         args = ['add-model', '--no-switch', model]
 
-        if controller is not None:
+        if cloud is not None:
+            args.append(cloud)
+
+        if controller is None:
+            model_name = model
+        else:
             args.extend(['--controller', controller])
+            model_name = f'{controller}:{model}'
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
+        if credential is not None:
+            args.extend(['--credential', credential])
 
         self.cli(*args, include_model=False)
-        self.model = model
+        self.model = model_name
 
     def add_secret(
         self,
@@ -277,6 +294,41 @@ class Juju:
 
         self.cli(*args)
 
+    def consume(
+        self,
+        model_and_app: str,
+        alias: str | None = None,
+        *,
+        controller: str | None = None,
+        owner: str | None = None,
+    ) -> None:
+        """Add a remote offer to the model.
+
+        Examples::
+
+            juju.consume('othermodel.mysql', 'sql')
+            juju.consume('othermodel.mysql', controller='ctrl2', owner='admin')
+
+        Args:
+            model_and_app: Dotted application and model name to offer endpoints for, for example
+                ``othermodel.mysql``.
+            alias: A local alias for the offer, for use with :meth:`integrate`. Defaults to the
+                application name.
+            controller: Remote offer's controller. Defaults to the current controller.
+            owner: Remote model's owner. Defaults to the user that is currently logged in to the
+                controller providing the offer.
+        """
+        offer_path = model_and_app
+        if owner is not None:
+            offer_path = f'{owner}/{offer_path}'
+        if controller is not None:
+            offer_path = f'{controller}:{offer_path}'
+        args = ['consume', offer_path]
+        if alias is not None:
+            args.append(alias)
+
+        self.cli(*args)
+
     def debug_log(self, *, limit: int = 0) -> str:
         """Return debug log messages from a model.
 
@@ -300,6 +352,7 @@ class Juju:
         constraints: Mapping[str, str] | None = None,
         force: bool = False,
         num_units: int = 1,
+        overlays: Iterable[str | pathlib.Path] = (),
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
         storage: Mapping[str, str] | None = None,
@@ -324,6 +377,7 @@ class Juju:
             constraints: Hardware constraints for new machines, for example, ``{'mem': '8G'}``.
             force: If true, bypass checks such as supported bases.
             num_units: Number of units to deploy for principal charms.
+            overlays: File paths of bundles to overlay on the primary bundle, applied in order.
             resources: Specify named resources to use for deployment, for example:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
@@ -332,6 +386,10 @@ class Juju:
                 to deploy to a new LXD container on machine 25, use ``lxd:25``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
+        # Need this check because str is also an iterable of str.
+        if isinstance(overlays, str):
+            raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
+
         args = ['deploy', str(charm)]
         if app is not None:
             args.append(app)
@@ -359,6 +417,8 @@ class Juju:
             args.append('--force')
         if num_units != 1:
             args.extend(['--num-units', str(num_units)])
+        for overlay in overlays:
+            args.extend(['--overlay', str(overlay)])
         if resources is not None:
             for k, v in resources.items():
                 args.extend(['--resource', f'{k}={v}'])
@@ -565,7 +625,14 @@ class Juju:
 
         self.cli(*args)
 
-    def offer(self, app: str, *, endpoint: str | Iterable[str], name: str | None = None) -> None:
+    def offer(
+        self,
+        app: str,
+        *,
+        controller: str | None = None,
+        endpoint: str | Iterable[str],
+        name: str | None = None,
+    ) -> None:
         """Offer application endpoints for use in other models.
 
         Examples::
@@ -574,7 +641,10 @@ class Juju:
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
 
         Args:
-            app: Application name to offer endpoints for.
+            app: Application name to offer endpoints for. May include a dotted model name, for
+                example ``mymodel.mysql``.
+            controller: Name of controller to operate in. If not specified, use the current
+                controller.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
         """
@@ -582,10 +652,12 @@ class Juju:
             endpoint = ','.join(endpoint)
         app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
+        if controller:
+            args.extend(['--controller', controller])
         if name is not None:
             args.append(name)
 
-        self.cli(*args)
+        self.cli(*args, include_model=False)
 
     def refresh(
         self,

@@ -177,7 +177,7 @@ def _all_statuses_are(expected: str, status: Status, apps: Iterable[str]) -> boo
             return False
         if app_info.app_status.current != expected:
             return False
-        for unit_info in app_info.units.values():
+        for unit_info in status.get_units(app).values():
             if unit_info.workload_status.current != expected:
                 return False
     return True
@@ -193,7 +193,7 @@ def _any_status_is(expected: str, status: Status, apps: Iterable[str]) -> bool:
             continue
         if app_info.app_status.current == expected:
             return True
-        for unit_info in app_info.units.values():
+        for unit_info in status.get_units(app).values():
             if unit_info.workload_status.current == expected:
                 return True
     return False
@@ -207,7 +207,7 @@ def _all_agent_statuses_are(expected: str, status: Status, apps: Iterable[str]) 
         app_info = status.apps.get(app)
         if app_info is None:
             return False
-        for unit_info in app_info.units.values():
+        for unit_info in status.get_units(app).values():
             if unit_info.juju_status.current != expected:
                 return False
     return True

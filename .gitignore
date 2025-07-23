@@ -3,4 +3,5 @@ jubilant.egg-info
 /dist
 /.idea
 .coverage
+.report
 *.charm
