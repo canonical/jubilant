@@ -1,0 +1,16 @@
+clients:
+  sbom:
+      service_url: https://sbom-request.canonical.com
+      department: charm_engineering
+      email: tony.meyer@canonical.com
+      team: charm_tech
+  secscan: {}
+
+
+artifacts:
+  - name: 'jubilant'
+    type: 'wheel'
+    ssdlc_params:
+        name: 'jubilant'
+        channel: 'stable'
+        cycle: '25.10'
