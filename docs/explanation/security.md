@@ -42,7 +42,8 @@ Otherwise, Jubilant doesn't introduce any new security risks over directly runni
 * Where charm tests require cloud credentials, these should be saved in an appropriate secret store (such as GitHub secrets), should be used only for the integration tests, and should provide no access to production clouds.
 * Only use `deploy(trust=True)`, `refresh(trust=True)`, and `trust(remove=False)` in tests when required by the relevant charm. Ensure that the cloud credentials that the charm will gain access to are only used for integration tests.
 * When using `scp()` use a secure temporary directory for the local side.
-* Charms should follow best practices for writing secure Python tests.
 * Charms should have workflows that statically check for security issues (such as [ruff](https://docs.astral.sh/ruff/linter/) and [zizmor](https://docs.zizmor.sh/)).
+* Charms should follow best practices for writing secure Python tests.
+* Charm tests may be run in local development environments, so charm tests should not install software or make system changes.
 * Charm authors should exercise caution when considering adding dependencies to their charm tests.
 * Write the exact dependencies of the charm's tests into a lock file (using `uv lock`, `poetry lock`, or similar tool) and commit that lock file to source control.
