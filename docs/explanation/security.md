@@ -2,7 +2,7 @@
 
 # Security
 
-When producing security documentation for your charm, it's important to consider the security aspects of the charm's tests. If you have any Jubilant-related security questions that aren't answered here in terms of the use of cryptographic technology, security risks, hardening, and good practice, please reach out to the Charm Tech team, and we'll do our best to help.
+When producing security documentation for your charm, it's important to consider the security aspects of the charm's tests. If you have any Jubilant-related security questions that aren't answered here, please reach out to the Charm Tech team, and we'll do our best to help.
 
 ## Cryptographic technology
 
