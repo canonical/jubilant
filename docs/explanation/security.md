@@ -2,7 +2,7 @@
 
 # Security
 
-When producing security documentation for your charm, it's important to consider the security aspects of the charm's tests. If there are any security questions that aren't answered here in terms of the use of cryptographic technology, security risks, hardening, and good practice, with regards to Jubilant, please reach out to the Charm Tech team, and we'll do our best to assist.
+When producing security documentation for your charm, it's important to consider the security aspects of the charm's tests. If you have any Jubilant-related security questions that aren't answered here in terms of the use of cryptographic technology, security risks, hardening, and good practice, please reach out to the Charm Tech team, and we'll do our best to help.
 
 ## Cryptographic technology
 
@@ -23,7 +23,7 @@ No additional steps are required to harden your integration tests when using Jub
 
 ## Security updates
 
-We strongly recommend restricting the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock. For example, `jubilant~=1.2`. Set a minor version that includes all the features that the charm tests use.
+We strongly recommend restricting the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock. For example, `jubilant~=1.2`. Set a minor version that includes all the features that the charm tests use, and this will allow upgrades to 1.3, 1.4, and so on.
 
 Your charm repository should have tooling configured so that any dependencies with security updates are detected automatically (such as [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/about-dependabot-security-updates) or [Renovate](https://www.mend.io/renovate/)), prompting to you re-lock so that the charm will be built with the latest version.
 
