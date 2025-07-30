@@ -13,7 +13,7 @@ Jubilant does not use any cryptographic technology, hashing, or digital signatur
 Jubilant communicates with Juju by running processes in the test environment (the Juju CLI).
 
 > See also:
-> - {external+juju:ref}`Juju CLI <list-of-juju-cli-commands>`
+> - {external+juju:ref}`Juju CLI <juju-cli>`
 
 ## Hardening
 
