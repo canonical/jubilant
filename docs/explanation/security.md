@@ -33,7 +33,7 @@ For information about supported versions and how to report security issues, see 
 
 Jubilant inherits the risks of using the Juju CLI. Charm authors should be familiar with {external+juju:ref}`Juju security <juju-security>`.
 
-Charm integration tests are most commonly run in ephemeral CI environments. However, the tests may also be run in local development environments. Charm authors should be mindful of this when writing integration tests.
+Charm integration tests are most commonly run in ephemeral CI environments. However, the tests may also be run in local development environments, giving Jubilant access to these environments.
 
 Otherwise, Jubilant doesn't introduce any new security risks over directly running Juju CLI commands.
 
