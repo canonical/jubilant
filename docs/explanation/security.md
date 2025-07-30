@@ -35,12 +35,12 @@ Jubilant inherits the risks of using the Juju CLI. Charm authors should be famil
 
 Charm integration tests are most commonly run in ephemeral CI environments. However, the tests may also be run in local development environments. Charm authors should be mindful of this when writing integration tests.
 
-Otherwise, Jubilant doesn't introduce any new security risks over simply running Juju CLI commands.
+Otherwise, Jubilant doesn't introduce any new security risks over directly running Juju CLI commands.
 
 ## Good practices
 
 * Where charm tests require cloud credentials, these should be saved in an appropriate secret store (such as GitHub secrets), should be used only for the integration tests, and should provide no access to production clouds.
-* Only `deploy(trust=True)`, `refresh(trust=True)`, and `trust(remove=False)` in tests when required by the relevant charm, and ensure that the cloud credentials that the charm will gain access to is only used for integration tests.
+* Only use `deploy(trust=True)`, `refresh(trust=True)`, and `trust(remove=False)` in tests when required by the relevant charm. Ensure that the cloud credentials that the charm will gain access to are only used for integration tests.
 * When using `scp()` use a secure temporary directory for the local side.
 * Charms should follow best practices for writing secure Python tests.
 * Charms should have workflows that statically check for security issues (such as [ruff](https://docs.astral.sh/ruff/linter/) and [zizmor](https://docs.zizmor.sh/)).
