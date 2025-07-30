@@ -250,6 +250,7 @@ extensions = [
     "sphinxcontrib.cairosvgconverter",
     "sphinx_last_updated_by_git",
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
 ]
 
@@ -351,3 +352,8 @@ autodoc_default_options = {
 
 # This value stacks args vertically if a signature is too long.
 maximum_signature_line_length = 80
+
+# Configuration for intersphinx mapping
+intersphinx_mapping = {
+    "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
+}
