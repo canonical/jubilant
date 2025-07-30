@@ -25,7 +25,7 @@ No additional steps are required to harden your integration tests when using Jub
 
 We strongly recommend restricting the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock. For example, `jubilant~=1.2`. Set a minor version that includes all the features that the charm tests use, and this will allow upgrades to 1.3, 1.4, and so on.
 
-Your charm repository should have tooling configured so that any dependencies with security updates are detected automatically (such as [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/about-dependabot-security-updates) or [Renovate](https://www.mend.io/renovate/)), prompting to you re-lock so that the charm will be built with the latest version.
+Your charm repository should have tooling configured so that any dependencies with security updates are detected automatically (such as [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/about-dependabot-security-updates) or [Renovate](https://www.mend.io/renovate/)), prompting to you re-lock so that the charm tests will run with the latest version.
 
 For information about supported versions and how to report security issues, see [SECURITY.md](https://github.com/canonical/jubilant/blob/main/SECURITY.md).
 
