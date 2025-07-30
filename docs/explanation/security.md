@@ -46,4 +46,3 @@ Otherwise, Jubilant doesn't introduce any new security risks over simply running
 * Charms should have workflows that statically check for security issues (such as [ruff](https://docs.astral.sh/ruff/linter/) and [zizmor](https://docs.zizmor.sh/)).
 * Charm authors should exercise caution when considering adding dependencies to their charm tests.
 * Write the exact dependencies of the charm's tests into a lock file (using `uv lock`, `poetry lock`, or similar tool) and commit that lock file to source control.
-* Charm repositories should have tooling that automatically detects outdated dependencies, particularly missing security updates.
