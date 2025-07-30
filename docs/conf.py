@@ -202,9 +202,8 @@ redirects = {}
 # TODO: [@dwilding DONE] Remove or adjust the ACME entry after you update the contributing guide
 
 linkcheck_ignore = [
-    "http://127.0.0.1:8000",
-    "https://documentation.ubuntu.com/juju/3.6/reference/juju-cli/list-of-juju-cli-commands/#list-of-juju-cli-commands",  # Actual anchor is #id1 because title contains code font
-]
+    "http://127.0.0.1:8000"
+    ]
 
 
 # A regex list of URLs where anchors are ignored by 'make linkcheck'
