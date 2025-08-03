@@ -14,7 +14,7 @@ Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI for use
 
 You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](explanation/design-goals).
 
-Jubilant 1.0.0 was released in April 2025. We will try our best to avoid making breaking changes to the API after this point.
+Jubilant 1.0.0 was released in April 2025. We will avoid making breaking changes to the API after this point.
 
 
 The library provides:
