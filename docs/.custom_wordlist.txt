@@ -1,21 +1,4 @@
 # Ensure the last line in this file has a newline at the end, to support concatenation
-args
-CIDR
-CLI
-cli
-config
-Dataclasses
-Jubilant
 Jubilant's
-libjuju
-MicroK
-MicroK8s
-PyPI
-pytest
-Pythonic
-statustypes
-stdout
-stderr
 teardown
-URI
-websocket
+zizmor
