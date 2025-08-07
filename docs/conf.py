@@ -188,7 +188,7 @@ sitemap_show_lastmod = True
 
 # Exclude generated pages from the sitemap:
 
-sitemap_exclude = [
+sitemap_excludes = [
     '404/',
     'genindex/',
     'py-modindex/',
