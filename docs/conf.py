@@ -186,6 +186,15 @@ sitemap_url_scheme = '{link}'
 
 sitemap_show_lastmod = True
 
+# Exclude generated pages from the sitemap:
+
+sitemap_exclude = [
+    '404/',
+    'genindex/',
+    'py-modindex/',
+    'search/',
+]
+
 
 # Template and asset locations
 
