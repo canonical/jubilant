@@ -284,6 +284,9 @@ class Juju:
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
                 and ``type`` are required, plus any additional attributes.
             to: Placement directive indicating an instance to bootstrap.
+
+        Returns:
+            The standard output of the Juju CLI command.
         """
         args = ['bootstrap']
         if cloud is not None:
