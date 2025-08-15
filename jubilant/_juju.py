@@ -219,21 +219,15 @@ class Juju:
         model_default: Mapping[str, ConfigValue] | None = None,
         storage_pool: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
-    ):
+    ) -> None:
         """Initializes a cloud environment.
 
         Args:
-            cloud: Name of cloud to bootstrap on. Used without arguments, bootstrap will work
-                in interactive mode and step you through the process of initializing a Juju
-                cloud environment. Initialization consists of creating a "controller" model
-                and provisioning a machine to act as controller.
-            controller: Name for the controller. If not provided, Juju will generate one.
-                Controller names may only contain lowercase letters, digits and hyphens, and
-                may not start with a hyphen. We recommend you call your controller
-                'username-region' e.g. 'fred-us-east-1'. See ``juju bootstrap --clouds`` for
-                a list of clouds and credentials. See ``juju bootstrap --regions`` for a list
-                of available regions for a given cloud.
-            bootstrap_base: Specify the base of the bootstrap machine.
+            cloud: Name of cloud to bootstrap on. Initialization consists of creating a
+                "controller" model and provisioning a machine to act as controller.
+            controller: Name for the controller.
+            bootstrap_base: Specify the base of the bootstrap machine, for example
+                ``"24.04"``.
             bootstrap_constraints: Specify bootstrap machine constraints, for example,
                 ``{'mem': '8G'}``. If used, its values will also apply to any future
                 controllers provisioned for high availability (HA).
@@ -244,7 +238,7 @@ class Juju:
                 workload machines in the model, exactly as if the constraints were set with
                 ``juju set-model-constraints``.
             credential: Name of cloud credential to use when bootstrapping.
-            force: If true, allow bypassing of checks such as supported series.
+            force: If True, allow bypassing of checks such as supported bases.
             model_default: Configuration options to set for all models, unless otherwise
                 specified.
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
@@ -255,14 +249,14 @@ class Juju:
         if bootstrap_base is not None:
             args.extend(['--bootstrap-base', bootstrap_base])
         if bootstrap_constraints is not None:
-            constraint_str = ' '.join(f'{k}={v}' for k, v in bootstrap_constraints.items())
-            args.extend(['--bootstrap-constraints', constraint_str])
+            for k, v in bootstrap_constraints.items():
+                args.extend(['--bootstrap-constraints', f'{k}={v}'])
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
         if constraints is not None:
-            constraint_str = ' '.join(f'{k}={v}' for k, v in constraints.items())
-            args.extend(['--constraints', constraint_str])
+            for k, v in constraints.items():
+                args.extend(['--constraints', f'{k}={v}'])
         if credential is not None:
             args.extend(['--credential', credential])
         if force:
@@ -279,7 +273,8 @@ class Juju:
             else:
                 args.extend(['--to', ','.join(to)])
 
-        self.cli(*args, include_model=False).strip()
+        _, stderr = self._cli(*args, include_model=False)
+        logger.info('bootstrap output:\n%s', stderr)
 
     def cli(self, *args: str, include_model: bool = True, stdin: str | None = None) -> str:
         """Run a Juju CLI command and return its standard output.
