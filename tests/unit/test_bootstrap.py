@@ -3,7 +3,7 @@ import jubilant
 from . import mocks
 
 
-def test_defaults_with_cloud(run: mocks.Run):
+def test_defaults(run: mocks.Run):
     run.handle(['juju', 'bootstrap', 'lxd', 'my-controller', '--no-switch'])
     juju = jubilant.Juju()
 
