@@ -274,7 +274,10 @@ class Juju:
             for k, v in storage_pool.items():
                 args.extend(['--storage-pool', f'{k}={v}'])
         if to is not None:
-            args.extend(['--to', to])
+            if isinstance(to, str):
+                args.extend(['--to', to])
+            else:
+                args.extend(['--to', ','.join(to)])
 
         self.cli(*args, include_model=False).strip()
 
