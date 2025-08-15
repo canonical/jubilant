@@ -207,34 +207,19 @@ class Juju:
 
     def bootstrap(
         self,
-        cloud: str | None = None,
-        controller: str | None = None,
+        cloud: str,
+        controller: str,
         *,
-        add_model: str | None = None,
-        agent_version: str | None = None,
-        auto_upgrade: bool = False,
         bootstrap_base: str | None = None,
         bootstrap_constraints: Mapping[str, str] | None = None,
-        bootstrap_image: str | None = None,
-        bootstrap_series: str | None = None,
-        build_agent: bool = False,
-        clouds: bool = False,
         config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
-        controller_charm_channel: str | None = None,
-        controller_charm_path: str | pathlib.Path | None = None,
         credential: str | None = None,
-        db_snap: str | pathlib.Path | None = None,
-        db_snap_asserts: str | pathlib.Path | None = None,
         force: bool = False,
-        keep_broken: bool = False,
-        metadata_source: str | pathlib.Path | None = None,
         model_default: Mapping[str, ConfigValue] | None = None,
-        no_switch: bool = False,
-        regions: str | None = None,
         storage_pool: Mapping[str, str] | None = None,
-        to: str | None = None,
-    ) -> str:
+        to: str | Iterable[str] | None = None,
+    ):
         """Initializes a cloud environment.
 
         Args:
@@ -245,110 +230,53 @@ class Juju:
             controller: Name for the controller. If not provided, Juju will generate one.
                 Controller names may only contain lowercase letters, digits and hyphens, and
                 may not start with a hyphen. We recommend you call your controller
-                'username-region' e.g. 'fred-us-east-1'. See ``clouds`` for a list of clouds and
-                credentials. See ``regions`` for a list of available regions for a given cloud.
-            add_model: Name of an initial model to create on the new controller.
-            agent_version: Version of agent binaries to use for Juju agents.
-            auto_upgrade: If true, after bootstrap, upgrade to the latest patch release.
+                'username-region' e.g. 'fred-us-east-1'. See ``juju bootstrap --clouds`` for
+                a list of clouds and credentials. See ``juju bootstrap --regions`` for a list
+                of available regions for a given cloud.
             bootstrap_base: Specify the base of the bootstrap machine.
             bootstrap_constraints: Specify bootstrap machine constraints, for example,
                 ``{'mem': '8G'}``. If used, its values will also apply to any future
                 controllers provisioned for high availability (HA).
-            bootstrap_image: Specify the image of the bootstrap machine (requires
-                bootstrap_constraints specifying architecture).
-            bootstrap_series: Specify the series of the bootstrap machine (deprecated, use
-                bootstrap_base).
-            build_agent: If true, build local version of agent binary before bootstrapping.
-            clouds: If true, print the available clouds which can be used to bootstrap a
-                Juju environment.
             config: Controller configuration options. Model config keys only affect the
                 controller model.
             constraints: Set model constraints, for example, ``{'mem': '8G', 'cores': '4'}``.
                 If used, its values will be set as the default constraints for all future
                 workload machines in the model, exactly as if the constraints were set with
                 ``juju set-model-constraints``.
-            controller_charm_channel: The Charmhub channel to download the controller charm
-                from (if not using a local charm).
-            controller_charm_path: Path to a locally built controller charm.
-            credential: Credentials to use when bootstrapping.
-            db_snap: Path to a locally built .snap to use as the internal juju-db service.
-            db_snap_asserts: Path to a local .assert file (requires ``db_snap``).
+            credential: Name of cloud credential to use when bootstrapping.
             force: If true, allow bypassing of checks such as supported series.
-            keep_broken: If true, do not destroy the provisioned controller instance if
-                bootstrap fails.
-            metadata_source: Local path to use as agent and/or image metadata source.
             model_default: Configuration options to set for all models, unless otherwise
                 specified.
-            no_switch: If true, do not switch to the newly created controller.
-            regions: Print the available regions for the specified cloud.
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
                 and ``type`` are required, plus any additional attributes.
             to: Placement directive indicating an instance to bootstrap.
-
-        Returns:
-            The standard output of the Juju CLI command.
         """
-        args = ['bootstrap']
-        if cloud is not None:
-            args.append(cloud)
-        if controller is not None:
-            args.append(controller)
-
-        if add_model is not None:
-            args.extend(['--add-model', add_model])
-        if agent_version is not None:
-            args.extend(['--agent-version', agent_version])
-        if auto_upgrade:
-            args.append('--auto-upgrade')
+        args = ['bootstrap', cloud, controller, '--no-switch']
         if bootstrap_base is not None:
             args.extend(['--bootstrap-base', bootstrap_base])
         if bootstrap_constraints is not None:
             constraint_str = ' '.join(f'{k}={v}' for k, v in bootstrap_constraints.items())
             args.extend(['--bootstrap-constraints', constraint_str])
-        if bootstrap_image is not None:
-            args.extend(['--bootstrap-image', bootstrap_image])
-        if bootstrap_series is not None:
-            args.extend(['--bootstrap-series', bootstrap_series])
-        if build_agent:
-            args.append('--build-agent')
-        if clouds:
-            args.append('--clouds')
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
         if constraints is not None:
             constraint_str = ' '.join(f'{k}={v}' for k, v in constraints.items())
             args.extend(['--constraints', constraint_str])
-        if controller_charm_channel is not None:
-            args.extend(['--controller-charm-channel', controller_charm_channel])
-        if controller_charm_path is not None:
-            args.extend(['--controller-charm-path', str(controller_charm_path)])
         if credential is not None:
             args.extend(['--credential', credential])
-        if db_snap is not None:
-            args.extend(['--db-snap', str(db_snap)])
-        if db_snap_asserts is not None:
-            args.extend(['--db-snap-asserts', str(db_snap_asserts)])
         if force:
             args.append('--force')
-        if keep_broken:
-            args.append('--keep-broken')
-        if metadata_source is not None:
-            args.extend(['--metadata-source', str(metadata_source)])
         if model_default is not None:
             for k, v in model_default.items():
                 args.extend(['--model-default', _format_config(k, v)])
-        if no_switch:
-            args.append('--no-switch')
-        if regions is not None:
-            args.extend(['--regions', regions])
         if storage_pool is not None:
             for k, v in storage_pool.items():
                 args.extend(['--storage-pool', f'{k}={v}'])
         if to is not None:
             args.extend(['--to', to])
 
-        return self.cli(*args, include_model=False).strip()
+        self.cli(*args, include_model=False).strip()
 
     def cli(self, *args: str, include_model: bool = True, stdin: str | None = None) -> str:
         """Run a Juju CLI command and return its standard output.
