@@ -205,6 +205,77 @@ class Juju:
 
         self.cli(*args)
 
+    def bootstrap(
+        self,
+        cloud: str,
+        controller: str,
+        *,
+        bootstrap_base: str | None = None,
+        bootstrap_constraints: Mapping[str, str] | None = None,
+        config: Mapping[str, ConfigValue] | None = None,
+        constraints: Mapping[str, str] | None = None,
+        credential: str | None = None,
+        force: bool = False,
+        model_default: Mapping[str, ConfigValue] | None = None,
+        storage_pool: Mapping[str, str] | None = None,
+        to: str | Iterable[str] | None = None,
+    ) -> None:
+        """Initializes a cloud environment.
+
+        Args:
+            cloud: Name of cloud to bootstrap on. Initialization consists of creating a
+                "controller" model and provisioning a machine to act as controller.
+            controller: Name for the controller.
+            bootstrap_base: Specify the base of the bootstrap machine, for example
+                ``"24.04"``.
+            bootstrap_constraints: Specify bootstrap machine constraints, for example,
+                ``{'mem': '8G'}``. If used, its values will also apply to any future
+                controllers provisioned for high availability (HA).
+            config: Controller configuration options. Model config keys only affect the
+                controller model.
+            constraints: Set model constraints, for example, ``{'mem': '8G', 'cores': '4'}``.
+                If used, its values will be set as the default constraints for all future
+                workload machines in the model, exactly as if the constraints were set with
+                ``juju set-model-constraints``.
+            credential: Name of cloud credential to use when bootstrapping.
+            force: If True, allow bypassing of checks such as supported bases.
+            model_default: Configuration options to set for all models, unless otherwise
+                specified.
+            storage_pool: Options for an initial storage pool as key-value pairs. ``name``
+                and ``type`` are required, plus any additional attributes.
+            to: Placement directive indicating an instance to bootstrap.
+        """
+        args = ['bootstrap', cloud, controller, '--no-switch']
+        if bootstrap_base is not None:
+            args.extend(['--bootstrap-base', bootstrap_base])
+        if bootstrap_constraints is not None:
+            for k, v in bootstrap_constraints.items():
+                args.extend(['--bootstrap-constraints', f'{k}={v}'])
+        if config is not None:
+            for k, v in config.items():
+                args.extend(['--config', _format_config(k, v)])
+        if constraints is not None:
+            for k, v in constraints.items():
+                args.extend(['--constraints', f'{k}={v}'])
+        if credential is not None:
+            args.extend(['--credential', credential])
+        if force:
+            args.append('--force')
+        if model_default is not None:
+            for k, v in model_default.items():
+                args.extend(['--model-default', _format_config(k, v)])
+        if storage_pool is not None:
+            for k, v in storage_pool.items():
+                args.extend(['--storage-pool', f'{k}={v}'])
+        if to is not None:
+            if isinstance(to, str):
+                args.extend(['--to', to])
+            else:
+                args.extend(['--to', ','.join(to)])
+
+        _, stderr = self._cli(*args, include_model=False)
+        logger.info('bootstrap output:\n%s', stderr)
+
     def cli(self, *args: str, include_model: bool = True, stdin: str | None = None) -> str:
         """Run a Juju CLI command and return its standard output.
 
