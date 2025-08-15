@@ -7,7 +7,7 @@ def test_defaults_with_cloud(run: mocks.Run):
     run.handle(['juju', 'bootstrap', 'lxd', 'my-controller', '--no-switch'])
     juju = jubilant.Juju()
 
-    juju.bootstrap('lxd','my-controller')
+    juju.bootstrap('lxd', 'my-controller')
 
 
 def test_all_args(run: mocks.Run):
