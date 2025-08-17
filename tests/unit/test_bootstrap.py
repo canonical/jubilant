@@ -56,7 +56,7 @@ def test_all_args(run: mocks.Run):
         constraints={'mem': '8G', 'arch': 'amd64'},
         credential='my-credential',
         force=True,
-        model_default={'foo': 'bar'},
+        model_defaults={'foo': 'bar'},
         storage_pool={'name': 'my-pool', 'type': 'lxd'},
         to='lxd:1',
     )

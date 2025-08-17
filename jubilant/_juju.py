@@ -216,7 +216,7 @@ class Juju:
         constraints: Mapping[str, str] | None = None,
         credential: str | None = None,
         force: bool = False,
-        model_default: Mapping[str, ConfigValue] | None = None,
+        model_defaults: Mapping[str, ConfigValue] | None = None,
         storage_pool: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
     ) -> None:
@@ -250,8 +250,7 @@ class Juju:
                 ``juju set-model-constraints``.
             credential: Name of cloud credential to use when bootstrapping.
             force: If True, allow bypassing of checks such as supported bases.
-            model_default: Configuration options to set for all models, unless otherwise
-                specified.
+            model_defaults: Configuration options to set for all models.
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
                 and ``type`` are required, plus any additional attributes.
             to: Placement directive indicating an instance to bootstrap.
@@ -272,8 +271,8 @@ class Juju:
             args.extend(['--credential', credential])
         if force:
             args.append('--force')
-        if model_default is not None:
-            for k, v in model_default.items():
+        if model_defaults is not None:
+            for k, v in model_defaults.items():
                 args.extend(['--model-default', _format_config(k, v)])
         if storage_pool is not None:
             for k, v in storage_pool.items():
