@@ -220,7 +220,18 @@ class Juju:
         storage_pool: Mapping[str, str] | None = None,
         to: str | Iterable[str] | None = None,
     ) -> None:
-        """Initializes a cloud environment.
+        """Bootstrap a controller on a cloud environment.
+
+        To avoid interfering with CLI users, this does not switch the Juju CLI
+        to the newly-created controller. In addition, ``self.model`` is not updated.
+
+        If you want to create a new controller with a model, use :meth:`add_model`
+        after calling this method, which will set ``self.model`` for future commands::
+
+            juju = jubilant.Juju()
+            juju.bootstrap('lxd', 'myctrl')
+            juju.add_model('mymodel', controller='myctrl')
+            # self.model will be 'myctrl.mymodel' here
 
         Args:
             cloud: Name of cloud to bootstrap on. Initialization consists of creating a
