@@ -19,21 +19,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Run linting
+      - name: Run linting and static type checking
         run: make lint
-
-  static:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Run static type checks
-        run: make static
 
   unit:
     runs-on: ubuntu-latest
