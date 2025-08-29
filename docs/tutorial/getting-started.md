@@ -82,6 +82,8 @@ def test_deploy(juju: jubilant.Juju):
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
+This test deploys the `snappass-test` charm from Charmhub. To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see [](#how_to_migrate_an_application_fixture).
+
 You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, to create a new model for every test function (pytest's default behavior), omit the scope:
 
 ```python

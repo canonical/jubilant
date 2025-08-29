@@ -93,6 +93,7 @@ A few things to note about the fixture:
 * If any of the tests fail, it uses `juju.debug_log` to display the last 1000 lines of `juju debug-log` output.
 * It is module-scoped, like pytest-operator's `ops_test` fixture. This means that a new model is created for every `test_*.py` file, but not for every test.
 
+(how_to_migrate_an_application_fixture)=
 ### An application fixture
 
 If you don't want to deploy your application in each test, you can add a module-scoped `app` fixture that deploys your charm and waits for it to go active.
