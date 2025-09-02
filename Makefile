@@ -29,10 +29,10 @@ install-dev:  # Install development tooling
 	uv tool install zizmor
 
 integration-k8s:  # Run K8s integration tests on Juju, eg: make integration ARGS='-k test_deploy'
-	uv run pytest tests/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" -m 'not machine' $(ARGS)
+	uv run pytest tests/integration -vv --log-cli-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" -m 'not machine' $(ARGS)
 
 integration-machine:  # Run machine integration tests on Juju, eg: make integration-machine ARGS='-k test_ssh'
-	uv run pytest tests/integration -vv --log-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" -m machine $(ARGS)
+	uv run pytest tests/integration -vv --log-cli-level=INFO --log-format="%(asctime)s %(levelname)s %(message)s" -m machine $(ARGS)
 
 lint:  # Perform linting and static type checks
 	uv run ruff check
