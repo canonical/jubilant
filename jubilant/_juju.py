@@ -1215,8 +1215,9 @@ class Juju:
             error: Callable that takes a :class:`Status` object and returns true when ``wait``
                 should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
-            timeout: Overall timeout in seconds; :class:`TimeoutError` is raised if this is reached.
-                If not specified, uses the *wait_timeout* specified when the instance was created.
+            timeout: Overall timeout in seconds; :class:`TimeoutError` is raised if this
+                is reached. If not specified, uses the *wait_timeout* specified when the
+                instance was created.
             successes: Number of times *ready* must return true for the wait to succeed.
 
         Raises:
