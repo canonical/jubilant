@@ -27,3 +27,6 @@ jobs:
 
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
+
+  secscan:
+    uses: ./.github/workflows/secscan.yaml
