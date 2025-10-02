@@ -57,13 +57,13 @@ def test_method_order():
 
 def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     assert 'snap' not in juju._temp_dir
 
 
 def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     assert 'snap' in juju._temp_dir
