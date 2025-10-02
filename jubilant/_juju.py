@@ -305,6 +305,7 @@ class Juju:
         stdin: str | None = None,
         log: bool = True,
         timeout: float | None = None,
+        capture_output: bool = True,
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
@@ -315,7 +316,7 @@ class Juju:
             process = subprocess.run(
                 [self.cli_binary, *args],
                 check=True,
-                capture_output=True,
+                capture_output=capture_output,
                 encoding='utf-8',
                 input=stdin,
                 timeout=timeout,
@@ -551,7 +552,7 @@ class Juju:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
-        self._cli(*args, include_model=False, timeout=timeout)
+        self._cli(*args, include_model=False, timeout=timeout, capture_output=False)
         if model == self.model:
             self.model = None
 
