@@ -299,7 +299,12 @@ class Juju:
         return stdout
 
     def _cli(
-        self, *args: str, include_model: bool = True, stdin: str | None = None, log: bool = True
+        self,
+        *args: str,
+        include_model: bool = True,
+        stdin: str | None = None,
+        log: bool = True,
+        timeout: float | None = None,
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
@@ -313,6 +318,7 @@ class Juju:
                 capture_output=True,
                 encoding='utf-8',
                 input=stdin,
+                timeout=timeout,
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
@@ -525,6 +531,7 @@ class Juju:
         *,
         destroy_storage: bool = False,
         force: bool = False,
+        timeout: float | None = None,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
@@ -535,13 +542,14 @@ class Juju:
             model: Name of model to destroy.
             destroy_storage: If true, destroy all storage instances in the model.
             force: If true, force model destruction and ignore any errors.
+            timeout: TODO: temporary, for testing
         """
         args = ['destroy-model', model, '--no-prompt']
         if destroy_storage:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
-        self.cli(*args, include_model=False)
+        self._cli(*args, include_model=False, timeout=timeout)
         if model == self.model:
             self.model = None
 

@@ -12,6 +12,7 @@ class Call:
     stdin: str | None
     stdout: str
     stderr: str
+    timeout: float | None
 
 
 class Run:
@@ -40,6 +41,7 @@ class Run:
         capture_output: bool = False,
         encoding: str | None = None,
         input: str | None = None,
+        timeout: float | None = None,
     ) -> subprocess.CompletedProcess[str]:
         args_tuple = tuple(args)
         assert check is True
@@ -49,7 +51,14 @@ class Run:
 
         returncode, stdout, stderr = self._commands[args_tuple]
         self.calls.append(
-            Call(args=args_tuple, returncode=returncode, stdin=input, stdout=stdout, stderr=stderr)
+            Call(
+                args=args_tuple,
+                returncode=returncode,
+                stdin=input,
+                stdout=stdout,
+                stderr=stderr,
+                timeout=timeout,
+            )
         )
         if returncode != 0:
             raise subprocess.CalledProcessError(

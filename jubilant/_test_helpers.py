@@ -49,4 +49,4 @@ def temp_model(
     finally:
         if not keep:
             assert juju.model is not None
-            juju.destroy_model(juju.model, destroy_storage=True, force=True)
+            juju.destroy_model(juju.model, destroy_storage=True, force=True, timeout=5 * 60)
