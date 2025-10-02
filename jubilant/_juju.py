@@ -322,6 +322,8 @@ class Juju:
             )
         except subprocess.CalledProcessError as e:
             raise CLIError(e.returncode, e.cmd, e.stdout, e.stderr) from None
+        except subprocess.TimeoutExpired as e:
+            raise CLIError(-1, e.cmd, e.stdout, e.stderr) from None
         return (process.stdout, process.stderr)
 
     @overload
