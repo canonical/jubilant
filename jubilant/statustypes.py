@@ -202,7 +202,7 @@ class AppStatus:
     address: str = ''
     life: str = ''
     app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
-    relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)  # type: ignore
+    relations: dict[str, list[AppStatusRelation | str]] = dataclasses.field(default_factory=dict)  # type: ignore
     subordinate_to: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     version: str = ''
