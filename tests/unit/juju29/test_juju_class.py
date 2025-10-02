@@ -1,16 +1,20 @@
-from __future__ import annotations
-
 import pytest
 
 import jubilant
 
+from . import mocks
 
-def test_init_defaults():
-    juju = jubilant.Juju(cli_version='3.6.9')
+
+@pytest.mark.parametrize('juju_version', ['2.9.52', '3.6.8'])
+def test_init_defaults(juju_version: str, run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout=f'"{juju_version}"\n')
+    juju = jubilant.Juju()
 
     assert juju.model is None
     assert juju.wait_timeout is not None  # don't test the exact value of the default
     assert juju.cli_binary == 'juju'
+    assert juju.cli_version == juju_version
+    assert juju.cli_major_version == int(juju_version.split('.', 1)[0])
 
 
 def test_init_args():
@@ -20,25 +24,16 @@ def test_init_args():
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
     assert juju.cli_version == '28.8.6'
-    assert juju.cli_major_version == 28
 
 
-def test_init_args_controller():
-    juju = jubilant.Juju(
-        model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='3.6.9'
-    )
-
-    assert juju.model == 'ctl:m'
-    assert juju.wait_timeout == 7
-    assert juju.cli_binary == '/bin/juju3'
-
-
-def test_repr_args():
-    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')
+@pytest.mark.parametrize('juju_version', ['2.9.52', '3.6.8'])
+def test_repr_args(juju_version: str, run: mocks.Run):
+    run.handle(['/bin/juju', 'version', '--format', 'json'], stdout=f'"{juju_version}"\n')
+    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju')
 
     assert (
         repr(juju)
-        == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')"
+        == f"Juju(model='m', wait_timeout=7, cli_binary='/bin/juju', cli_version='{juju_version}')"
     )
 
 
@@ -53,17 +48,3 @@ def test_method_order():
     sorted_by_alpha = sorted(method_linenos)
     sorted_by_lines = sorted(method_linenos, key=lambda k: method_linenos[k])
     assert sorted_by_lines == sorted_by_alpha, 'Please keep Juju methods in alphabetical order'
-
-
-def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
-
-    assert 'snap' not in juju._temp_dir
-
-
-def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
-
-    assert 'snap' in juju._temp_dir

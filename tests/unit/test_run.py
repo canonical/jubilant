@@ -29,7 +29,7 @@ def test_completed(run: mocks.Run):
 }
 """
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'], stdout=out_json)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     task = juju.run('mysql/0', 'get-password')
 
@@ -50,7 +50,7 @@ def test_completed(run: mocks.Run):
 
 def test_not_found(run: mocks.Run):
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'])
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(ValueError):
         juju.run('mysql/0', 'get-password')
@@ -71,7 +71,7 @@ def test_failure(run: mocks.Run):
 }
 """
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'faily'], stdout=out_json)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('mysql/0', 'faily')
@@ -106,7 +106,7 @@ def test_exception_task_failed(run: mocks.Run):
         stdout=out_json,
         stderr='... task failed ...',
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('mysql/0', 'exceptiony')
@@ -128,7 +128,7 @@ def test_exception_other(run: mocks.Run):
         stdout='OUT',
         stderr='ERR',  # Must not contain "task failed"
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(jubilant.CLIError) as excinfo:
         juju.run('mysql/0', 'exceptiony')
@@ -145,7 +145,7 @@ def test_wait_timeout(run: mocks.Run):
         stdout='OUT',
         stderr='... timed out ...',
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(TimeoutError):
         juju.run('mysql/0', 'do-thing', wait=0.001)
@@ -168,7 +168,7 @@ def test_params(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
         ['juju', 'run', '--format', 'json', 'mysql/0', 'get-password', '--params', mock_file.name],
         stdout=stdout,
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     task = juju.run('mysql/0', 'get-password', {'foo': 1, 'bar': ['ab', 'cd']})
 

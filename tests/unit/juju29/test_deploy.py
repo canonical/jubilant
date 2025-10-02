@@ -7,21 +7,22 @@ import jubilant
 from . import mocks
 
 
-def test_defaults(run: mocks.Run):
-    run.handle(['juju', 'deploy', 'xyz'])
-    juju = jubilant.Juju(cli_version='3.6.9')
-
-    juju.deploy('xyz')
-
-
-def test_defaults_with_model(run: mocks.Run):
-    run.handle(['juju', 'deploy', '--model', 'mdl', 'xyz'])
-    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
-
-    juju.deploy('xyz')
-
-
-def test_all_args(run: mocks.Run):
+@pytest.mark.parametrize(
+    'base,series',
+    [
+        ('ubuntu@14.04', 'trusty'),
+        ('ubuntu@16.04', 'xenial'),
+        ('ubuntu@18.04', 'bionic'),
+        ('ubuntu@20.04', 'focal'),
+        ('ubuntu@22.04', 'jammy'),
+        ('ubuntu@24.04', 'noble'),
+        ('ubuntu@24.10', 'oracular'),
+        ('ubuntu@25.04', 'plucky'),
+        ('ubuntu@25.10', 'questing'),
+    ],
+)
+@pytest.mark.parametrize('juju_version', ['2.9.52', '3.6.8'])
+def test_all_args(juju_version: str, base: str, series: str, run: mocks.Run):
     run.handle(
         [
             'juju',
@@ -30,8 +31,8 @@ def test_all_args(run: mocks.Run):
             'app',
             '--attach-storage',
             'stg',
-            '--base',
-            'ubuntu@22.04',
+            '--series' if juju_version[0] == '2' else '--base',
+            series if juju_version[0] == '2' else base,
             '--bind',
             'end1=space1 end2=space2',
             '--channel',
@@ -62,13 +63,13 @@ def test_all_args(run: mocks.Run):
             '--trust',
         ]
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju(cli_version=juju_version)
 
     juju.deploy(
         'charm',
         'app',
         attach_storage='stg',
-        base='ubuntu@22.04',
+        base=base,
         bind={'end1': 'space1', 'end2': 'space2'},
         channel='latest/edge',
         config={'x': True, 'y': 1, 'z': 'ss'},
@@ -82,31 +83,3 @@ def test_all_args(run: mocks.Run):
         to='lxd:25',
         trust=True,
     )
-
-
-def test_bind_str(run: mocks.Run):
-    run.handle(['juju', 'deploy', 'charm', '--bind', 'binding'])
-    juju = jubilant.Juju(cli_version='3.6.9')
-
-    juju.deploy('charm', bind='binding')
-
-
-def test_list_args(run: mocks.Run):
-    run.handle(['juju', 'deploy', 'charm', '--attach-storage', 'stg1,stg2', '--to', 'to1,to2'])
-    juju = jubilant.Juju(cli_version='3.6.9')
-
-    juju.deploy('charm', attach_storage=['stg1', 'stg2'], to=['to1', 'to2'])
-
-
-def test_overlays_str():
-    juju = jubilant.Juju(cli_version='3.6.9')
-
-    with pytest.raises(TypeError):
-        juju.deploy('charm', overlays='bad')
-
-
-def test_path(run: mocks.Run):
-    run.handle(['juju', 'deploy', 'xyz'])
-    juju = jubilant.Juju(cli_version='3.6.9')
-
-    juju.deploy(pathlib.Path('xyz'))

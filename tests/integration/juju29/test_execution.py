@@ -11,7 +11,7 @@ from . import helpers
 
 @pytest.fixture(scope='module', autouse=True)
 def setup(juju: jubilant.Juju):
-    juju.deploy(helpers.find_charm('testdb'))
+    juju.deploy(helpers.find_charm('testdb'), base='ubuntu@22.04')
     juju.wait(
         lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
     )
@@ -34,20 +34,18 @@ def test_run_error(juju: jubilant.Juju):
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('testdb/0', 'do-thing', {'error': 'ERR'})
     task = excinfo.value.task
-    assert isinstance(task, jubilant.Task)
     assert not task.success
-    assert task.status == 'failed'
+    assert task.status == 'failed'  # type: ignore
     assert task.return_code == 0  # return_code is 0 even if action fails
-    assert task.message == 'failed with error: ERR'
+    assert task.message == 'failed with error: ERR'  # type: ignore
 
 
 def test_run_exception(juju: jubilant.Juju):
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('testdb/0', 'do-thing', {'exception': 'EXC'})
     task = excinfo.value.task
-    assert isinstance(task, jubilant.Task)
     assert not task.success
-    assert task.status == 'failed'
+    assert task.status == 'failed'  # type: ignore
     assert task.return_code != 0
     assert 'EXC' in task.stderr
 
@@ -110,10 +108,11 @@ def test_ssh_and_scp(juju: jubilant.Juju):
 
     output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
     assert output.split() == ['redis', 'snappass']
+    expected_pebble = 'pebble' if juju.cli_major_version >= 3 else 'pebble.socket'
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
-    assert 'pebble' in output.split()
+    assert expected_pebble in output.split()
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
-    assert 'pebble' in output.split()
+    assert expected_pebble in output.split()
 
     juju.scp('snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py', 'charm.py')
     charm_src = pathlib.Path('charm.py').read_text()

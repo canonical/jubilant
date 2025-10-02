@@ -10,7 +10,7 @@ from . import mocks
 
 def test_success(run: mocks.Run):
     run.handle(['juju', 'bootstrap', 'microk8s'], stdout='bootstrapped\n')
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     stdout = juju.cli('bootstrap', 'microk8s')
 
@@ -19,7 +19,7 @@ def test_success(run: mocks.Run):
 
 def test_logging_normal(run: mocks.Run, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'deploy', '--model', 'mdl', 'app1'])
-    juju = jubilant.Juju(model='mdl')
+    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
     caplog.set_level(logging.INFO, logger='jubilant')
 
     juju.cli('deploy', 'app1')
@@ -31,7 +31,7 @@ def test_logging_normal(run: mocks.Run, caplog: pytest.LogCaptureFixture):
 
 def test_error(run: mocks.Run):
     run.handle(['juju', 'error'], returncode=3, stdout='OUT', stderr='ERR')
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(jubilant.CLIError) as excinfo:
         juju.cli('error')
@@ -47,7 +47,7 @@ def test_error(run: mocks.Run):
 
 def test_include_model_no_model(run: mocks.Run):
     run.handle(['juju', 'test'], stdout='OUT')
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     stdout = juju.cli('test')
 
@@ -56,7 +56,7 @@ def test_include_model_no_model(run: mocks.Run):
 
 def test_include_model_with_model(run: mocks.Run):
     run.handle(['juju', 'test', '--model', 'mdl'], stdout='OUT')
-    juju = jubilant.Juju(model='mdl')
+    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
 
     stdout = juju.cli('test')
 
@@ -65,7 +65,7 @@ def test_include_model_with_model(run: mocks.Run):
 
 def test_exclude_model_no_model(run: mocks.Run):
     run.handle(['juju', 'test'], stdout='OUT')
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     stdout = juju.cli('test', include_model=False)
 
@@ -74,7 +74,7 @@ def test_exclude_model_no_model(run: mocks.Run):
 
 def test_exclude_model_with_model(run: mocks.Run):
     run.handle(['juju', 'test'], stdout='OUT')
-    juju = jubilant.Juju(model='mdl')
+    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
 
     stdout = juju.cli('test', include_model=False)
 
@@ -83,7 +83,7 @@ def test_exclude_model_with_model(run: mocks.Run):
 
 def test_stdin(run: mocks.Run):
     run.handle(['juju', 'ssh', 'mysql/0', 'pg_restore ...'], stdout='restored\n')
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     stdout = juju.cli('ssh', 'mysql/0', 'pg_restore ...', stdin='PASSWORD')
 

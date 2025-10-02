@@ -4,6 +4,7 @@ from . import mocks
 
 
 def test(run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'trust', 'app'])
     juju = jubilant.Juju()
 
@@ -11,6 +12,7 @@ def test(run: mocks.Run):
 
 
 def test_with_model(run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'trust', '--model', 'mdl', 'app'])
     juju = jubilant.Juju(model='mdl')
 
@@ -18,6 +20,7 @@ def test_with_model(run: mocks.Run):
 
 
 def test_remove(run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'trust', 'rmv', '--remove'])
     juju = jubilant.Juju()
 
@@ -25,6 +28,7 @@ def test_remove(run: mocks.Run):
 
 
 def test_scope(run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'trust', 'app', '--scope', 'cluster'])
     juju = jubilant.Juju()
 
@@ -32,6 +36,7 @@ def test_scope(run: mocks.Run):
 
 
 def test_scope_and_remove(run: mocks.Run):
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'trust', 'rmv', '--remove', '--scope', 'cluster'])
     juju = jubilant.Juju()
 
