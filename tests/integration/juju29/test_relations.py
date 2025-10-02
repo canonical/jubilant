@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from typing import cast
+
 import jubilant
+from jubilant import statustypes
 
 from . import helpers
 
@@ -16,8 +19,14 @@ def test_integrate_and_remove_relation(juju: jubilant.Juju):
         assert status.apps['testapp'].relations['db'][0] == 'testdb'
     else:
         assert isinstance(status, jubilant.Status)
-        assert status.apps['testdb'].relations['db'][0].related_app == 'testapp'
-        assert status.apps['testapp'].relations['db'][0].related_app == 'testdb'
+        db_relation = cast(
+            'list[statustypes.AppStatusRelation]', status.apps['testdb'].relations['db']
+        )
+        app_relation = cast(
+            'list[statustypes.AppStatusRelation]', status.apps['testapp'].relations['db']
+        )
+        assert db_relation[0].related_app == 'testapp'
+        assert app_relation[0].related_app == 'testdb'
     assert status.apps['testdb'].app_status.message == 'relation created'
     assert status.apps['testapp'].app_status.message == 'relation changed: dbkey=dbvalue'
 

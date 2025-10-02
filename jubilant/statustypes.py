@@ -219,6 +219,7 @@ class AppStatus:
                 exposed=False,
                 app_status=StatusInfo(current='failed', message=d['status-error']),
             )
+        relations: dict[str, list[AppStatusRelation | str]] = {}
         try:
             relations = (
                 {
