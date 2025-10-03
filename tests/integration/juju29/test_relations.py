@@ -5,7 +5,7 @@ from typing import cast
 import jubilant
 from jubilant import statustypes
 
-from . import helpers
+from .. import helpers
 
 
 def test_integrate_and_remove_relation(juju: jubilant.Juju):

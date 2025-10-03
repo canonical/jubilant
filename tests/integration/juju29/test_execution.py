@@ -6,7 +6,7 @@ import pytest
 
 import jubilant
 
-from . import helpers
+from .. import helpers
 
 
 @pytest.fixture(scope='module', autouse=True)
