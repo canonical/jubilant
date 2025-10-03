@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pathlib
 
-CHARMS_PATH = pathlib.Path(__file__).parent.parent / 'charms'
+CHARMS_PATH = pathlib.Path(__file__).parent / 'charms'
 
 
 def find_charm(name: str) -> pathlib.Path:
