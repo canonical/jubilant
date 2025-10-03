@@ -176,8 +176,6 @@ class Juju:
                 ``{'password': 'hunter2'}``.
             info: Description for the secret.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         args = ['add-secret', name]
         if info is not None:
             args.extend(['--info', info])
@@ -693,8 +691,6 @@ class Juju:
             identifier: The name or URI of the secret to grant access to.
             app: Name or names of applications to grant access to.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         if not isinstance(app, str):
             app = ','.join(app)
         args = ['grant-secret', identifier, app]
@@ -923,8 +919,6 @@ class Juju:
             identifier: The name or URI of the secret to remove.
             revision: The revision of the secret to remove. If not specified, remove all revisions.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         args = ['remove-secret', identifier]
         if revision is not None:
             args.extend(['--revision', str(revision)])
@@ -1137,8 +1131,6 @@ class Juju:
         Returns:
             A list of all secrets in the model.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         args = ['secrets']
         if owner is not None:
             args.extend(['--owner', owner])
@@ -1197,8 +1189,6 @@ class Juju:
             revisions: Whether to include all revisions of the secret. Mutually
                 exclusive with *reveal* and *revision*.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         args = ['show-secret', identifier, '--format', 'json']
         if reveal:
             args.append('--reveal')
@@ -1301,8 +1291,6 @@ class Juju:
             name: New name for the secret.
             auto_prune: automatically remove revisions that are no longer tracked by any observers.
         """
-        if self.cli_major_version < 3:
-            raise NotImplementedError('Juju secrets requires Juju 3.')
         args = ['update-secret', identifier]
         if info is not None:
             args.extend(['--info', info])
