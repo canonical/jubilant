@@ -5,7 +5,7 @@ from . import mocks
 
 def test_defaults(run: mocks.Run):
     run.handle(['juju', 'bootstrap', 'lxd', 'my-controller', '--no-switch'])
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     juju.bootstrap('lxd', 'my-controller')
     assert juju.model is None  # ensure self.model hasn't changed
@@ -46,7 +46,7 @@ def test_all_args(run: mocks.Run):
             'lxd:1',
         ]
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     juju.bootstrap(
         'lxd',
@@ -65,6 +65,6 @@ def test_all_args(run: mocks.Run):
 
 def test_list_args(run: mocks.Run):
     run.handle(['juju', 'bootstrap', 'lxd', 'myctrl', '--no-switch', '--to', 'to1,to2'])
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     juju.bootstrap('lxd', 'myctrl', to=['to1', 'to2'])

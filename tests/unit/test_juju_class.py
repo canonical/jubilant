@@ -6,7 +6,7 @@ import jubilant
 
 
 def test_init_defaults():
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     assert juju.model is None
     assert juju.wait_timeout is not None  # don't test the exact value of the default
@@ -14,15 +14,19 @@ def test_init_defaults():
 
 
 def test_init_args():
-    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
+    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')
 
     assert juju.model == 'm'
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
+    assert juju.cli_version == '28.8.6'
+    assert juju.cli_major_version == 28
 
 
 def test_init_args_controller():
-    juju = jubilant.Juju(model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3')
+    juju = jubilant.Juju(
+        model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='3.6.9'
+    )
 
     assert juju.model == 'ctl:m'
     assert juju.wait_timeout == 7
@@ -30,9 +34,12 @@ def test_init_args_controller():
 
 
 def test_repr_args():
-    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
+    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')
 
-    assert repr(juju) == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')"
+    assert (
+        repr(juju)
+        == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')"
+    )
 
 
 def test_method_order():
@@ -50,13 +57,13 @@ def test_method_order():
 
 def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     assert 'snap' not in juju._temp_dir
 
 
 def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     assert 'snap' in juju._temp_dir

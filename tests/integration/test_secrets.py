@@ -1,7 +1,15 @@
 import datetime
 import json
+import subprocess
+
+import pytest
 
 import jubilant
+
+pytestmark = pytest.mark.skipif(
+    subprocess.check_output(['juju', 'version'], text=True).startswith('2.'),  # noqa: S607
+    reason='Secrets are not available in Juju 2.9',
+)
 
 
 def test_add_secret(juju: jubilant.Juju):

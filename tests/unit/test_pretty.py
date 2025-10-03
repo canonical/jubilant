@@ -37,6 +37,7 @@ Status(
     version='3.6.1',
     region='localhost',
     model_status=StatusInfo(current='available', since='24 Feb 2025 12:02:57+13:00'),
+    sla='unsupported',
   ),
   machines={},
   apps={
@@ -85,6 +86,7 @@ Status(
     version='3.6.1',
     region='localhost',
     model_status=StatusInfo(current='available', since='24 Feb 2025 12:02:57+13:00'),
+    sla='unsupported',
   ),
   machines={},
   apps={

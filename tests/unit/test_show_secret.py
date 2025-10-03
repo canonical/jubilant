@@ -16,7 +16,7 @@ def test_get_secret(run: mocks.Run):
         ['juju', 'show-secret', 'example-charm-secret', '--format', 'json'],
         stdout=json.dumps(SINGLE_SECRET),
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
     response = juju.show_secret('example-charm-secret')
 
     uri, secret = next(iter(SINGLE_SECRET_REVEALED.items()))
@@ -41,7 +41,7 @@ def test_get_secret_with_reveal(run: mocks.Run):
         ['juju', 'show-secret', 'example-charm-secret', '--format', 'json', '--reveal'],
         stdout=json.dumps(SINGLE_SECRET_REVEALED),
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
     response = juju.show_secret('example-charm-secret', reveal=True)
 
     _, secret = next(iter(SINGLE_SECRET_REVEALED.items()))
@@ -57,7 +57,7 @@ def test_get_secret_with_revisions(run: mocks.Run):
         ['juju', 'show-secret', 'example-charm-secret', '--format', 'json', '--revisions'],
         stdout=json.dumps(SINGLE_SECRET_REVISIONS),
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     response = juju.show_secret('example-charm-secret', revisions=True)
     assert response.revisions
@@ -81,7 +81,7 @@ def test_get_secret_with_revision(run: mocks.Run):
         ],
         stdout=json.dumps(SINGLE_SECRET_REVEALED),
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     juju.show_secret('example-charm-secret', revision=2)
 
@@ -91,7 +91,7 @@ def test_get_secret_with_access(run: mocks.Run):
         ['juju', 'show-secret', 'example-charm-secret', '--format', 'json'],
         stdout=json.dumps(SINGLE_SECRET_WITH_ACCESS),
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     response = juju.show_secret('example-charm-secret')
     assert response.access

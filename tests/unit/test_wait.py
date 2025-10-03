@@ -10,7 +10,7 @@ from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
 
 def test_ready_normal(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     status = juju.wait(lambda _: True)
 
@@ -21,7 +21,7 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time):
 
 def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
     caplog.set_level(logging.INFO, logger='jubilant.wait')
 
     juju.wait(lambda _: True)
@@ -41,7 +41,7 @@ def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixt
 
 def test_with_model(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju(model='mdl')
+    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
 
     status = juju.wait(lambda _: True)
 
@@ -52,7 +52,7 @@ def test_with_model(run: mocks.Run, time: mocks.Time):
 
 def test_ready_glitch(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     n = 0
 
@@ -72,7 +72,7 @@ def test_ready_glitch(run: mocks.Run, time: mocks.Time):
 
 def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     status = juju.wait(lambda _: True, delay=0.75, successes=5)
 
@@ -83,7 +83,7 @@ def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
 
 def test_error(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(jubilant.WaitError) as excinfo:
         juju.wait(lambda _: True, error=lambda _: True)
@@ -95,7 +95,7 @@ def test_error(run: mocks.Run, time: mocks.Time):
 
 def test_timeout_default(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False)
@@ -107,7 +107,7 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time):
 
 def test_timeout_override(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False, timeout=5)
@@ -118,7 +118,7 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
 
 
 def test_timeout_zero(time: mocks.Time):
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False, timeout=0)

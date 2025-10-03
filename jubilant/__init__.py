@@ -15,7 +15,7 @@ from ._all_any import (
     any_waiting,
 )
 from ._juju import CLIError, ConfigValue, Juju, WaitError
-from ._task import Task, TaskError
+from ._task import ExecTask, Task, TaskError
 from ._test_helpers import temp_model
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
@@ -23,6 +23,7 @@ from .statustypes import Status
 __all__ = [
     'CLIError',
     'ConfigValue',
+    'ExecTask',
     'Juju',
     'RevealedSecret',
     'Secret',

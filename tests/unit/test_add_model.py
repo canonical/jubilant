@@ -5,7 +5,7 @@ from . import mocks
 
 def test_defaults(run: mocks.Run):
     run.handle(['juju', 'add-model', '--no-switch', 'new'])
-    juju = jubilant.Juju(model='initial')
+    juju = jubilant.Juju(model='initial', cli_version='3.6.9')
 
     juju.add_model('new')
 
@@ -32,7 +32,7 @@ def test_all_args(run: mocks.Run):
             'cc',
         ]
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_version='3.6.9')
 
     juju.add_model(
         'm', 'lc', controller='c', config={'x': True, 'y': 1, 'z': 'ss'}, credential='cc'
