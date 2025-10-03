@@ -1,7 +1,7 @@
 """Dataclasses that contain parsed output from ``juju status --format=json``.
 
 These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:status-dataclasses>`_
-the Go structs in the Juju codebase, to ensure they were correct. Class names
+the Go structs in the Juju codebase, to ensure they are correct. Class names
 come from the Go struct name, whereas attribute names come from the JSON field
 names. The one exception is that "Application" has been renamed to "App"
 throughout, for brevity (and "application" to "app").
@@ -644,13 +644,13 @@ class ModelStatus:
     """Name of model."""
 
     type: str
-    """Type of model, for example, `caas` for a Kubernetes model."""
+    """Type of model, for example, ``caas`` for a Kubernetes model."""
 
     controller: str
     """Name of controller."""
 
     cloud: str
-    """Name of cloud, for example `aws` or `microk8s`."""
+    """Name of cloud, for example ``aws`` or ``microk8s``."""
 
     version: str
     """Juju agent version."""
@@ -662,7 +662,7 @@ class ModelStatus:
     """Version number if a new Juju agent is available."""
 
     model_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
-    """Status of the model. Normally the *current* field is `available`."""
+    """Status of the model. Normally the *current* field is ``available``."""
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
@@ -756,7 +756,7 @@ class Status:
     """Model information."""
 
     machines: dict[str, MachineStatus]
-    """Mapping of machine ID string (for example, `"0"`) to machine information."""
+    """Mapping of machine ID string (for example, ``"0"``) to machine information."""
 
     apps: dict[str, AppStatus]
     """Mapping of application name to application information."""
