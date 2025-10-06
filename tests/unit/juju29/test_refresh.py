@@ -27,26 +27,8 @@ def test_all_args(
     base: str,
     series: str,
     run: mocks.Run,
-    monkeypatch: pytest.MonkeyPatch,
+    mock_file: mocks.NamedTemporaryFile,
 ):
-    written_content: list[str] = []
-
-    class MockFile:
-        name = '/path/to/mockfile'
-
-        def write(self, data: str):
-            written_content.append(data)
-
-        def flush(self):
-            pass
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):  # type: ignore
-            pass
-
-    monkeypatch.setattr('tempfile.TemporaryFile', lambda _: MockFile())  # type: ignore
     if juju_version[0] == '2' and trust:
         trust_cmd = ['juju', 'trust', 'app']
         run.handle(trust_cmd)
@@ -86,7 +68,7 @@ def test_all_args(
         ]
     )
     if juju_version[0] == '2':
-        core_cmd.extend(['--config', '/path/to/mockfile'])
+        core_cmd.extend(['--config', mock_file.name])
     elif trust:
         core_cmd.append('--trust')
     run.handle(core_cmd)
@@ -106,4 +88,4 @@ def test_all_args(
         trust=trust,
     )
     if juju_version[0] == '2':
-        assert ''.join(written_content) == 'x: true\ny: 1\nz: ss\n'
+        assert mock_file.writes == ['x: true\ny: 1\nz: ss\n']
