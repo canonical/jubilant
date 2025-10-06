@@ -845,7 +845,7 @@ class Juju:
         mgr = (
             contextlib.nullcontext()
             if (not self._is_juju_2 or config is None)
-            else tempfile.TemporaryFile('w')  # noqa: SIM115
+            else tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)  # noqa: SIM115
         )
         with mgr as config_file:
             if config is not None and config_file is not None:
