@@ -52,7 +52,7 @@ class Juju:
     The class will automatically detect the version of the Juju CLI installed
     and adjust to use the appropriate commands and options for that version.
 
-        Example::
+    Example::
 
         juju = jubilant.Juju()
         juju.deploy('snappass-test')
