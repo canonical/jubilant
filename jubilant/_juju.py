@@ -1208,6 +1208,8 @@ class Juju:
                 error=jubilant.any_error,
             )
 
+        For more examples, see `Tutorial | Use a custom wait condition <https://documentation.ubuntu.com/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
+
         Args:
             ready: Callable that takes a :class:`Status` object and returns true when the wait
                 should be considered ready. It needs to return true *successes* times in a row

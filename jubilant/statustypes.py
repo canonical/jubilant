@@ -1,4 +1,11 @@
-"""Dataclasses that contain parsed output from ``juju status --format=json``."""
+"""Dataclasses that contain parsed output from ``juju status --format=json``.
+
+These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:status-dataclasses>`_
+the Go structs in the Juju codebase, to ensure they are correct. Class names
+come from the Go struct name, whereas attribute names come from the JSON field
+names. The one exception is that "Application" has been renamed to "App"
+throughout, for brevity (and "application" to "app").
+"""
 
 from __future__ import annotations
 
@@ -51,6 +58,8 @@ class FormattedBase:
 
 @dataclasses.dataclass(frozen=True)
 class StatusInfo:
+    """The main status class used for application, unit, and machine status."""
+
     current: str = ''
     message: str = ''
     reason: str = ''
@@ -89,6 +98,8 @@ class AppStatusRelation:
 
 @dataclasses.dataclass(frozen=True)
 class UnitStatus:
+    """Status of a single unit."""
+
     workload_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     leader: bool = False
@@ -158,6 +169,8 @@ class UnitStatus:
 
 @dataclasses.dataclass(frozen=True)
 class AppStatus:
+    """Status of a single application."""
+
     charm: str
     charm_origin: str
     charm_name: str
@@ -257,6 +270,8 @@ class AppStatus:
 
 @dataclasses.dataclass(frozen=True)
 class EntityStatus:
+    """Status class used for storage status. See :class:`StatusInfo` for the main status class."""
+
     current: str = ''
     message: str = ''
     since: str = ''
@@ -474,6 +489,8 @@ class VolumeInfo:
 
 @dataclasses.dataclass(frozen=True)
 class CombinedStorage:
+    """Storage information."""
+
     storage: dict[str, StorageInfo] = dataclasses.field(default_factory=dict)  # type: ignore
     filesystems: dict[str, FilesystemInfo] = dataclasses.field(default_factory=dict)  # type: ignore
     volumes: dict[str, VolumeInfo] = dataclasses.field(default_factory=dict)  # type: ignore
@@ -501,6 +518,8 @@ class CombinedStorage:
 
 @dataclasses.dataclass(frozen=True)
 class ControllerStatus:
+    """Basic controller information."""
+
     timestamp: str = ''
 
     @classmethod
@@ -549,6 +568,8 @@ class NetworkInterface:
 
 @dataclasses.dataclass(frozen=True)
 class MachineStatus:
+    """Status of a single machine."""
+
     juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     hostname: str = ''
     dns_name: str = ''
@@ -617,15 +638,31 @@ class MachineStatus:
 
 @dataclasses.dataclass(frozen=True)
 class ModelStatus:
+    """Status and basic information about the model."""
+
     name: str
+    """Name of model."""
+
     type: str
+    """Type of model, for example, ``caas`` for a Kubernetes model."""
+
     controller: str
+    """Name of controller."""
+
     cloud: str
+    """Name of cloud, for example ``aws`` or ``microk8s``."""
+
     version: str
+    """Juju agent version."""
 
     region: str = ''
+    """Cloud region."""
+
     upgrade_available: str = ''
+    """Version number if a new Juju agent is available."""
+
     model_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
+    """Status of the model. Normally the *current* field is ``available``."""
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
@@ -716,13 +753,25 @@ class Status:
     """Parsed version of the status object returned by ``juju status --format=json``."""
 
     model: ModelStatus
+    """Model information."""
+
     machines: dict[str, MachineStatus]
+    """Mapping of machine ID string (for example, ``"0"``) to machine information."""
+
     apps: dict[str, AppStatus]
+    """Mapping of application name to application information."""
 
     app_endpoints: dict[str, RemoteAppStatus] = dataclasses.field(default_factory=dict)  # type: ignore
+    """Mapping of offer name to remote application information."""
+
     offers: dict[str, OfferStatus] = dataclasses.field(default_factory=dict)  # type: ignore
+    """Mapping of offer name to offer information."""
+
     storage: CombinedStorage = dataclasses.field(default_factory=CombinedStorage)
+    """Storage information."""
+
     controller: ControllerStatus = dataclasses.field(default_factory=ControllerStatus)
+    """Controller information."""
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Status:

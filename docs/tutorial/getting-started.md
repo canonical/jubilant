@@ -93,6 +93,7 @@ def juju():
 ```
 
 
+(use_a_custom_wait_condition)=
 ## Use a custom `wait` condition
 
 When waiting on a condition with [`Juju.wait`](jubilant.Juju.wait), you can use pre-defined helpers including [](jubilant.all_active) and [](jubilant.any_error). You can also define custom conditions for the *ready* and *error* parameters. This is typically done with inline `lambda` functions.
@@ -122,21 +123,32 @@ def test_unknown(juju: jubilant.Juju):
 
 There are also `is_*` properties on the [`AppStatus`](jubilant.statustypes.AppStatus) and [`UnitStatus`](jubilant.statustypes.UnitStatus) classes for the common statuses: `is_active`, `is_blocked`, `is_error`, `is_maintenance`, and `is_waiting`. These test the status of a single application or unit, whereas the `jubilant.all_*` and `jubilant.any_*` functions test the statuses of multiple applications *and* all their units.
 
-For example, to wait till `myapp` is active and `yourapp` is blocked, and to raise an error if any app or unit goes into error state:
+For larger wait functions, you may want to use a named function with type annotations, so your IDE can provide better autocompletion for `Status` attributes.
+
+For example, to wait till `myapp` is active and `yourapp` is blocked (with "waiting" in the blocked message), and to raise an error if any app or unit goes into error state:
 
 ```python
 def test_custom_wait(juju: jubilant.Juju):
     juju.deploy('myapp')
     juju.deploy('yourapp')
-    juju.wait(
-        lambda status: (
+
+    def ready(status: jubilant.Status) -> bool:
+        return (
             status.apps['myapp'].is_active and
-            status.apps['yourapp'].is_blocked
-        ),
-        error=jubilant.any_error,
-    )
+            status.apps['yourapp'].is_blocked and
+            'waiting' in status.apps['yourapp'].app_status.message
+        )
+
+    juju.wait(ready, error=jubilant.any_error)
 ```
 
+You can even ignore the `Status` object and wait for a completely unrelated condition, such as an endpoint on the workload being ready:
+
+```python
+def test_workload_ready(juju: jubilant.Juju):
+    juju.deploy('myapp')
+    juju.wait(lambda _: requests.get('http://workload/status').ok)
+```
 
 ## Fall back to `Juju.cli` if needed
 
