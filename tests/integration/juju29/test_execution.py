@@ -101,28 +101,6 @@ def test_exec_error_machine_on_k8s(juju: jubilant.Juju):
         juju.exec('echo foo', machine=0)
 
 
-def test_ssh_and_scp(juju: jubilant.Juju):
-    # The 'testdb' charm doesn't have any containers, so use 'snappass-test'.
-    juju.deploy('snappass-test')
-    juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
-
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
-    assert output.split() == ['redis', 'snappass']
-    expected_pebble = 'pebble' if juju._is_juju_2 else 'pebble.socket'
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
-    assert expected_pebble in output.split()
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
-    assert expected_pebble in output.split()
-
-    juju.scp('snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py', 'charm.py')
-    charm_src = pathlib.Path('charm.py').read_text()
-    assert 'class Snappass' in charm_src
-
-    juju.scp('snappass-test/0:/etc/passwd', 'passwd', container='redis')
-    passwd = pathlib.Path('passwd').read_text()
-    assert 'redis:' in passwd
-
-
 def test_cli_input(juju: jubilant.Juju):
     stdout = juju.cli('ssh', '--container', 'charm', 'testdb/0', 'cat', stdin='foo')
     assert stdout == 'foo'

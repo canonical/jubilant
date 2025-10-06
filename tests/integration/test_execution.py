@@ -111,9 +111,9 @@ def test_ssh_and_scp(juju: jubilant.Juju):
     output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
     assert output.split() == ['redis', 'snappass']
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
-    assert 'pebble' in output.split()
+    assert 'pebble.socket' in output.split()
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
-    assert 'pebble' in output.split()
+    assert 'pebble.socket' in output.split()
 
     juju.scp('snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py', 'charm.py')
     charm_src = pathlib.Path('charm.py').read_text()
