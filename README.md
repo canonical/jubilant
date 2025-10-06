@@ -35,8 +35,6 @@ Below is an example of a charm integration test. First we define a module-scoped
 
 ```python
 # conftest.py
-import jubilant as jubilant
-
 @pytest.fixture(scope='module')
 def juju():
     with jubilant.temp_model() as juju:
@@ -44,8 +42,6 @@ def juju():
 
 
 # test_deploy.py
-import jubilant as jubilant
-
 def test_deploy(juju: jubilant.Juju):        # Use the "juju" fixture  # type: ignore
     juju.deploy('snappass-test')             # Deploy the charm
     status = juju.wait(jubilant.all_active)  # Wait till the app and unit are 'active'
