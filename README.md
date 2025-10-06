@@ -21,7 +21,7 @@ Because Jubilant-backports calls the Juju CLI, you'll also need to [install Juju
 To use Jubilant-backports in Python code:
 
 ```python
-import jubilant_backports as jubilant
+import jubilant
 
 juju = jubilant.Juju()
 juju.deploy('snappass-test')
@@ -35,7 +35,7 @@ Below is an example of a charm integration test. First we define a module-scoped
 
 ```python
 # conftest.py
-import jubilant_backports as jubilant
+import jubilant as jubilant
 
 @pytest.fixture(scope='module')
 def juju():
@@ -44,7 +44,7 @@ def juju():
 
 
 # test_deploy.py
-import jubilant_backports as jubilant
+import jubilant as jubilant
 
 def test_deploy(juju: jubilant.Juju):        # Use the "juju" fixture  # type: ignore
     juju.deploy('snappass-test')             # Deploy the charm
@@ -69,7 +69,7 @@ Jubilant-backports uses [`uv`](https://docs.astral.sh/uv/) to manage Python depe
 After that, clone the Jubilant codebase, check out the `jubilant-backports` branch, and use `make all` to run various checks and the unit tests:
 
 ```
-$ git clone https://github.com/tonyandrewmeyer/jubilant-backports
+$ git clone https://github.com/canonical/jubilant
 Cloning into 'jubilant-backports'...
 ...
 $ cd jubilant-backports
