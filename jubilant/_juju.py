@@ -1292,7 +1292,6 @@ class Juju:
             args.extend(['--file', file.name])
             self.cli(*args)
 
-    # TODO: this is identical code but needs to return the other type.
     def wait(
         self,
         ready: Callable[[Status], bool],
