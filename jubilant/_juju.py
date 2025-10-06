@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Literal, Union, overload
+from typing import Any, Final, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import ExecTask, Task
@@ -1392,22 +1392,26 @@ class Juju:
             return tempfile.gettempdir()
 
 
+_SERIES_BY_CYCLE: Final[dict[str, str]] = {
+    '14.04': 'trusty',
+    '16.04': 'xenial',
+    '18.04': 'bionic',
+    '20.04': 'focal',
+    '22.04': 'jammy',
+    '24.04': 'noble',
+    '24.10': 'oracular',
+    '25.04': 'plucky',
+    '25.10': 'questing',
+    '26.04': 'resolute',
+}
+
+
 def _base_to_series(base: str) -> str:
     """Convert a base to a series name."""
     name, cycle = base.split('@', 1)
     if name != 'ubuntu':
         raise ValueError(f'base must be an Ubuntu base, not {name!r}')
-    return {
-        '14.04': 'trusty',
-        '16.04': 'xenial',
-        '18.04': 'bionic',
-        '20.04': 'focal',
-        '22.04': 'jammy',
-        '24.04': 'noble',
-        '24.10': 'oracular',
-        '25.04': 'plucky',
-        '25.10': 'questing',
-    }[cycle]
+    return _SERIES_BY_CYCLE[cycle]
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
