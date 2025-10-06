@@ -20,6 +20,8 @@ def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju):
     status2 = model2.wait(jubilant.all_active)
     db_relations = status2.apps['testapp'].relations['db']
     assert isinstance(db_relations[0], statustypes.AppStatusRelation)
-    assert db_relations[0].related_app == 'dbalias'
+    if not juju._is_juju_2:
+        # In Juju 2.9, none of the `AppStatusRelation` fields are provided.
+        assert db_relations[0].related_app == 'dbalias'
     assert status2.apps['testapp'].app_status.message == 'relation changed: dbkey=dbvalue'
     assert status2.app_endpoints['dbalias'].relations['db'][0] == 'testapp'

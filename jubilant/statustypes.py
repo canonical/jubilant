@@ -202,7 +202,8 @@ class AppStatus:
     address: str = ''
     life: str = ''
     app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
-    relations: dict[str, list[AppStatusRelation | str]] = dataclasses.field(default_factory=dict)  # type: ignore
+    relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)  # type: ignore
+    """In Juju 2.9, none of the `AppStatusRelation` fields are provided."""
     subordinate_to: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     version: str = ''
@@ -219,19 +220,17 @@ class AppStatus:
                 exposed=False,
                 app_status=StatusInfo(current='failed', message=d['status-error']),
             )
-        relations: dict[str, list[AppStatusRelation | str]] = {}
-        try:
-            relations = (
-                {
+        if 'relations' in d:
+            try:
+                relations = {
                     k: [AppStatusRelation._from_dict(x) for x in v]
                     for k, v in d['relations'].items()
                 }
-                if 'relations' in d
-                else {}
-            )
-        except AttributeError:
-            # Juju 2.9 provides less information about the relations.
-            relations = d.get('relations') or {}  # type: ignore
+            except AttributeError:
+                # Juju 2.9 provides less information about the relations.
+                relations = {k: [AppStatusRelation()] for k in d['relations']}
+        else:
+            relations = {}
         return cls(
             charm=d['charm'],
             charm_origin=d['charm-origin'],
