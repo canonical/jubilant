@@ -9,7 +9,7 @@ from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 def test_minimal(run: mocks.Run):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     status = juju.status()
 
@@ -18,7 +18,7 @@ def test_minimal(run: mocks.Run):
 
 def test_minimal_with_model(run: mocks.Run):
     run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
-    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
+    juju = jubilant.Juju(model='mdl')
 
     status = juju.status()
 
@@ -27,7 +27,7 @@ def test_minimal_with_model(run: mocks.Run):
 
 def test_real_status(run: mocks.Run):
     run.handle(['juju', 'status', '--format', 'json'], stdout=SNAPPASS_JSON)
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     status = juju.status()
 

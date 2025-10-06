@@ -5,7 +5,7 @@ import pytest
 import jubilant
 import jubilant as real_jubilant
 
-from . import mocks
+from .. import mocks
 
 
 def test_completed(run: mocks.Run):
@@ -39,7 +39,7 @@ def test_completed(run: mocks.Run):
         ],
         stdout=out_json,
     )
-    juju = jubilant.Juju(cli_version='3.6.8')
+    juju = jubilant.Juju()
 
     task = juju.run('mysql/0', 'get-password')
 
@@ -94,7 +94,8 @@ def test_completed29(run: mocks.Run):
         ],
         stdout=out_json,
     )
-    juju = jubilant.Juju(cli_version='2.9.52')
+    juju = jubilant.Juju()
+    juju._is_juju_2 = True
 
     task = juju.run('mysql/0', 'get-password')
 
@@ -145,7 +146,8 @@ def test_failed29(run: mocks.Run):
         ],
         stdout=out_json,
     )
-    juju = jubilant.Juju(cli_version='2.9.52')
+    juju = jubilant.Juju()
+    juju._is_juju_2 = True
 
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('mysql/0', 'get-password')

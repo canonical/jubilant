@@ -7,14 +7,14 @@ from . import mocks
 
 def test_defaults(run: mocks.Run):
     run.handle(['juju', 'refresh', 'xyz'])
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     juju.refresh('xyz')
 
 
 def test_defaults_with_model(run: mocks.Run):
     run.handle(['juju', 'refresh', '--model', 'mdl', 'xyz'])
-    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
+    juju = jubilant.Juju(model='mdl')
 
     juju.refresh('xyz')
 
@@ -49,7 +49,7 @@ def test_all_args(run: mocks.Run):
             '--trust',
         ]
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     juju.refresh(
         'app',
@@ -67,6 +67,6 @@ def test_all_args(run: mocks.Run):
 
 def test_path(run: mocks.Run):
     run.handle(['juju', 'refresh', 'xyz', '--path', 'foo'])
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     juju.refresh('xyz', path=pathlib.Path('foo'))

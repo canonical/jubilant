@@ -23,7 +23,7 @@ def test_unit(run: mocks.Run):
         ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/0', '--', 'echo', 'foo'],
         stdout=out_json,
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     task = juju.exec('echo', 'foo', unit='ubuntu/0')
 
@@ -54,7 +54,7 @@ def test_machine(run: mocks.Run):
         ['juju', 'exec', '--format', 'json', '--machine', '3', '--', 'echo', 'bar'],
         stdout=out_json,
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     task = juju.exec('echo', 'bar', machine=3)
 
@@ -87,7 +87,7 @@ def test_failure(run: mocks.Run):
         stdout=out_json,
         stderr='task failed',
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.exec('sleep x', unit='ubuntu/0')
@@ -109,7 +109,7 @@ def test_failure_other_error(run: mocks.Run):
         stdout='OUT',
         stderr='ERR',  # Must not contain "task failed"
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     with pytest.raises(jubilant.CLIError) as excinfo:
         juju.exec('echo foo', unit='ubuntu/0')
@@ -137,7 +137,7 @@ def test_wait_timeout(run: mocks.Run):
         stdout='OUT',
         stderr='... timed out ...',
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     with pytest.raises(TimeoutError):
         juju.exec('sleep 1', unit='ubuntu/0', wait=0.001)
@@ -145,7 +145,7 @@ def test_wait_timeout(run: mocks.Run):
 
 def test_machine_not_found(run: mocks.Run):
     run.handle(['juju', 'exec', '--format', 'json', '--machine', '0', '--', 'echo'])
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     with pytest.raises(ValueError):
         juju.exec('echo', machine=0)
@@ -153,14 +153,14 @@ def test_machine_not_found(run: mocks.Run):
 
 def test_unit_not_found(run: mocks.Run):
     run.handle(['juju', 'exec', '--format', 'json', '--unit', 'u/0', '--', 'echo'])
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     with pytest.raises(ValueError):
         juju.exec('echo', unit='u/0')
 
 
 def test_type_errors():
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     with pytest.raises(TypeError):
         juju.exec('echo')  # type: ignore
     with pytest.raises(TypeError):

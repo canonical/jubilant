@@ -26,7 +26,11 @@ class Run:
     """
 
     def __init__(self):
-        self._commands: dict[tuple[str, ...], tuple[int, str, str]] = {}
+        # Instantiating the Juju class always runs `juju version --format json`,
+        # so handle that by default.
+        self._commands: dict[tuple[str, ...], tuple[int, str, str]] = {
+            ('juju', 'version', '--format', 'json'): (0, '"3.6.9-genericlinux-amd64"', ''),
+        }
         self.calls: list[Call] = []
 
     def handle(self, args: list[str], *, returncode: int = 0, stdout: str = '', stderr: str = ''):

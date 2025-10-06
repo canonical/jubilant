@@ -2,7 +2,7 @@ import pytest
 
 import jubilant
 
-from . import mocks
+from .. import mocks
 
 
 @pytest.mark.parametrize(
@@ -90,7 +90,8 @@ def test_all_args(
     elif trust:
         core_cmd.append('--trust')
     run.handle(core_cmd)
-    juju = jubilant.Juju(cli_version=juju_version)
+    juju = jubilant.Juju()
+    juju._is_juju_2 = juju_version[0] == '2'
 
     juju.refresh(
         'app',

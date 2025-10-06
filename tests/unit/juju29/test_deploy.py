@@ -4,7 +4,7 @@ import pytest
 
 import jubilant
 
-from . import mocks
+from .. import mocks
 
 
 @pytest.mark.parametrize(
@@ -63,7 +63,8 @@ def test_all_args(juju_version: str, base: str, series: str, run: mocks.Run):
             '--trust',
         ]
     )
-    juju = jubilant.Juju(cli_version=juju_version)
+    juju = jubilant.Juju()
+    juju._is_juju_2 = juju_version[0] == '2'
 
     juju.deploy(
         'charm',

@@ -15,7 +15,7 @@ CONFIG_JSON = """
 def test_get(run: mocks.Run):
     run.handle(['juju', 'model-config', '--format', 'json'], stdout=CONFIG_JSON)
 
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     values = juju.model_config()
     assert values == {
         'booly': True,
@@ -28,7 +28,7 @@ def test_get(run: mocks.Run):
 def test_get_with_model(run: mocks.Run):
     run.handle(['juju', 'model-config', '--model', 'mdl', '--format', 'json'], stdout=CONFIG_JSON)
 
-    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
+    juju = jubilant.Juju(model='mdl')
     values = juju.model_config()
     assert values == {
         'booly': True,
@@ -50,7 +50,7 @@ def test_set(run: mocks.Run):
         ]
     )
 
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     values = {
         'booly': True,
         'inty': 42,
@@ -64,7 +64,7 @@ def test_set(run: mocks.Run):
 def test_set_with_model(run: mocks.Run):
     run.handle(['juju', 'model-config', '--model', 'mdl', 'foo=bar'])
 
-    juju = jubilant.Juju(model='mdl', cli_version='3.6.9')
+    juju = jubilant.Juju(model='mdl')
     retval = juju.model_config({'foo': 'bar'})
     assert retval is None
 
@@ -72,7 +72,7 @@ def test_set_with_model(run: mocks.Run):
 def test_reset_str(run: mocks.Run):
     run.handle(['juju', 'model-config', '--reset', 'rst'])
 
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     retval = juju.model_config(reset='rst')
     assert retval is None
 
@@ -80,7 +80,7 @@ def test_reset_str(run: mocks.Run):
 def test_reset_list(run: mocks.Run):
     run.handle(['juju', 'model-config', '--reset', 'x,why,zed'])
 
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     retval = juju.model_config(reset=['x', 'why', 'zed'])
     assert retval is None
 
@@ -88,6 +88,6 @@ def test_reset_list(run: mocks.Run):
 def test_set_with_reset(run: mocks.Run):
     run.handle(['juju', 'model-config', 'foo=bar', '--reset', 'baz,buzz'])
 
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
     retval = juju.model_config({'foo': 'bar'}, reset=['baz', 'buzz'])
     assert retval is None

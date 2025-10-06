@@ -108,7 +108,7 @@ def test_ssh_and_scp(juju: jubilant.Juju):
 
     output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
     assert output.split() == ['redis', 'snappass']
-    expected_pebble = 'pebble' if juju.cli_major_version >= 3 else 'pebble.socket'
+    expected_pebble = 'pebble' if juju._is_juju_2 else 'pebble.socket'
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
     assert expected_pebble in output.split()
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')

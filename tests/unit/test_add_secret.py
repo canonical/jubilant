@@ -9,7 +9,7 @@ def test_normal(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
         ['juju', 'add-secret', 'my-secret', '--file', mock_file.name],
         stdout='secret:0123456789abcdefghji\n',
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     secret_uri = juju.add_secret('my-secret', {'username': 'admin'})
 
@@ -22,7 +22,7 @@ def test_with_info(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
         ['juju', 'add-secret', 'my-secret', '--info', 'A description.', '--file', mock_file.name],
         stdout='secret:0123456789abcdefghji\n',
     )
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     juju.add_secret('my-secret', {'username': 'admin'}, info='A description.')
 

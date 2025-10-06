@@ -2,7 +2,7 @@ import pytest
 
 import jubilant
 
-from . import mocks
+from .. import mocks
 
 
 def mock_token_hex(n: int):

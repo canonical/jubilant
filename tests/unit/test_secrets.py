@@ -8,7 +8,7 @@ from . import mocks
 
 def test_get_secrets(run: mocks.Run):
     run.handle(['juju', 'secrets', '--format', 'json'], stdout=json.dumps(MULTIPLE_SECRETS))
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     response = juju.secrets()
     assert len(response) == 2
@@ -20,7 +20,7 @@ def test_get_secrets(run: mocks.Run):
 
 def test_get_empty_secrets(run: mocks.Run):
     run.handle(['juju', 'secrets', '--format', 'json'], stdout=json.dumps({}))
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     response = juju.secrets()
     assert response == []
@@ -28,7 +28,7 @@ def test_get_empty_secrets(run: mocks.Run):
 
 def test_get_secrets_with_owner(run: mocks.Run):
     run.handle(['juju', 'secrets', '--owner', 'user', '--format', 'json'], stdout=json.dumps({}))
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     response = juju.secrets(owner='user')
     assert response == []

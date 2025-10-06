@@ -81,37 +81,24 @@ class Juju:
     cli_binary: str
     """Path to the Juju CLI binary. If None, uses ``juju`` and assumes it is in the PATH."""
 
-    cli_version: str
-    """The version of the Juju CLI binary, for example ``3.6.8``."""
-
     def __init__(
         self,
         *,
         model: str | None = None,
         wait_timeout: float = 3 * 60.0,
         cli_binary: str | pathlib.Path | None = None,
-        cli_version: str | None = None,
     ):
         self.model = model
         self.wait_timeout = wait_timeout
         self.cli_binary = str(cli_binary or 'juju')
-        if cli_version is None:
-            self.cli_version = json.loads(
-                self.cli('version', '--format', 'json', include_model=False)
-            )
-        else:
-            self.cli_version = cli_version
-
-    @functools.cached_property
-    def cli_major_version(self):
-        return int(self.cli_version.split('.', 1)[0])
+        cli_version = json.loads(self.cli('version', '--format', 'json', include_model=False))
+        self._is_juju_2 = int(cli_version.split('.', 1)[0]) == 2
 
     def __repr__(self) -> str:
         args = [
             f'model={self.model!r}',
             f'wait_timeout={self.wait_timeout}',
             f'cli_binary={self.cli_binary!r}',
-            f'cli_version={self.cli_version!r}',
         ]
         return f'Juju({", ".join(args)})'
 
@@ -275,7 +262,7 @@ class Juju:
         """
         args = ['bootstrap', cloud, controller, '--no-switch']
         if bootstrap_base is not None:
-            if self.cli_major_version < 3:
+            if self._is_juju_2:
                 args.extend(['--bootstrap-series', _base_to_series(bootstrap_base)])
             else:
                 args.extend(['--bootstrap-base', bootstrap_base])
@@ -503,7 +490,7 @@ class Juju:
             else:
                 args.extend(['--attach-storage', ','.join(attach_storage)])
         if base is not None:
-            if self.cli_major_version < 3:
+            if self._is_juju_2:
                 args.extend(['--series', _base_to_series(base)])
             else:
                 args.extend(['--base', base])
@@ -619,7 +606,7 @@ class Juju:
             assert unit is not None
             cli_args.extend(['--unit', unit])
         if wait is not None:
-            if self.cli_major_version < 3:
+            if self._is_juju_2:
                 cli_args.extend(['--timeout', f'{wait}s'])
             else:
                 cli_args.extend(['--wait', f'{wait}s'])
@@ -646,7 +633,7 @@ class Juju:
             stdout = exc.stdout
             stderr = exc.stderr
 
-        if self.cli_major_version < 3:
+        if self._is_juju_2:
             return self._handle_exec_result_29(stdout, stderr, machine, unit)
 
         # Command doesn't return any stdout if no units exist.
@@ -716,7 +703,7 @@ class Juju:
                 source of traffic, to enable network ports to be opened. This
                 is in CIDR notation, for example ``192.0.2.0/24``.
         """
-        args = ['relate' if self.cli_major_version < 3 else 'integrate', app1, app2]
+        args = ['relate' if self._is_juju_2 else 'integrate', app1, app2]
         if via:
             if isinstance(via, str):
                 args.extend(['--via', via])
@@ -831,13 +818,13 @@ class Juju:
         args = ['refresh', app]
 
         if base is not None:
-            if self.cli_major_version < 3:
+            if self._is_juju_2:
                 args.extend(['--series', _base_to_series(base)])
             else:
                 args.extend(['--base', base])
         if channel is not None:
             args.extend(['--channel', channel])
-        if config is not None and self.cli_major_version >= 3:
+        if config is not None and not self._is_juju_2:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
         if force:
@@ -852,12 +839,12 @@ class Juju:
         if storage is not None:
             for k, v in storage.items():
                 args.extend(['--storage', f'{k}={v}'])
-        if trust and self.cli_major_version >= 3:
+        if trust and not self._is_juju_2:
             args.append('--trust')
 
         mgr = (
             contextlib.nullcontext()
-            if (self.cli_major_version >= 3 or config is None)
+            if (not self._is_juju_2 or config is None)
             else tempfile.TemporaryFile('w')  # noqa: SIM115
         )
         with mgr as config_file:
@@ -867,7 +854,7 @@ class Juju:
                 args.extend(['--config', config_file.name])
             self.cli(*args)
 
-        if trust and self.cli_major_version < 3:
+        if trust and self._is_juju_2:
             # Juju < 3 doesn't have "juju refresh --trust", so we need to set trust
             # separately after the refresh.
             self.trust(app)
@@ -1000,7 +987,7 @@ class Juju:
             TaskError: if the action failed.
             TimeoutError: if *wait* was specified and the wait time was reached.
         """
-        if self.cli_major_version < 3:
+        if self._is_juju_2:
             return self._run29(unit, action, params, wait=wait)
 
         args = ['run', '--format', 'json', unit, action]

@@ -4,42 +4,42 @@ import pytest
 
 import jubilant
 
+from . import mocks
+
 
 def test_init_defaults():
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     assert juju.model is None
     assert juju.wait_timeout is not None  # don't test the exact value of the default
     assert juju.cli_binary == 'juju'
 
 
-def test_init_args():
-    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')
+def test_init_args(run: mocks.Run):
+    # The default mock for getting the version doesn't work here, as we are
+    # changing the name of the `juju` binary.
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
+    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert juju.model == 'm'
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
-    assert juju.cli_version == '28.8.6'
-    assert juju.cli_major_version == 28
 
 
-def test_init_args_controller():
-    juju = jubilant.Juju(
-        model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='3.6.9'
-    )
+def test_init_args_controller(run: mocks.Run):
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
+    juju = jubilant.Juju(model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert juju.model == 'ctl:m'
     assert juju.wait_timeout == 7
     assert juju.cli_binary == '/bin/juju3'
 
 
-def test_repr_args():
-    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')
+def test_repr_args(run: mocks.Run):
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
+    juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
 
-    assert (
-        repr(juju)
-        == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3', cli_version='28.8.6')"
-    )
+    assert repr(juju) == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')"
 
 
 def test_method_order():
@@ -57,13 +57,13 @@ def test_method_order():
 
 def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     assert 'snap' not in juju._temp_dir
 
 
 def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    juju = jubilant.Juju(cli_version='3.6.9')
+    juju = jubilant.Juju()
 
     assert 'snap' in juju._temp_dir

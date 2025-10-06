@@ -7,7 +7,7 @@ import jubilant
 import jubilant as real_jubilant
 from jubilant import statustypes
 
-from . import mocks
+from .. import mocks
 from .fake_statuses import (
     MINIMAL_JSON,
     MINIMAL_JSON29,
@@ -34,7 +34,8 @@ def test_minimal(
     run: mocks.Run,
 ):
     run.handle(['juju', 'status', '--format', 'json'], stdout=input_status)
-    juju = jubilant.Juju(cli_version=version)
+    juju = jubilant.Juju()
+    juju._is_juju_2 = version[0] == '2'
 
     status = juju.status()
 
@@ -52,7 +53,8 @@ def test_minimal_with_model(
     input_status: str, output_status: Union[real_jubilant.Status, jubilant.Status], run: mocks.Run
 ):
     run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=input_status)
-    juju = jubilant.Juju(model='mdl', cli_version='2.9.52')
+    juju = jubilant.Juju(model='mdl')
+    juju._is_juju_2 = True
 
     status = juju.status()
 
@@ -70,7 +72,8 @@ def test_minimal_with_model(
 )
 def test_real_status(version: str, input_status: str, run: mocks.Run):
     run.handle(['juju', 'status', '--format', 'json'], stdout=input_status)
-    juju = jubilant.Juju(cli_version=version)
+    juju = jubilant.Juju()
+    juju._is_juju_2 = version[0] == '2'
 
     status = juju.status()
 
