@@ -267,6 +267,8 @@ juju.wait(
 )
 ```
 
+For more examples, see [Tutorial | Use a custom wait condition](#use_a_custom_wait_condition).
+
 
 ### Integrating two applications
 

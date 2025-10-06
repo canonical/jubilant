@@ -1,5 +1,5 @@
 [project]
-name = "jubilant"
+name = "jubilant-backports"
 description = "Juju CLI wrapper for charm integration testing"
 readme = "README.md"
 requires-python = ">=3.8"
