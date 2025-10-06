@@ -98,7 +98,8 @@ def test_list_args(run: mocks.Run):
     juju.deploy('charm', attach_storage=['stg1', 'stg2'], to=['to1', 'to2'])
 
 
-def test_overlays_str():
+# The 'run' fixture mocks out the version call.
+def test_overlays_str(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):

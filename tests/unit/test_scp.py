@@ -48,7 +48,8 @@ def test_path_destination(run: mocks.Run):
     juju.scp('SRC', pathlib.Path('DST'))
 
 
-def test_type_error():
+# The 'run' fixture mocks out the version call.
+def test_type_error(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):

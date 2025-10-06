@@ -7,7 +7,8 @@ import jubilant
 from . import mocks
 
 
-def test_init_defaults():
+# The 'run' fixture mocks out the version call.
+def test_init_defaults(run: mocks.Run):
     juju = jubilant.Juju()
 
     assert juju.model is None
@@ -55,14 +56,16 @@ def test_method_order():
     assert sorted_by_lines == sorted_by_alpha, 'Please keep Juju methods in alphabetical order'
 
 
-def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
+# The 'run' fixture mocks out the version call.
+def test_default_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     assert 'snap' not in juju._temp_dir
 
 
-def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
+# The 'run' fixture mocks out the version call.
+def test_snap_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 

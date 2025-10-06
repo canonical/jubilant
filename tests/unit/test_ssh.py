@@ -66,7 +66,8 @@ def test_ssh_options(run: mocks.Run):
     assert output == 'foo\n'
 
 
-def test_type_error():
+# The 'run' fixture mocks out the version call.
+def test_type_error(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):

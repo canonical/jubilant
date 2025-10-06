@@ -118,7 +118,8 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
     assert 'mdl' in str(excinfo.value)
 
 
-def test_timeout_zero(time: mocks.Time):
+# The 'run' fixture mocks out the version call.
+def test_timeout_zero(run: mocks.Run, time: mocks.Time):
     juju = jubilant.Juju()
 
     with pytest.raises(TimeoutError) as excinfo:
