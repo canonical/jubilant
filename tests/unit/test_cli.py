@@ -88,4 +88,5 @@ def test_stdin(run: mocks.Run):
     stdout = juju.cli('ssh', 'mysql/0', 'pg_restore ...', stdin='PASSWORD')
 
     assert stdout == 'restored\n'
-    assert run.calls[0].stdin == 'PASSWORD'
+    # calls[0] is getting the Juju version.
+    assert run.calls[1].stdin == 'PASSWORD'

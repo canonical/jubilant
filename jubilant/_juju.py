@@ -12,10 +12,10 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Literal, Union, overload
+from typing import Any, Final, Literal, Union, overload
 
 from . import _pretty, _yaml
-from ._task import Task
+from ._task import ExecTask, Task
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
 
@@ -48,6 +48,9 @@ class Juju:
 
     Most methods directly call a single Juju CLI command. If a CLI command doesn't yet exist as a
     method, use :meth:`cli`.
+
+    The class will automatically detect the version of the Juju CLI installed
+    and adjust to use the appropriate commands and options for that version.
 
     Example::
 
@@ -88,6 +91,8 @@ class Juju:
         self.model = model
         self.wait_timeout = wait_timeout
         self.cli_binary = str(cli_binary or 'juju')
+        cli_version = json.loads(self.cli('version', '--format', 'json', include_model=False))
+        self._is_juju_2 = int(cli_version.split('.', 1)[0]) == 2
 
     def __repr__(self) -> str:
         args = [
@@ -257,7 +262,10 @@ class Juju:
         """
         args = ['bootstrap', cloud, controller, '--no-switch']
         if bootstrap_base is not None:
-            args.extend(['--bootstrap-base', bootstrap_base])
+            if self._is_juju_2:
+                args.extend(['--bootstrap-series', _base_to_series(bootstrap_base)])
+            else:
+                args.extend(['--bootstrap-base', bootstrap_base])
         if bootstrap_constraints is not None:
             for k, v in bootstrap_constraints.items():
                 args.extend(['--bootstrap-constraints', f'{k}={v}'])
@@ -482,7 +490,10 @@ class Juju:
             else:
                 args.extend(['--attach-storage', ','.join(attach_storage)])
         if base is not None:
-            args.extend(['--base', base])
+            if self._is_juju_2:
+                args.extend(['--series', _base_to_series(base)])
+            else:
+                args.extend(['--base', base])
         if bind is not None:
             if not isinstance(bind, str):
                 bind = ' '.join(f'{k}={v}' for k, v in bind.items())
@@ -558,7 +569,7 @@ class Juju:
         machine: int | None = None,
         unit: str | None = None,
         wait: float | None = None,
-    ) -> Task:
+    ) -> Task | ExecTask:
         """Run the command on the remote target specified.
 
         You must specify either *machine* or *unit*, but not both.
@@ -595,7 +606,10 @@ class Juju:
             assert unit is not None
             cli_args.extend(['--unit', unit])
         if wait is not None:
-            cli_args.extend(['--wait', f'{wait}s'])
+            if self._is_juju_2:
+                cli_args.extend(['--timeout', f'{wait}s'])
+            else:
+                cli_args.extend(['--wait', f'{wait}s'])
         cli_args.append('--')
         cli_args.append(command)
         cli_args.extend(args)
@@ -606,11 +620,21 @@ class Juju:
             if 'timed out' in exc.stderr:
                 msg = f'timed out waiting for command, stderr:\n{exc.stderr}'
                 raise TimeoutError(msg) from None
+            if 'not found' in exc.stderr:
+                if machine is not None:
+                    raise ValueError(
+                        f'machine {machine!r} not found, stderr:\n{exc.stderr}'
+                    ) from None
+                else:
+                    raise ValueError(f'unit {unit!r} not found, stderr:\n{exc.stderr}') from None
             # The "juju exec" CLI command itself fails if the exec'd command fails.
             if 'task failed' not in exc.stderr:
                 raise
             stdout = exc.stdout
             stderr = exc.stderr
+
+        if self._is_juju_2:
+            return self._handle_exec_result_29(stdout, stderr, machine, unit)
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
@@ -623,6 +647,27 @@ class Juju:
                 raise ValueError(f'unit {unit!r} not found, stderr:\n{stderr}')
             result = results[unit]
         task = Task._from_dict(result)
+        task.raise_on_failure()
+        return task
+
+    def _handle_exec_result_29(
+        self, stdout: str, stderr: str, machine: int | None, unit: str | None
+    ):
+        # Command doesn't return any stdout if no units exist.
+        results: list[dict[str, Any]] = json.loads(stdout) if stdout.strip() else []
+        if machine is not None:
+            for result in results:
+                if 'machine' in result and result['machine'] == str(machine):
+                    break
+            else:
+                raise ValueError(f'machine {machine!r} not found, stderr:\n{stderr}')
+        else:
+            for result in results:
+                if 'unit' in result and result['unit'] == unit:
+                    break
+            else:
+                raise ValueError(f'unit {unit!r} not found, stderr:\n{stderr}')
+        task = ExecTask._from_dict(result)
         task.raise_on_failure()
         return task
 
@@ -658,7 +703,7 @@ class Juju:
                 source of traffic, to enable network ports to be opened. This
                 is in CIDR notation, for example ``192.0.2.0/24``.
         """
-        args = ['integrate', app1, app2]
+        args = ['relate' if self._is_juju_2 else 'integrate', app1, app2]
         if via:
             if isinstance(via, str):
                 args.extend(['--via', via])
@@ -773,10 +818,13 @@ class Juju:
         args = ['refresh', app]
 
         if base is not None:
-            args.extend(['--base', base])
+            if self._is_juju_2:
+                args.extend(['--series', _base_to_series(base)])
+            else:
+                args.extend(['--base', base])
         if channel is not None:
             args.extend(['--channel', channel])
-        if config is not None:
+        if config is not None and not self._is_juju_2:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
         if force:
@@ -791,10 +839,25 @@ class Juju:
         if storage is not None:
             for k, v in storage.items():
                 args.extend(['--storage', f'{k}={v}'])
-        if trust:
+        if trust and not self._is_juju_2:
             args.append('--trust')
 
-        self.cli(*args)
+        mgr = (
+            contextlib.nullcontext()
+            if (not self._is_juju_2 or config is None)
+            else tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)  # noqa: SIM115
+        )
+        with mgr as config_file:
+            if config is not None and config_file is not None:
+                _yaml.safe_dump(config, config_file)
+                config_file.flush()
+                args.extend(['--config', config_file.name])
+            self.cli(*args)
+
+        if trust and self._is_juju_2:
+            # Juju < 3 doesn't have "juju refresh --trust", so we need to set trust
+            # separately after the refresh.
+            self.trust(app)
 
     def remove_application(
         self,
@@ -924,6 +987,9 @@ class Juju:
             TaskError: if the action failed.
             TimeoutError: if *wait* was specified and the wait time was reached.
         """
+        if self._is_juju_2:
+            return self._run29(unit, action, params, wait=wait)
+
         args = ['run', '--format', 'json', unit, action]
         if wait is not None:
             args.extend(['--wait', f'{wait}s'])
@@ -959,6 +1025,55 @@ class Juju:
             task = Task._from_dict(all_tasks[unit])
             task.raise_on_failure()
             return task
+
+    def _run29(
+        self,
+        unit: str,
+        action: str,
+        params: Mapping[str, Any] | None = None,
+        *,
+        wait: float | None = None,
+    ) -> Task:
+        args = ['run-action', '--format', 'json', unit, action]
+        if wait is None:
+            args.append('--wait')
+        else:
+            args.append(f'--wait={wait}s')
+
+        params_file = None
+        if params is not None:
+            with tempfile.NamedTemporaryFile(
+                'w+', delete=False, dir=self._temp_dir
+            ) as params_file:
+                _yaml.safe_dump(params, params_file)
+            args.extend(['--params', params_file.name])
+
+        try:
+            try:
+                stdout, stderr = self._cli(*args)
+            except CLIError as exc:
+                if 'timed out' in exc.stderr or 'timeout reached' in exc.stderr:
+                    msg = f'timed out waiting for action, stderr:\n{exc.stderr}'
+                    raise TimeoutError(msg) from None
+                # The "juju run" CLI command fails if the action has an uncaught exception.
+                if 'task failed' not in exc.stderr:
+                    raise
+                stdout = exc.stdout
+                stderr = exc.stderr
+
+            # Command doesn't return any stdout if no units exist.
+            all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            full_unit_name = f'unit-{unit.replace("/", "-")}'
+            if full_unit_name not in all_tasks:
+                raise ValueError(
+                    f'action {action!r} not defined or unit {unit!r} not found, stderr:\n{stderr}'
+                )
+            task = Task._from_dict(all_tasks[full_unit_name])
+            task.raise_on_failure()
+            return task
+        finally:
+            if params_file is not None:
+                os.remove(params_file.name)
 
     def scp(
         self,
@@ -1277,6 +1392,28 @@ class Juju:
             return temp_dir
         else:
             return tempfile.gettempdir()
+
+
+_SERIES_BY_CYCLE: Final[dict[str, str]] = {
+    '14.04': 'trusty',
+    '16.04': 'xenial',
+    '18.04': 'bionic',
+    '20.04': 'focal',
+    '22.04': 'jammy',
+    '24.04': 'noble',
+    '24.10': 'oracular',
+    '25.04': 'plucky',
+    '25.10': 'questing',
+    '26.04': 'resolute',
+}
+
+
+def _base_to_series(base: str) -> str:
+    """Convert a base to a series name."""
+    name, cycle = base.split('@', 1)
+    if name != 'ubuntu':
+        raise ValueError(f'base must be an Ubuntu base, not {name!r}')
+    return _SERIES_BY_CYCLE[cycle]
 
 
 def _format_config(k: str, v: ConfigValue) -> str:

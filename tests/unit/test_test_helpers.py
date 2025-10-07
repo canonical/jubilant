@@ -12,6 +12,7 @@ def mock_token_hex(n: int):
 
 def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234'])
     run.handle(['juju', 'deploy', '--model', 'jubilant-abcd1234', 'app1'])
     run.handle(
@@ -27,21 +28,23 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
     with jubilant.temp_model() as juju:
         assert juju.model == 'jubilant-abcd1234'
-        assert len(run.calls) == 1
-        assert run.calls[0].args[1] == 'add-model'
+        assert len(run.calls) == 2
+        assert run.calls[0].args[1] == 'version'
+        assert run.calls[1].args[1] == 'add-model'
 
         juju.deploy('app1')
 
-        assert len(run.calls) == 2
-        assert run.calls[1].args[1] == 'deploy'
+        assert len(run.calls) == 3
+        assert run.calls[2].args[1] == 'deploy'
 
     assert juju.model is None
-    assert len(run.calls) == 3
-    assert run.calls[2].args[1] == 'destroy-model'
+    assert len(run.calls) == 4
+    assert run.calls[3].args[1] == 'destroy-model'
 
 
 def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(
         [
             'juju',
@@ -80,22 +83,24 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
         cloud='localhost',
     ) as juju:
         assert juju.model == 'ctl:jubilant-abcd1234'
-        assert len(run.calls) == 1
-        assert run.calls[0].args[1] == 'add-model'
+        assert len(run.calls) == 2
+        assert run.calls[0].args[1] == 'version'
+        assert run.calls[1].args[1] == 'add-model'
 
         juju.deploy('app1')
 
-        assert len(run.calls) == 2
-        assert run.calls[1].args[1] == 'deploy'
+        assert len(run.calls) == 3
+        assert run.calls[2].args[1] == 'deploy'
 
     assert juju.model is None
-    assert len(run.calls) == 3
-    assert run.calls[2].args[1] == 'destroy-model'
-    assert run.calls[2].args[2] == 'ctl:jubilant-abcd1234'
+    assert len(run.calls) == 4
+    assert run.calls[3].args[1] == 'destroy-model'
+    assert run.calls[3].args[2] == 'ctl:jubilant-abcd1234'
 
 
 def test_other_args_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
+    run.handle(['juju', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     run.handle(
         [
             'juju',
@@ -125,13 +130,14 @@ def test_other_args_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
         cloud='localhost',
     ) as juju:
         assert juju.model == 'ctl:jubilant-abcd1234'
-        assert len(run.calls) == 1
-        assert run.calls[0].args[1] == 'add-model'
+        assert len(run.calls) == 2
+        assert run.calls[0].args[1] == 'version'
+        assert run.calls[1].args[1] == 'add-model'
 
         juju.deploy('app1')
 
-        assert len(run.calls) == 2
-        assert run.calls[1].args[1] == 'deploy'
+        assert len(run.calls) == 3
+        assert run.calls[2].args[1] == 'deploy'
 
     assert juju.model == 'ctl:jubilant-abcd1234'
-    assert len(run.calls) == 2
+    assert len(run.calls) == 3

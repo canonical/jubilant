@@ -4,8 +4,11 @@ import pytest
 
 import jubilant
 
+from . import mocks
 
-def test_init_defaults():
+
+# The 'run' fixture mocks out the version call.
+def test_init_defaults(run: mocks.Run):
     juju = jubilant.Juju()
 
     assert juju.model is None
@@ -13,7 +16,10 @@ def test_init_defaults():
     assert juju.cli_binary == 'juju'
 
 
-def test_init_args():
+def test_init_args(run: mocks.Run):
+    # The default mock for getting the version doesn't work here, as we are
+    # changing the name of the `juju` binary.
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert juju.model == 'm'
@@ -21,7 +27,8 @@ def test_init_args():
     assert juju.cli_binary == '/bin/juju3'
 
 
-def test_init_args_controller():
+def test_init_args_controller(run: mocks.Run):
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     juju = jubilant.Juju(model='ctl:m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert juju.model == 'ctl:m'
@@ -29,7 +36,8 @@ def test_init_args_controller():
     assert juju.cli_binary == '/bin/juju3'
 
 
-def test_repr_args():
+def test_repr_args(run: mocks.Run):
+    run.handle(['/bin/juju3', 'version', '--format', 'json'], stdout='"3.6.9"\n')
     juju = jubilant.Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')
 
     assert repr(juju) == "Juju(model='m', wait_timeout=7, cli_binary='/bin/juju3')"
@@ -48,14 +56,16 @@ def test_method_order():
     assert sorted_by_lines == sorted_by_alpha, 'Please keep Juju methods in alphabetical order'
 
 
-def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
+# The 'run' fixture mocks out the version call.
+def test_default_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     assert 'snap' not in juju._temp_dir
 
 
-def test_snap_tempdir(monkeypatch: pytest.MonkeyPatch):
+# The 'run' fixture mocks out the version call.
+def test_snap_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 

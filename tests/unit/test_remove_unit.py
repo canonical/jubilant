@@ -40,14 +40,16 @@ def test_multiple(run: mocks.Run):
     juju.remove_unit('unit/0', 'unit/1', 'unit/2')
 
 
-def test_two_units_error():
+# The 'run' fixture mocks out the version call.
+def test_two_units_error(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):
         juju.remove_unit('unit/0', 'unit/1', num_units=2)
 
 
-def test_three_units_error():
+# The 'run' fixture mocks out the version call.
+def test_three_units_error(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(TypeError):

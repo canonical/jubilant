@@ -1,5 +1,6 @@
 __pycache__
 jubilant.egg-info
+jubilant_backports.egg-info
 /dist
 /.idea
 .coverage

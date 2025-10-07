@@ -17,6 +17,7 @@ from . import _pretty
 __all__ = [
     'AppStatus',
     'AppStatusRelation',
+    'BranchStatus',
     'CombinedStorage',
     'ControllerStatus',
     'EntityStatus',
@@ -26,6 +27,7 @@ __all__ = [
     'FormattedBase',
     'LxdProfileContents',
     'MachineStatus',
+    'MeterStatus',
     'ModelStatus',
     'NetworkInterface',
     'OfferStatus',
@@ -97,11 +99,26 @@ class AppStatusRelation:
 
 
 @dataclasses.dataclass(frozen=True)
+class MeterStatus:
+    color: str = ''
+    message: str = ''
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> MeterStatus:
+        return cls(
+            color=d.get('color') or '',
+            message=d.get('message') or '',
+        )
+
+
+@dataclasses.dataclass(frozen=True)
 class UnitStatus:
     """Status of a single unit."""
 
     workload_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     juju_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
+    meter_status: MeterStatus = dataclasses.field(default_factory=MeterStatus)
+    """Not filled in Juju 3.0 or above."""
     leader: bool = False
     upgrading_from: str = ''
     machine: str = ''
@@ -110,6 +127,8 @@ class UnitStatus:
     address: str = ''
     provider_id: str = ''
     subordinates: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
+    branch: str = ''
+    """Not filled in Juju 3.0 or above."""
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> UnitStatus:
@@ -127,6 +146,9 @@ class UnitStatus:
             juju_status=(
                 StatusInfo._from_dict(d['juju-status']) if 'juju-status' in d else StatusInfo()
             ),
+            meter_status=(
+                MeterStatus._from_dict(d['meter-status']) if 'meter-status' in d else MeterStatus()
+            ),
             leader=d.get('leader') or False,
             upgrading_from=d.get('upgrading-from') or '',
             machine=d.get('machine') or '',
@@ -139,6 +161,7 @@ class UnitStatus:
                 if 'subordinates' in d
                 else {}
             ),
+            branch=d.get('branch') or '',
         )
 
     @property
@@ -177,7 +200,12 @@ class AppStatus:
     charm_rev: int
     exposed: bool
 
+    series: str | None = None
+    """Not provided in Juju 3.0 or above."""
+    os: str | None = None
+    """Not provided in Juju 3.0 or above."""
     base: FormattedBase | None = None
+    """Not provided in Juju 2.9."""
     charm_channel: str = ''
     charm_version: str = ''
     charm_profile: str = ''
@@ -188,6 +216,7 @@ class AppStatus:
     life: str = ''
     app_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     relations: dict[str, list[AppStatusRelation]] = dataclasses.field(default_factory=dict)  # type: ignore
+    """In Juju 2.9, none of the `AppStatusRelation` fields are provided."""
     subordinate_to: list[str] = dataclasses.field(default_factory=list)  # type: ignore
     units: dict[str, UnitStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     version: str = ''
@@ -204,12 +233,25 @@ class AppStatus:
                 exposed=False,
                 app_status=StatusInfo(current='failed', message=d['status-error']),
             )
+        if 'relations' in d:
+            try:
+                relations = {
+                    k: [AppStatusRelation._from_dict(x) for x in v]
+                    for k, v in d['relations'].items()
+                }
+            except AttributeError:
+                # Juju 2.9 provides less information about the relations.
+                relations = {k: [AppStatusRelation()] for k in d['relations']}
+        else:
+            relations = {}
         return cls(
             charm=d['charm'],
             charm_origin=d['charm-origin'],
             charm_name=d['charm-name'],
             charm_rev=d['charm-rev'],
             exposed=d['exposed'],
+            series=d.get('series'),
+            os=d.get('os'),
             base=FormattedBase._from_dict(d['base']) if 'base' in d else None,
             charm_channel=d.get('charm-channel') or '',
             charm_version=d.get('charm-version') or '',
@@ -224,14 +266,7 @@ class AppStatus:
                 if 'application-status' in d
                 else StatusInfo()
             ),
-            relations=(
-                {
-                    k: [AppStatusRelation._from_dict(x) for x in v]
-                    for k, v in d['relations'].items()
-                }
-                if 'relations' in d
-                else {}
-            ),
+            relations=relations,
             subordinate_to=d.get('subordinate-to') or [],
             units=(
                 {k: UnitStatus._from_dict(v) for k, v in d['units'].items()}
@@ -567,6 +602,23 @@ class NetworkInterface:
 
 
 @dataclasses.dataclass(frozen=True)
+class BranchStatus:
+    ref: str = ''
+    created: str = ''
+    created_by: str = ''
+    active: bool = False
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> BranchStatus:
+        return cls(
+            ref=d.get('ref') or '',
+            created=d.get('created') or '',
+            created_by=d.get('created-by') or '',
+            active=d.get('active') or False,
+        )
+
+
+@dataclasses.dataclass(frozen=True)
 class MachineStatus:
     """Status of a single machine."""
 
@@ -579,6 +631,9 @@ class MachineStatus:
     machine_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     modification_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     base: FormattedBase | None = None
+    """Not filled in Juju 2.9."""
+    series: str | None = None
+    """Not provided in Juju 3.0 or above."""
     network_interfaces: dict[str, NetworkInterface] = dataclasses.field(default_factory=dict)  # type: ignore
     containers: dict[str, MachineStatus] = dataclasses.field(default_factory=dict)  # type: ignore
     constraints: str = ''
@@ -614,6 +669,7 @@ class MachineStatus:
                 else StatusInfo()
             ),
             base=FormattedBase._from_dict(d['base']) if 'base' in d else None,
+            series=d.get('series'),
             network_interfaces=(
                 {k: NetworkInterface._from_dict(v) for k, v in d['network-interfaces'].items()}
                 if 'network-interfaces' in d
@@ -664,6 +720,12 @@ class ModelStatus:
     model_status: StatusInfo = dataclasses.field(default_factory=StatusInfo)
     """Status of the model. Normally the *current* field is ``available``."""
 
+    meter_status: MeterStatus = dataclasses.field(default_factory=MeterStatus)
+    """Not filled in Juju 3.0 or above."""
+
+    sla: str = ''
+    """Not filled in Juju 3.0 or above."""
+
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
         return cls(
@@ -677,6 +739,10 @@ class ModelStatus:
             model_status=(
                 StatusInfo._from_dict(d['model-status']) if 'model-status' in d else StatusInfo()
             ),
+            meter_status=(
+                MeterStatus._from_dict(d['meter-status']) if 'meter-status' in d else MeterStatus()
+            ),
+            sla=d.get('sla') or '',
         )
 
 
@@ -773,6 +839,9 @@ class Status:
     controller: ControllerStatus = dataclasses.field(default_factory=ControllerStatus)
     """Controller information."""
 
+    branches: dict[str, BranchStatus] = dataclasses.field(default_factory=dict)  # type: ignore
+    """Not filled in Juju 3.0 or above."""
+
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Status:
         return cls(
@@ -796,6 +865,11 @@ class Status:
                 ControllerStatus._from_dict(d['controller'])
                 if 'controller' in d
                 else ControllerStatus()
+            ),
+            branches=(
+                {k: BranchStatus._from_dict(v) for k, v in d['branches'].items()}
+                if 'branches' in d
+                else {}
             ),
         )
 

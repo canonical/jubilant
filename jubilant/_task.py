@@ -9,10 +9,10 @@ from . import _pretty
 class TaskError(Exception):
     """Exception raised when an action or exec command fails."""
 
-    task: Task
+    task: Task | ExecTask
     """Associated task."""
 
-    def __init__(self, task: Task):
+    def __init__(self, task: Task | ExecTask):
         self.task = task
 
     def __str__(self) -> str:
@@ -74,6 +74,9 @@ class Task:
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Task:
+        if 'ReturnCode' in d or 'UnitId' in d:
+            # Assume that this is a Juju 2.9 response.
+            return cls._from_29_dict(d)
         results: dict[str, Any] = d.get('results') or {}
         return_code = results.pop('return-code', 0)
         stdout = results.pop('stdout', '')
@@ -89,10 +92,75 @@ class Task:
             log=d.get('log') or [],
         )
 
+    @classmethod
+    def _from_29_dict(cls, d: dict[str, Any]) -> Task:
+        results: dict[str, Any] = d.get('results') or {}
+        return_code = results.pop('ReturnCode', 0)
+        stdout = results.pop('Stdout', '')
+        stderr = results.pop('Stderr', '')
+        return cls(
+            id=d['id'],
+            status=d['status'],
+            results=results,
+            return_code=return_code,
+            stdout=stdout,
+            stderr=stderr,
+            message=d.get('message') or '',
+            log=d.get('log') or [],
+        )
+
     @property
     def success(self) -> bool:
         """Whether the action was successful."""
         return self.status == 'completed' and self.return_code == 0
+
+    def raise_on_failure(self):
+        """If task was not successful, raise a :class:`TaskError`."""
+        if not self.success:
+            raise TaskError(self)
+
+
+# Note that this is only used with Juju 2.9. In later versions of Juju, the exec
+# and action mechanisms were unified, and the Task class above is used for both.
+@dataclasses.dataclass(frozen=True)
+class ExecTask:
+    """A task holds the results of Juju running an exec command on a single unit."""
+
+    return_code: int = 0
+    """Return code from executing the charm action hook."""
+
+    stdout: str = ''
+    """Stdout printed by the action hook."""
+
+    stderr: str = ''
+    """Stderr printed by the action hook."""
+
+    def __str__(self) -> str:
+        details: list[str] = []
+        if self.stdout:
+            details.append(f'Stdout:\n{self.stdout}')
+        if self.stderr:
+            details.append(f'Stderr:\n{self.stderr}')
+        s = f'Exec task: return code {self.return_code}'
+        if details:
+            s += ', details:\n' + '\n'.join(details)
+        return s
+
+    def __repr__(self) -> str:
+        return _pretty.dump(self)
+
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> ExecTask:
+        return cls(
+            return_code=d['return-code'],
+            stdout=d.get('stdout', ''),
+            stderr=d.get('stderr', ''),
+        )
+
+    @property
+    def success(self) -> bool:
+        """Whether the action was successful."""
+        return self.return_code == 0
 
     def raise_on_failure(self):
         """If task was not successful, raise a :class:`TaskError`."""

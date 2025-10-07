@@ -120,7 +120,8 @@ def test_set_with_reset(run: mocks.Run):
     assert retval is None
 
 
-def test_format_config_type_error():
+# The 'run' fixture mocks out the version call.
+def test_format_config_type_error(run: mocks.Run):
     juju = jubilant.Juju()
     with pytest.raises(TypeError):
         juju.config('app1', {'foo': None})  # type: ignore

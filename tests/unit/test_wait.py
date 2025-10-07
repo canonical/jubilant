@@ -14,7 +14,7 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time):
 
     status = juju.wait(lambda _: True)
 
-    assert len(run.calls) == 3
+    assert len(run.calls) == 4
     assert time.monotonic() == 2
     assert status == MINIMAL_STATUS
 
@@ -45,7 +45,7 @@ def test_with_model(run: mocks.Run, time: mocks.Time):
 
     status = juju.wait(lambda _: True)
 
-    assert len(run.calls) == 3
+    assert len(run.calls) == 4
     assert time.monotonic() == 2
     assert status == MINIMAL_STATUS
 
@@ -65,7 +65,7 @@ def test_ready_glitch(run: mocks.Run, time: mocks.Time):
 
     # Should wait for three successful calls to ready in a row:
     # ready, not ready, ready, ready, ready (5 total)
-    assert len(run.calls) == 5
+    assert len(run.calls) == 6
     assert time.monotonic() == 4
     assert status == MINIMAL_STATUS
 
@@ -76,7 +76,7 @@ def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
 
     status = juju.wait(lambda _: True, delay=0.75, successes=5)
 
-    assert len(run.calls) == 5
+    assert len(run.calls) == 6
     assert time.monotonic() == 3.0
     assert status == MINIMAL_STATUS
 
@@ -88,7 +88,7 @@ def test_error(run: mocks.Run, time: mocks.Time):
     with pytest.raises(jubilant.WaitError) as excinfo:
         juju.wait(lambda _: True, error=lambda _: True)
 
-    assert len(run.calls) == 1
+    assert len(run.calls) == 2
     assert time.monotonic() == 0
     assert 'mdl' in str(excinfo.value)
 
@@ -100,7 +100,8 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time):
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False)
 
-    assert len(run.calls) == 180
+    # The extra call is the initial one to get the Juju version.
+    assert len(run.calls) == 181
     assert time.monotonic() == 180
     assert 'mdl' in str(excinfo.value)
 
@@ -112,12 +113,13 @@ def test_timeout_override(run: mocks.Run, time: mocks.Time):
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False, timeout=5)
 
-    assert len(run.calls) == 5
+    assert len(run.calls) == 6
     assert time.monotonic() == 5
     assert 'mdl' in str(excinfo.value)
 
 
-def test_timeout_zero(time: mocks.Time):
+# The 'run' fixture mocks out the version call.
+def test_timeout_zero(run: mocks.Run, time: mocks.Time):
     juju = jubilant.Juju()
 
     with pytest.raises(TimeoutError) as excinfo:

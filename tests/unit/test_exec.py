@@ -159,7 +159,8 @@ def test_unit_not_found(run: mocks.Run):
         juju.exec('echo', unit='u/0')
 
 
-def test_type_errors():
+# The 'run' fixture mocks out the version call.
+def test_type_errors(run: mocks.Run):
     juju = jubilant.Juju()
     with pytest.raises(TypeError):
         juju.exec('echo')  # type: ignore
