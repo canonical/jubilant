@@ -547,12 +547,20 @@ class Juju:
             force: If true, force model destruction and ignore any errors.
             timeout: TODO: temporary, for testing
         """
-        args = ['destroy-model', model, '--no-prompt']
+        args = ['destroy-model', model, '--no-prompt', '--debug']
         if destroy_storage:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
-        self._cli(*args, include_model=False, timeout=timeout, capture_output=False)
+        try:
+            self._cli(*args, include_model=False, timeout=timeout, capture_output=False)
+        except CLIError:
+            try:
+                log = self.debug_log(limit=1000)
+                print(log, end='')
+            except CLIError as e2:
+                print(f'Error fetching debug log: {e2}')
+            raise
         if model == self.model:
             self.model = None
 

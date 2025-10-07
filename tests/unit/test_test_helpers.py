@@ -20,6 +20,7 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
             'destroy-model',
             'jubilant-abcd1234',
             '--no-prompt',
+            '--debug',
             '--destroy-storage',
             '--force',
         ]
@@ -68,6 +69,7 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
             'destroy-model',
             'ctl:jubilant-abcd1234',
             '--no-prompt',
+            '--debug',
             '--destroy-storage',
             '--force',
         ]
