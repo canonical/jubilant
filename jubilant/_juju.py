@@ -556,7 +556,8 @@ class Juju:
             self._cli(*args, include_model=False, timeout=timeout, capture_output=False)
         except CLIError:
             try:
-                log = self.debug_log(limit=1000)
+                args = ['debug-log', '--limit', '1000', '--model', 'controller']
+                log = self.cli(*args, include_model=False)
                 print(log, end='')
             except CLIError as e2:
                 print(f'Error fetching debug log: {e2}')
