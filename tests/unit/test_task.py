@@ -1,6 +1,6 @@
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 
 def test_task_success():

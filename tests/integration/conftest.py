@@ -4,7 +4,7 @@ from typing import Generator, cast
 
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 
 def pytest_addoption(parser: pytest.OptionGroup):

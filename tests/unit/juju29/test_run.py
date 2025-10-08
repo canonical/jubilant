@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-import jubilant
-import jubilant as real_jubilant
+import jubilant_backports as jubilant
 
 from .. import mocks
 
@@ -43,7 +42,7 @@ def test_completed(run: mocks.Run):
 
     task = juju.run('mysql/0', 'get-password')
 
-    assert task == real_jubilant.Task(
+    assert task == jubilant.Task(
         id='42',
         status='completed',
         results={'username': 'user', 'password': 'pass'},

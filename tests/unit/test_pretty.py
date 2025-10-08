@@ -1,6 +1,6 @@
 import json
 
-import jubilant
+import jubilant_backports as jubilant
 
 from .fake_statuses import DATABASE_WEBAPP_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 

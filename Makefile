@@ -49,4 +49,4 @@ publish-test:  # Publish to TestPyPI
 	uv publish --publish-url=https://test.pypi.org/legacy/ --token=$(UV_PUBLISH_TOKEN_TEST)
 
 unit:  # Run unit tests, eg: make unit ARGS='tests/unit/test_deploy.py'
-	uv run pytest tests/unit -vv --cov=jubilant $(ARGS)
+	uv run pytest tests/unit -vv --cov=jubilant_backports $(ARGS)

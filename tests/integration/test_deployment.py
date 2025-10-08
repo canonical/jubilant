@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 import requests
 
-import jubilant
+import jubilant_backports as jubilant
 
 
 @pytest.fixture(scope='module', autouse=True)

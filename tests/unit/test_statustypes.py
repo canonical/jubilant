@@ -1,6 +1,6 @@
 import json
 
-import jubilant
+import jubilant_backports as jubilant
 
 from .fake_statuses import STATUS_ERRORS_JSON, SUBORDINATES_JSON
 
