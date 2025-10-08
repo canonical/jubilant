@@ -2,7 +2,7 @@
 
 [Jubilant](https://canonical-jubilant.readthedocs-hosted.com) is a Python library that wraps the [Juju](https://juju.is/) CLI for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
-Jubilant-backports is a Python library that wraps Jubilant to provide support for running with Juju 2.9. It is a drop-in replacement for Jubilant, using the Jubilant package for Juju 3.0 and above, as well as when there are no differences between 2.9 and higher, and custom code otherwise.
+Jubilant-backports is a Python library that modifies Jubilant to provide support for running with Juju 2.9. It is a drop-in replacement for Jubilant, using the regular Jubilant package code for Juju 3.0 and above, as well as when there are no differences between 2.9 and higher, and custom code from a Jubilant branch otherwise. It supports the Jubilant 1.4 feature set, and future improvements to Jubilant are unlikely to be backported to Jubilant-backports (but security fixes and bug fixes, where required, will be backported).
 
 You should consider using Jubilant-backports if you need to run the same charm integration test suite against Juju 2.9 as well as more modern Juju version.
 
@@ -85,5 +85,5 @@ To create a new release of Jubilant-backports:
 
 1. Update the `__version__` field in [`jubilant_backports/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant_backports/__init__.py) to the new version you want to release.
 2. Push up a PR with this change and get it reviewed and merged.
-3. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `v`, like `v1.2.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI.
+3. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `backports-v`, like `backports-v1.4.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI.
 4. Once the publish workflow has finished, check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant-backports/#history).
