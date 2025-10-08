@@ -1,11 +1,9 @@
 import dataclasses
-from typing import Union
 
 import pytest
 
-import jubilant
-import jubilant as real_jubilant
-from jubilant import statustypes
+import jubilant_backports as jubilant
+from jubilant_backports import statustypes
 
 from .. import mocks
 from .fake_statuses import (
@@ -30,7 +28,7 @@ from .fake_statuses import (
 def test_minimal(
     version: str,
     input_status: str,
-    output_status: Union[real_jubilant.Status, jubilant.Status],
+    output_status: jubilant.Status,
     run: mocks.Run,
 ):
     run.handle(['juju', 'status', '--format', 'json'], stdout=input_status)
@@ -49,9 +47,7 @@ def test_minimal(
         pytest.param(MINIMAL_JSON29, MINIMAL_STATUS29, id='2.9'),
     ],
 )
-def test_minimal_with_model(
-    input_status: str, output_status: Union[real_jubilant.Status, jubilant.Status], run: mocks.Run
-):
+def test_minimal_with_model(input_status: str, output_status: jubilant.Status, run: mocks.Run):
     run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=input_status)
     juju = jubilant.Juju(model='mdl')
     juju._is_juju_2 = True
@@ -87,7 +83,7 @@ def test_real_status(version: str, input_status: str, run: mocks.Run):
     'input_status',
     [pytest.param(MINIMAL_STATUS, id='3'), pytest.param(MINIMAL_STATUS29, id='2.9')],
 )
-def test_status_eq(input_status: Union[jubilant.Status, real_jubilant.Status]):
+def test_status_eq(input_status: jubilant.Status):
     # Status.__eq__ should ignore "controller" attribute with its ever-changing timestamp.
     status1 = dataclasses.replace(
         input_status, controller=statustypes.ControllerStatus(timestamp='foo')

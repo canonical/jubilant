@@ -21,7 +21,7 @@ Because Jubilant-backports calls the Juju CLI, you'll also need to [install Juju
 To use Jubilant-backports in Python code:
 
 ```python
-import jubilant
+import jubilant_backports as jubilant
 
 juju = jubilant.Juju()
 juju.deploy('snappass-test')
@@ -30,6 +30,8 @@ juju.wait(jubilant.all_active)
 # Or only wait for specific applications:
 juju.wait(lambda status: jubilant.all_active(status, 'snappass-test', 'another-app'))
 ```
+
+Note that we have done `import jubilant_backports as jubilant` and then used `jubilant.Juju()` rather than `import jubilant_backports` and `jubilant_backports.Juju()`. This will result in a simpler and cleaner change when you are ready to drop support for Juju 2.9, and want to move to the regular Jubilant package: all you need to do is change the dependency and the import statements, and the rest of your tests can be left unchanged.
 
 Below is an example of a charm integration test. First we define a module-scoped [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) named `juju` which creates a temporary model and runs the test with a `Juju` instance pointing at that model. Jubilant-backports's `temp_model` context manager creates the model during test setup and destroys it during teardown:
 
@@ -81,7 +83,7 @@ To contribute a code change, write your fix or feature, add tests and docs, then
 
 To create a new release of Jubilant-backports:
 
-1. Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version you want to release.
+1. Update the `__version__` field in [`jubilant_backports/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant_backports/__init__.py) to the new version you want to release.
 2. Push up a PR with this change and get it reviewed and merged.
 3. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `v`, like `v1.2.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI.
 4. Once the publish workflow has finished, check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant-backports/#history).

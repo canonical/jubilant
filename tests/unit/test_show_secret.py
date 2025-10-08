@@ -1,6 +1,6 @@
 import json
 
-import jubilant
+import jubilant_backports as jubilant
 from tests.unit.fake_secrets import (
     SINGLE_SECRET,
     SINGLE_SECRET_REVEALED,

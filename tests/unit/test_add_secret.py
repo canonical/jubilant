@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import jubilant
+import jubilant_backports as jubilant
 from tests.unit import mocks
 
 

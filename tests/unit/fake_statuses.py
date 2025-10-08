@@ -1,4 +1,4 @@
-import jubilant
+import jubilant_backports as jubilant
 
 MINIMAL_JSON = """
 {

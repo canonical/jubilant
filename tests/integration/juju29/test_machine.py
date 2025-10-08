@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 pytestmark = pytest.mark.machine
 

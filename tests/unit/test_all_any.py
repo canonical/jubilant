@@ -6,7 +6,7 @@ from typing import Any, Protocol
 
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 from .fake_statuses import MINIMAL_STATUS, SNAPPASS_JSON, SUBORDINATES_JSON
 

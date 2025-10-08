@@ -1,7 +1,7 @@
 import dataclasses
 
-import jubilant
-from jubilant import statustypes
+import jubilant_backports as jubilant
+from jubilant_backports import statustypes
 
 from . import mocks
 from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON

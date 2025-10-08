@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-import jubilant
-import jubilant as real_jubilant
+import jubilant_backports as jubilant
+from jubilant_backports import statustypes
 
 from .fake_statuses import (
     STATUS_ERRORS_JSON,
@@ -31,62 +31,46 @@ def test_juju_status_error(version: str, input_status: str):
             charm_name='<failed>',
             charm_rev=-1,
             exposed=False,
-            app_status=jubilant.statustypes.StatusInfo(
-                current='failed', message='app status error!'
-            ),
+            app_status=statustypes.StatusInfo(current='failed', message='app status error!'),
         )
-        assert status.machines['machine-failed'] == jubilant.statustypes.MachineStatus(
+        assert status.machines['machine-failed'] == statustypes.MachineStatus(
             series=None,
-            machine_status=jubilant.statustypes.StatusInfo(
+            machine_status=statustypes.StatusInfo(
                 current='failed', message='machine status error!'
             ),
-            juju_status=jubilant.statustypes.StatusInfo(
-                current='failed', message='machine status error!'
-            ),
+            juju_status=statustypes.StatusInfo(current='failed', message='machine status error!'),
         )
-        module = jubilant.statustypes
     else:
-        status = real_jubilant.Status._from_dict(json.loads(input_status))
-        assert status.apps['app-failed'] == real_jubilant.statustypes.AppStatus(
+        status = jubilant.Status._from_dict(json.loads(input_status))
+        assert status.apps['app-failed'] == statustypes.AppStatus(
             charm='<failed>',
             charm_origin='<failed>',
             charm_name='<failed>',
             charm_rev=-1,
             exposed=False,
-            app_status=jubilant.statustypes.StatusInfo(
-                current='failed', message='app status error!'
-            ),
+            app_status=statustypes.StatusInfo(current='failed', message='app status error!'),
         )
-        assert status.machines['machine-failed'] == real_jubilant.statustypes.MachineStatus(
-            machine_status=jubilant.statustypes.StatusInfo(
+        assert status.machines['machine-failed'] == statustypes.MachineStatus(
+            machine_status=statustypes.StatusInfo(
                 current='failed', message='machine status error!'
             ),
-            juju_status=jubilant.statustypes.StatusInfo(
-                current='failed', message='machine status error!'
-            ),
+            juju_status=statustypes.StatusInfo(current='failed', message='machine status error!'),
         )
-        module = real_jubilant.statustypes
-    assert status.model.model_status == module.StatusInfo(
+    assert status.model.model_status == statustypes.StatusInfo(
         current='failed',
         message='model status error!',
     )
-    assert status.apps['unit-failed'].units['unit-failed/0'] == module.UnitStatus(
-        workload_status=jubilant.statustypes.StatusInfo(
-            current='failed', message='unit status error!'
-        ),
-        juju_status=jubilant.statustypes.StatusInfo(
-            current='failed', message='unit status error!'
-        ),
+    assert status.apps['unit-failed'].units['unit-failed/0'] == statustypes.UnitStatus(
+        workload_status=statustypes.StatusInfo(current='failed', message='unit status error!'),
+        juju_status=statustypes.StatusInfo(current='failed', message='unit status error!'),
     )
-    assert status.offers['offer-failed'] == module.OfferStatus(
+    assert status.offers['offer-failed'] == statustypes.OfferStatus(
         app='<failed> (offer status error!)',
         endpoints={},
     )
-    assert status.app_endpoints['remote-app-failed'] == module.RemoteAppStatus(
+    assert status.app_endpoints['remote-app-failed'] == statustypes.RemoteAppStatus(
         url='<failed>',
-        app_status=jubilant.statustypes.StatusInfo(
-            current='failed', message='remote app status error!'
-        ),
+        app_status=statustypes.StatusInfo(current='failed', message='remote app status error!'),
     )
 
 
@@ -127,10 +111,7 @@ def test_get_units(
     nrpe1: str,
     nrpe2: str,
 ):
-    if version.startswith('2'):
-        status = jubilant.Status._from_dict(json.loads(input_status))
-    else:
-        status = real_jubilant.Status._from_dict(json.loads(input_status))
+    status = jubilant.Status._from_dict(json.loads(input_status))
 
     assert sorted(status.get_units('ubuntu')) == [ubuntu_unit]
     assert status.get_units('ubuntu') == status.apps['ubuntu'].units

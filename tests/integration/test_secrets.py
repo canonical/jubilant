@@ -4,7 +4,7 @@ import subprocess
 
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 pytestmark = pytest.mark.skipif(
     subprocess.check_output(['juju', 'version'], text=True).startswith('2.'),  # noqa: S607

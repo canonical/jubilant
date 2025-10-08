@@ -41,7 +41,7 @@ requires = ["setuptools>=60"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-version = {attr = "jubilant.__version__"}
+version = {attr = "jubilant_backports.__version__"}
 
 # Workaround for setuptools bug:
 # https://github.com/astral-sh/uv/issues/9513#issuecomment-2519527822
@@ -109,7 +109,7 @@ convention = "google"
 builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 
 [tool.ruff.lint.per-file-ignores]
-"jubilant/statustypes.py" = [
+"jubilant_backports/statustypes.py" = [
     # Missing docstring in public class
     "D101",
 ]
@@ -123,7 +123,7 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 ]
 
 [tool.pyright]
-include = ["jubilant", "tests"]
+include = ["jubilant_backports", "tests"]
 pythonVersion = "3.8"
 pythonPlatform = "All"
 typeCheckingMode = "strict"

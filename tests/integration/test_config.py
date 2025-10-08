@@ -4,7 +4,7 @@ import contextlib
 
 import pytest
 
-import jubilant
+import jubilant_backports as jubilant
 
 from . import helpers
 
