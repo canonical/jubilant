@@ -547,7 +547,7 @@ class Juju:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
-        self._cli(*args, include_model=False)
+        self.cli(*args, include_model=False)
         if model == self.model:
             self.model = None
 
