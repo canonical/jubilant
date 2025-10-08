@@ -191,7 +191,7 @@ class Juju:
         if info is not None:
             args.extend(['--info', info])
 
-        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
+        with tempfile.NamedTemporaryFile('w+', dir=self.temp_dir) as file:
             _yaml.safe_dump(content, file)
             file.flush()
             args.extend(['--file', file.name])
@@ -964,7 +964,7 @@ class Juju:
             args.extend(['--wait', f'{wait}s'])
 
         with (
-            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
+            tempfile.NamedTemporaryFile('w+', dir=self.temp_dir)
             if params is not None
             else contextlib.nullcontext()
         ) as params_file:
@@ -1209,7 +1209,7 @@ class Juju:
         if auto_prune:
             args.append('--auto-prune')
 
-        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
+        with tempfile.NamedTemporaryFile('w+', dir=self.temp_dir) as file:
             _yaml.safe_dump(content, file)
             file.flush()
             args.extend(['--file', file.name])
