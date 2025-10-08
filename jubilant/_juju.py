@@ -97,7 +97,36 @@ class Juju:
         ]
         return f'Juju({", ".join(args)})'
 
-    # Keep the public methods in alphabetical order, so we don't have to think
+    @functools.cached_property
+    def temp_dir(self) -> str:
+        """Path of a temporary directory accessible by the Juju CLI.
+
+        The directory is created and cached on first use. If :attr:`cli_binary` points to a Juju
+        CLI installed as a snap, this will be a directory accessible to the snap (under
+        ``~/snap/juju/common``), otherwise it will be under ``/tmp``.
+
+        Example::
+
+            juju = jubilant.Juju()
+            with tempfile.NamedTemporaryFile('w+', dir=juju.temp_dir) as file:
+                file.write('contents')
+                file.flush()
+                juju.scp(file.name, 'ubuntu/0:/path/to/destination')
+        """
+        if self._juju_is_snap:
+            # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
+            temp_dir = os.path.expanduser('~/snap/juju/common')
+            os.makedirs(temp_dir, exist_ok=True)
+            return temp_dir
+        else:
+            return tempfile.gettempdir()
+
+    @functools.cached_property
+    def _juju_is_snap(self) -> bool:
+        which = shutil.which(self.cli_binary)
+        return which is not None and '/snap/' in which
+
+    # Keep the public methods below in alphabetical order, so we don't have to think
     # about where to put each new method.
 
     def add_model(
@@ -977,6 +1006,9 @@ class Juju:
     ) -> None:
         """Securely transfer files within a model.
 
+        A local *source* or *destination* must be accessible by the Juju CLI (important if Juju
+        is installed as a confined snap). See :attr:`temp_dir` for an example.
+
         Args:
             source: Source of file, in format ``[[<user>@]<target>:]<path>``.
             destination: Destination for file, in format ``[<user>@]<target>[:<path>]``.
@@ -1268,21 +1300,6 @@ class Juju:
         if status is None:
             raise TimeoutError(f'wait timed out after {timeout}s')
         raise TimeoutError(f'wait timed out after {timeout}s\n{status}')
-
-    @functools.cached_property
-    def _juju_is_snap(self) -> bool:
-        which = shutil.which(self.cli_binary)
-        return which is not None and '/snap/' in which
-
-    @functools.cached_property
-    def _temp_dir(self) -> str:
-        if self._juju_is_snap:
-            # If Juju is running as a snap, we can't use /tmp, so put temp files here instead.
-            temp_dir = os.path.expanduser('~/snap/juju/common')
-            os.makedirs(temp_dir, exist_ok=True)
-            return temp_dir
-        else:
-            return tempfile.gettempdir()
 
 
 def _format_config(k: str, v: ConfigValue) -> str:

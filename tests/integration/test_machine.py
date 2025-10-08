@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pathlib
+import tempfile
+
 import pytest
 
 import jubilant
@@ -31,6 +34,17 @@ def test_ssh(juju: jubilant.Juju):
 
     output = juju.ssh(0, 'echo', 'MACHINE')
     assert output == 'MACHINE\n'
+
+
+def test_scp(juju: jubilant.Juju):
+    with tempfile.NamedTemporaryFile('w+', dir=juju.temp_dir) as file:
+        file.write('SCPTEST_MACHINE')
+        file.flush()
+        juju.scp(file.name, 'ubuntu/0:/tmp/scptest')
+
+    with tempfile.NamedTemporaryFile('w+', dir=juju.temp_dir) as file:
+        juju.scp('ubuntu/0:/tmp/scptest', file.name)
+        assert pathlib.Path(file.name).read_text() == 'SCPTEST_MACHINE'
 
 
 def test_add_and_remove_unit(juju: jubilant.Juju):
