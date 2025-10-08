@@ -1,3 +1,7 @@
+import logging
+import subprocess
+from typing import Any
+
 import pytest
 
 import jubilant
@@ -20,7 +24,6 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
             'destroy-model',
             'jubilant-abcd1234',
             '--no-prompt',
-            '--debug',
             '--destroy-storage',
             '--force',
         ]
@@ -69,7 +72,6 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
             'destroy-model',
             'ctl:jubilant-abcd1234',
             '--no-prompt',
-            '--debug',
             '--destroy-storage',
             '--force',
         ]
@@ -137,3 +139,28 @@ def test_other_args_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
     assert juju.model == 'ctl:jubilant-abcd1234'
     assert len(run.calls) == 2
+
+
+def test_destroy_timeout(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture):
+    def mock_run(args: 'list[str]', **kwargs: 'dict[str, Any]'):
+        if args[1] == 'add-model':
+            return subprocess.CompletedProcess(args, 0, '', '')
+        assert args == [
+            'juju',
+            'destroy-model',
+            'jubilant-abcd1234',
+            '--no-prompt',
+            '--destroy-storage',
+            '--force',
+        ]
+        assert kwargs['timeout'] == 10 * 60
+        raise subprocess.TimeoutExpired(args, 10 * 60, 'STDOUT', 'STDERR')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('secrets.token_hex', mock_token_hex)
+    caplog.set_level(logging.ERROR, logger='jubilant')
+
+    with jubilant.temp_model():
+        pass
+
+    assert 'timeout destroying model' in caplog.records[0].getMessage()

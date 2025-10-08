@@ -4,7 +4,7 @@ from . import mocks
 
 
 def test_destroy_this(run: mocks.Run):
-    run.handle(['juju', 'destroy-model', 'initial', '--no-prompt', '--debug'])
+    run.handle(['juju', 'destroy-model', 'initial', '--no-prompt'])
     juju = jubilant.Juju(model='initial')
 
     juju.destroy_model('initial')
@@ -13,7 +13,7 @@ def test_destroy_this(run: mocks.Run):
 
 
 def test_destroy_other(run: mocks.Run):
-    run.handle(['juju', 'destroy-model', 'other', '--no-prompt', '--debug'])
+    run.handle(['juju', 'destroy-model', 'other', '--no-prompt'])
     juju = jubilant.Juju(model='initial')
 
     juju.destroy_model('other')
@@ -22,9 +22,7 @@ def test_destroy_other(run: mocks.Run):
 
 
 def test_args(run: mocks.Run):
-    run.handle(
-        ['juju', 'destroy-model', 'bad', '--no-prompt', '--debug', '--destroy-storage', '--force']
-    )
+    run.handle(['juju', 'destroy-model', 'bad', '--no-prompt', '--destroy-storage', '--force'])
     juju = jubilant.Juju()
 
     juju.destroy_model('bad', destroy_storage=True, force=True)

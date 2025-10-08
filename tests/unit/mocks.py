@@ -45,7 +45,7 @@ class Run:
     ) -> subprocess.CompletedProcess[str]:
         args_tuple = tuple(args)
         assert check is True
-        #        assert capture_output is True
+        assert capture_output is True
         assert encoding == 'utf-8'
         assert args_tuple in self._commands, f'unhandled command {args}'
 

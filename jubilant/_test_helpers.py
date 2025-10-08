@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import secrets
+import subprocess
 from collections.abc import Mapping
 from typing import Generator
 
 from ._juju import ConfigValue, Juju
+
+logger = logging.getLogger('jubilant')
 
 
 @contextlib.contextmanager
@@ -49,4 +53,14 @@ def temp_model(
     finally:
         if not keep:
             assert juju.model is not None
-            juju.destroy_model(juju.model, destroy_storage=True, force=True, timeout=5 * 60)
+            try:
+                args = ['destroy-model', juju.model, '--no-prompt', '--destroy-storage', '--force']
+                juju._cli(*args, include_model=False, timeout=10 * 60)
+                juju.model = None
+            except subprocess.TimeoutExpired as exc:
+                logger.error(
+                    'timeout destroying model: %s\nStdout:\n%s\nStderr:\n%s',
+                    exc,
+                    exc.stdout,
+                    exc.stderr,
+                )
