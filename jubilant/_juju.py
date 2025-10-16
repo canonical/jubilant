@@ -478,52 +478,66 @@ class Juju:
         if isinstance(overlays, str):
             raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
 
-        args = ['deploy', str(charm)]
-        if app is not None:
-            args.append(app)
+        charm = str(charm)
+        temp_needed = charm.startswith(('.', '/')) and self._juju_is_snap
+        with (
+            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
+            if temp_needed
+            else contextlib.nullcontext()
+        ) as charm_temp:
+            args = ['deploy']
 
-        if attach_storage:
-            if isinstance(attach_storage, str):
-                args.extend(['--attach-storage', attach_storage])
+            if charm_temp is not None:
+                shutil.copy(charm, charm_temp.name)
+                args.append(charm_temp.name)
             else:
-                args.extend(['--attach-storage', ','.join(attach_storage)])
-        if base is not None:
-            args.extend(['--base', base])
-        if bind is not None:
-            if not isinstance(bind, str):
-                bind = ' '.join(f'{k}={v}' for k, v in bind.items())
-            args.extend(['--bind', bind])
-        if channel is not None:
-            args.extend(['--channel', channel])
-        if config is not None:
-            for k, v in config.items():
-                args.extend(['--config', _format_config(k, v)])
-        if constraints is not None:
-            for k, v in constraints.items():
-                args.extend(['--constraints', f'{k}={v}'])
-        if force:
-            args.append('--force')
-        if num_units != 1:
-            args.extend(['--num-units', str(num_units)])
-        for overlay in overlays:
-            args.extend(['--overlay', str(overlay)])
-        if resources is not None:
-            for k, v in resources.items():
-                args.extend(['--resource', f'{k}={v}'])
-        if revision is not None:
-            args.extend(['--revision', str(revision)])
-        if storage is not None:
-            for k, v in storage.items():
-                args.extend(['--storage', f'{k}={v}'])
-        if to:
-            if isinstance(to, str):
-                args.extend(['--to', to])
-            else:
-                args.extend(['--to', ','.join(to)])
-        if trust:
-            args.append('--trust')
+                args.append(charm)
 
-        self.cli(*args)
+            if app is not None:
+                args.append(app)
+
+            if attach_storage:
+                if isinstance(attach_storage, str):
+                    args.extend(['--attach-storage', attach_storage])
+                else:
+                    args.extend(['--attach-storage', ','.join(attach_storage)])
+            if base is not None:
+                args.extend(['--base', base])
+            if bind is not None:
+                if not isinstance(bind, str):
+                    bind = ' '.join(f'{k}={v}' for k, v in bind.items())
+                args.extend(['--bind', bind])
+            if channel is not None:
+                args.extend(['--channel', channel])
+            if config is not None:
+                for k, v in config.items():
+                    args.extend(['--config', _format_config(k, v)])
+            if constraints is not None:
+                for k, v in constraints.items():
+                    args.extend(['--constraints', f'{k}={v}'])
+            if force:
+                args.append('--force')
+            if num_units != 1:
+                args.extend(['--num-units', str(num_units)])
+            for overlay in overlays:
+                args.extend(['--overlay', str(overlay)])
+            if resources is not None:
+                for k, v in resources.items():
+                    args.extend(['--resource', f'{k}={v}'])
+            if revision is not None:
+                args.extend(['--revision', str(revision)])
+            if storage is not None:
+                for k, v in storage.items():
+                    args.extend(['--storage', f'{k}={v}'])
+            if to:
+                if isinstance(to, str):
+                    args.extend(['--to', to])
+                else:
+                    args.extend(['--to', ','.join(to)])
+            if trust:
+                args.append('--trust')
+
+            self.cli(*args)
 
     def destroy_model(
         self,
@@ -778,29 +792,39 @@ class Juju:
         """
         args = ['refresh', app]
 
-        if base is not None:
-            args.extend(['--base', base])
-        if channel is not None:
-            args.extend(['--channel', channel])
-        if config is not None:
-            for k, v in config.items():
-                args.extend(['--config', _format_config(k, v)])
-        if force:
-            args.extend(['--force', '--force-base', '--force-units'])
-        if path is not None:
-            args.extend(['--path', str(path)])
-        if resources is not None:
-            for k, v in resources.items():
-                args.extend(['--resource', f'{k}={v}'])
-        if revision is not None:
-            args.extend(['--revision', str(revision)])
-        if storage is not None:
-            for k, v in storage.items():
-                args.extend(['--storage', f'{k}={v}'])
-        if trust:
-            args.append('--trust')
+        temp_needed = path is not None and str(path).startswith(('.', '/')) and self._juju_is_snap
+        with (
+            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
+            if temp_needed
+            else contextlib.nullcontext()
+        ) as path_temp:
+            if base is not None:
+                args.extend(['--base', base])
+            if channel is not None:
+                args.extend(['--channel', channel])
+            if config is not None:
+                for k, v in config.items():
+                    args.extend(['--config', _format_config(k, v)])
+            if force:
+                args.extend(['--force', '--force-base', '--force-units'])
+            if path is not None:
+                if path_temp is not None:
+                    shutil.copy(path, path_temp.name)
+                    args.extend(['--path', path_temp.name])
+                else:
+                    args.extend(['--path', str(path)])
+            if resources is not None:
+                for k, v in resources.items():
+                    args.extend(['--resource', f'{k}={v}'])
+            if revision is not None:
+                args.extend(['--revision', str(revision)])
+            if storage is not None:
+                for k, v in storage.items():
+                    args.extend(['--storage', f'{k}={v}'])
+            if trust:
+                args.append('--trust')
 
-        self.cli(*args)
+            self.cli(*args)
 
     def remove_application(
         self,
@@ -988,17 +1012,40 @@ class Juju:
         if isinstance(scp_options, str):
             raise TypeError('scp_options must be an iterable of str, not str')
 
-        args = ['scp']
-        if container is not None:
-            args.extend(['--container', container])
-        if not host_key_checks:
-            args.append('--no-host-key-checks')
-        args.append('--')
-        args.extend(scp_options)
-        args.append(str(source))
-        args.append(str(destination))
+        source = str(source)
+        destination = str(destination)
+        temp_needed = (':' not in source or ':' not in destination) and self._juju_is_snap
+        with (
+            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
+            if temp_needed
+            else contextlib.nullcontext()
+        ) as file_temp:
+            args = ['scp']
+            if container is not None:
+                args.extend(['--container', container])
+            if not host_key_checks:
+                args.append('--no-host-key-checks')
+            args.append('--')
+            args.extend(scp_options)
 
-        self.cli(*args)
+            if file_temp is not None and ':' not in source:
+                # Local source, remote destination
+                shutil.copy(source, file_temp.name)
+                args.append(file_temp.name)
+                args.append(destination)
+                self.cli(*args)
+
+            elif file_temp is not None and ':' not in destination:
+                # Remote source, local destination
+                args.append(source)
+                args.append(file_temp.name)
+                self.cli(*args)
+                shutil.copy(file_temp.name, destination)
+
+            else:
+                args.append(source)
+                args.append(destination)
+                self.cli(*args)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
