@@ -420,6 +420,17 @@ class Juju:
     def debug_log(self, *, limit: int = 0) -> str:
         """Return debug log messages from a model.
 
+        For example, to create a pytest fixture which shows the last 1000 log lines if any tests
+        fail::
+
+            @pytest.fixture(scope='module')
+            def juju(request: pytest.FixtureRequest):
+                with jubilant.temp_model() as juju:
+                    yield juju  # run the test
+                    if request.session.testsfailed:
+                        log = juju.debug_log(limit=1000)
+                        print(log, end='')
+
         Args:
             limit: Limit the result to the most recent *limit* lines. Defaults to 0, meaning
                 return all lines in the log.
@@ -1198,9 +1209,6 @@ class Juju:
         and returns the last status after the *ready* callable returns true for *successes*
         times in a row.
 
-        This function logs the status object after the first status call, and after subsequent
-        calls if the status object has changed.
-
         Example::
 
             juju = jubilant.Juju()
@@ -1215,6 +1223,13 @@ class Juju:
             )
 
         For more examples, see `Tutorial | Use a custom wait condition <https://documentation.ubuntu.com/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
+
+        This function logs the status object after the first status call, and after subsequent
+        calls if the status object has changed. Logs are sent to the logger named
+        ``jubilant.wait`` at INFO level, so to disable these logs, set the level to WARNING or
+        above::
+
+            logging.getLogger('jubilant.wait').setLevel('WARNING')
 
         Args:
             ready: Callable that takes a :class:`Status` object and returns true when the wait

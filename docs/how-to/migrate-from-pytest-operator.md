@@ -41,6 +41,7 @@ If you're migrating a large number of tests, you may want to do it in stages. In
 
 The pytest-operator library includes pytest fixtures, but Jubilant does not include any fixtures, so you'll need to add one or two fixtures to your `conftest.py`.
 
+(a_juju_model_fixture)=
 ### A `juju` model fixture
 
 Jubilant expects that a Juju controller has already been set up, either using [Concierge](https://github.com/jnsgruk/concierge) or a manual approach. However, you'll want a fixture that creates a temporary model. We recommend naming the fixture `juju`:

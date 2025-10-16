@@ -92,6 +92,8 @@ def juju():
     ...
 ```
 
+For a more complex fixture that outputs Juju debug logs if tests fail, see [How to migrate from pytest-operator | A `juju` model fixture](#a_juju_model_fixture).
+
 
 (use_a_custom_wait_condition)=
 ## Use a custom `wait` condition
