@@ -581,7 +581,7 @@ class Juju:
             machine: ID of machine to run the command on.
             unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
             wait: Maximum time to wait for command to finish; :class:`TimeoutError` is raised if
-                this is reached. Default is to wait indefinitely.
+                this is reached. Juju's default is to wait 5 minutes.
 
         Returns:
             The task created to run the command, including logs, failure message, and so on.
@@ -920,7 +920,7 @@ class Juju:
             action: Name of action to run.
             params: Named parameters to pass to the action.
             wait: Maximum time to wait for action to finish; :class:`TimeoutError` is raised if
-                this is reached. Default is to wait indefinitely.
+                this is reached. Juju's default is to wait 60 seconds.
 
         Returns:
             The task created to run the action, including logs, failure message, and so on.
