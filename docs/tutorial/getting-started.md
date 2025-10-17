@@ -194,7 +194,7 @@ We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up 
 - name: Run integration tests
   run: |
       charmcraft pack
-      uv run pytest tests/integration -vv --log-level=INFO
+      uv run --group integration pytest tests/integration -vv --log-level=INFO
 ```
 
 
