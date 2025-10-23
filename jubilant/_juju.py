@@ -163,7 +163,7 @@ class Juju:
             args.extend(['--info', info])
 
         with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
-            _yaml.safe_dump(content, file)
+            _yaml.safe_dump({k: _make_dumpable(v) for k, v in content.items()}, file)
             file.flush()
             args.extend(['--file', file.name])
             output = self.cli(*args)
@@ -952,7 +952,7 @@ class Juju:
         ) as params_file:
             # params_file is defined when params is not None
             if params_file is not None:
-                _yaml.safe_dump(params, params_file)
+                _yaml.safe_dump({k: _make_dumpable(v) for k, v in params.items()}, params_file)
                 params_file.flush()
                 args.extend(['--params', params_file.name])
             try:
@@ -1189,7 +1189,7 @@ class Juju:
             args.append('--auto-prune')
 
         with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file:
-            _yaml.safe_dump(content, file)
+            _yaml.safe_dump({k: _make_dumpable(v) for k, v in content.items()}, file)
             file.flush()
             args.extend(['--file', file.name])
             self.cli(*args)
@@ -1329,3 +1329,11 @@ def _status_line_ok(line: str) -> bool:
     if field.endswith('.since'):
         return False
     return True
+
+
+def _make_dumpable(obj: Any) -> Any:
+    """Replace known dumpable types with yaml.safe_dumpable equivalents."""
+    if isinstance(obj, SecretURI):
+        return str(obj)
+    # We could recursively handle container types here if the need arises in future.
+    return obj
