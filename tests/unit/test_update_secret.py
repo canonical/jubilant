@@ -6,10 +6,11 @@ def test_basic(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     run.handle(['juju', 'update-secret', 'my-secret', '--file', mock_file.name])
     juju = jubilant.Juju()
 
-    juju.update_secret('my-secret', {'username': 'admin'})
+    content = {'username': 'admin', 'uri': jubilant.SecretURI('123')}
+    juju.update_secret('my-secret', content)
 
     assert len(mock_file.writes) == 1
-    assert mock_file.writes[0] == 'username: admin\n'
+    assert mock_file.writes == ["uri: '123'\nusername: admin\n"]
 
 
 def test_new_name(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
