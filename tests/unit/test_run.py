@@ -170,7 +170,13 @@ def test_params(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     )
     juju = jubilant.Juju()
 
-    task = juju.run('mysql/0', 'get-password', {'foo': 1, 'bar': ['ab', 'cd']})
+    params = {
+        'foo': 1,
+        'bar': ['ab', 'cd'],
+        'secret1': jubilant.SecretURI('secret:123'),
+        'secret2': jubilant.SecretURI('234'),
+    }
+    task = juju.run('mysql/0', 'get-password', params)
 
     assert task == jubilant.Task(
         id='42',
@@ -178,5 +184,10 @@ def test_params(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
         results={'username': 'user', 'password': 'pass'},
     )
     assert task.success
-    assert yaml.safe_load('\n'.join(mock_file.writes)) == {'foo': 1, 'bar': ['ab', 'cd']}
+    assert yaml.safe_load('\n'.join(mock_file.writes)) == {
+        'foo': 1,
+        'bar': ['ab', 'cd'],
+        'secret1': 'secret:123',
+        'secret2': '234',
+    }
     assert mock_file.num_flushes == 1
