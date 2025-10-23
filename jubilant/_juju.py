@@ -952,6 +952,7 @@ class Juju:
         ) as params_file:
             # params_file is defined when params is not None
             if params_file is not None:
+                assert params is not None
                 _yaml.safe_dump({k: _make_dumpable(v) for k, v in params.items()}, params_file)
                 params_file.flush()
                 args.extend(['--params', params_file.name])
