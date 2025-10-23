@@ -10,6 +10,10 @@ from typing import Any
 class SecretURI(str):
     """A string subclass that represents a secret URI ("secret:...")."""
 
+    def __repr__(self):
+        """Override to make the type obvious in error messages."""
+        return f'SecretURI({super().__repr__()})'
+
     @property
     def unique_identifier(self) -> str:
         """Unique identifier of this secret URI.
