@@ -1,4 +1,4 @@
-"""Jubilant is a Pythonic wrapper around the Juju CLI for writing charm integration tests."""
+"""Jubilant is a Pythonic wrapper around the Juju CLI."""
 
 from . import secrettypes, statustypes
 from ._all_any import (
