@@ -1,6 +1,6 @@
 [project]
 name = "jubilant"
-description = "Juju CLI wrapper for charm integration testing"
+description = "Juju CLI wrapper, primarily for charm integration testing"
 readme = "README.md"
 requires-python = ">=3.8"
 dynamic = ["version"]
