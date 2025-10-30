@@ -12,6 +12,10 @@ def setup(juju: jubilant.Juju):
     juju.wait(jubilant.all_active)
 
 
+def test_todo(juju: jubilant.Juju):
+    assert juju._juju_is_snap
+
+
 def test_deploy(juju: jubilant.Juju):
     # Setup has already done "juju deploy", this tests it.
     status = juju.status()
