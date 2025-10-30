@@ -37,6 +37,9 @@ def test_refresh_path(juju: jubilant.Juju):
         lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
     )
     juju.refresh('testdb', path=helpers.find_charm('testdb'))
+    juju.wait(
+        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+    )
 
 
 def test_add_and_remove_unit(juju: jubilant.Juju):
