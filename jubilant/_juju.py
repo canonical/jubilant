@@ -631,15 +631,12 @@ class Juju:
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-        if machine is not None:
-            if str(machine) not in results:
-                raise ValueError(f'machine {machine!r} not found, stderr:\n{stderr}')
-            result = results[str(machine)]
-        else:
-            if unit not in results:
-                raise ValueError(f'unit {unit!r} not found, stderr:\n{stderr}')
-            result = results[unit]
-        task = Task._from_dict(result)
+        if not results:
+            raise ValueError(f'error running command, stderr:\n{stderr}')
+        # Don't look up results[unit] directly, because if the caller specifies
+        # app/leader it is returned as app/N, for example app/0.
+        task_dict = next(iter(results.values()))
+        task = Task._from_dict(task_dict)
         task.raise_on_failure()
         return task
 
@@ -968,12 +965,13 @@ class Juju:
                 stderr = exc.stderr
 
             # Command doesn't return any stdout if no units exist.
-            all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-            if unit not in all_tasks:
-                raise ValueError(
-                    f'action {action!r} not defined or unit {unit!r} not found, stderr:\n{stderr}'
-                )
-            task = Task._from_dict(all_tasks[unit])
+            results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            if not results:
+                raise ValueError(f'error running action {action!r}, stderr:\n{stderr}')
+            # Don't look up results[unit] directly, because if the caller specifies
+            # app/leader it is returned as app/N, for example app/0.
+            task_dict = next(iter(results.values()))
+            task = Task._from_dict(task_dict)
             task.raise_on_failure()
             return task
 
