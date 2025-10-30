@@ -101,7 +101,7 @@ def test_exec_error_machine_on_k8s(juju: jubilant.Juju):
         juju.exec('echo foo', machine=0)
 
 
-def test_ssh_and_scp(juju: jubilant.Juju):
+def test_ssh(juju: jubilant.Juju):
     # The 'testdb' charm doesn't have any containers, so use 'snappass-test'.
     juju.deploy('snappass-test')
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
@@ -113,6 +113,8 @@ def test_ssh_and_scp(juju: jubilant.Juju):
     output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
     assert 'pebble' in output.split()
 
+
+def test_scp(juju: jubilant.Juju):
     juju.scp('snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py', 'charm.py')
     charm_src = pathlib.Path('charm.py').read_text()
     assert 'class Snappass' in charm_src
@@ -120,6 +122,11 @@ def test_ssh_and_scp(juju: jubilant.Juju):
     juju.scp('snappass-test/0:/etc/passwd', 'passwd', container='redis')
     passwd = pathlib.Path('passwd').read_text()
     assert 'redis:' in passwd
+
+    # Test a round trip
+    juju.scp(__file__, 'snappass-test/0:/tmp/foobar.py')
+    juju.scp('snappass-test/0:/tmp/foobar.py', 'foobar.py')
+    assert pathlib.Path('foobar.py').read_text() == pathlib.Path(__file__).read_text()
 
 
 def test_cli_input(juju: jubilant.Juju):

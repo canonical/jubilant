@@ -5,15 +5,13 @@ import requests
 
 import jubilant
 
+from . import helpers
+
 
 @pytest.fixture(scope='module', autouse=True)
 def setup(juju: jubilant.Juju):
     juju.deploy('snappass-test')
     juju.wait(jubilant.all_active)
-
-
-def test_todo(juju: jubilant.Juju):
-    assert juju._juju_is_snap
 
 
 def test_deploy(juju: jubilant.Juju):
@@ -31,6 +29,14 @@ def test_deploy(juju: jubilant.Juju):
     # Wait for all unit agents to be idle (and ensure all_agents_idle works).
     status = juju.wait(jubilant.all_agents_idle)
     assert jubilant.all_agents_idle(status, 'snappass-test')
+
+
+def test_refresh_path(juju: jubilant.Juju):
+    juju.deploy(helpers.find_charm('testdb'))
+    juju.wait(
+        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+    )
+    juju.refresh('testdb', path=helpers.find_charm('testdb'))
 
 
 def test_add_and_remove_unit(juju: jubilant.Juju):

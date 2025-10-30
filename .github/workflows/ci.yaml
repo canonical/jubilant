@@ -66,9 +66,6 @@ jobs:
       - name: Prepare Juju
         run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
 
-      - name: TODO
-        run: which juju
-
       - name: Pack test charms
         run: make pack
 
