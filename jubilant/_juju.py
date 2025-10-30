@@ -308,7 +308,7 @@ class Juju:
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
-            args = (args[0], '--model', self.model) + args[1:]
+            args = (args[0], '--model', self.model, *args[1:])
         if log:
             logger.info('cli: juju %s', shlex.join(args))
         try:
