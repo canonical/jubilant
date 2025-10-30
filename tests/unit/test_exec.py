@@ -36,6 +36,37 @@ def test_unit(run: mocks.Run):
     assert task.success
 
 
+def test_leader(run: mocks.Run):
+    out_json = r"""
+{
+  "ubuntu/0": {
+    "id": "28",
+    "results": {
+      "return-code": 0,
+      "stdout": "foo\n"
+    },
+    "status": "completed",
+    "unit": "ubuntu/0"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--unit', 'ubuntu/leader', '--', 'echo', 'bar'],
+        stdout=out_json,
+    )
+    juju = jubilant.Juju()
+
+    task = juju.exec('echo', 'bar', unit='ubuntu/leader')
+
+    assert task == jubilant.Task(
+        id='28',
+        status='completed',
+        return_code=0,
+        stdout='foo\n',
+    )
+    assert task.success
+
+
 def test_machine(run: mocks.Run):
     out_json = r"""
 {
