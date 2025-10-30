@@ -1,5 +1,7 @@
 import pathlib
 
+import pytest
+
 import jubilant
 
 from . import mocks
@@ -70,3 +72,23 @@ def test_path(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.refresh('xyz', path=pathlib.Path('foo'))
+
+
+def test_tempdir(
+    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
+):
+    copy_src, copy_dst = '', ''
+
+    def mock_copy(src: str, dst: str):
+        nonlocal copy_src, copy_dst
+        copy_src, copy_dst = src, dst
+
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+    monkeypatch.setattr('shutil.copy', mock_copy)
+    run.handle(['juju', 'refresh', 'app', '--path', mock_file.name])
+
+    juju = jubilant.Juju()
+    juju.refresh('app', path='/path/to/my.charm')
+
+    assert copy_src == '/path/to/my.charm'
+    assert copy_dst == mock_file.name

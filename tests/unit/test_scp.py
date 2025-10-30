@@ -53,3 +53,43 @@ def test_type_error():
 
     with pytest.raises(TypeError):
         juju.scp('src', 'dst', scp_options='invalid')
+
+
+def test_src_tempdir(
+    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
+):
+    copy_src, copy_dst = '', ''
+
+    def mock_copy(src: str, dst: str):
+        nonlocal copy_src, copy_dst
+        copy_src, copy_dst = src, dst
+
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+    monkeypatch.setattr('shutil.copy', mock_copy)
+    run.handle(['juju', 'scp', '--', mock_file.name, 'target:/dest'])
+
+    juju = jubilant.Juju()
+    juju.scp('/local/file', 'target:/dest')
+
+    assert copy_src == '/local/file'
+    assert copy_dst == mock_file.name
+
+
+def test_dst_tempdir(
+    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
+):
+    copy_src, copy_dst = '', ''
+
+    def mock_copy(src: str, dst: str):
+        nonlocal copy_src, copy_dst
+        copy_src, copy_dst = src, dst
+
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+    monkeypatch.setattr('shutil.copy', mock_copy)
+    run.handle(['juju', 'scp', '--', 'target:/source', mock_file.name])
+
+    juju = jubilant.Juju()
+    juju.scp('target:/source', '/local/file')
+
+    assert copy_src == mock_file.name
+    assert copy_dst == '/local/file'
