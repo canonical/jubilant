@@ -1,4 +1,10 @@
+from __future__ import annotations
+
 import pathlib
+import subprocess
+import tempfile
+from typing import Any
+from unittest import mock
 
 import pytest
 
@@ -24,7 +30,7 @@ def test_defaults_with_model(run: mocks.Run):
 def test_all_args(run: mocks.Run):
     run.handle(
         [
-            'juju',
+            '/bin/juju',
             'refresh',
             'app',
             '--base',
@@ -51,7 +57,7 @@ def test_all_args(run: mocks.Run):
             '--trust',
         ]
     )
-    juju = jubilant.Juju()
+    juju = jubilant.Juju(cli_binary='/bin/juju')
 
     juju.refresh(
         'app',
@@ -74,21 +80,46 @@ def test_path(run: mocks.Run):
     juju.refresh('xyz', path=pathlib.Path('foo'))
 
 
-def test_tempdir(
-    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
-):
-    copy_src, copy_dst = '', ''
+def test_tempdir(monkeypatch: pytest.MonkeyPatch):
+    num_calls = 0
 
-    def mock_copy(src: str, dst: str):
-        nonlocal copy_src, copy_dst
-        copy_src, copy_dst = src, dst
+    def mock_run(args: list[str], **_: Any):
+        nonlocal num_calls
+        num_calls += 1
+        assert args == [
+            'juju',
+            'refresh',
+            'myapp',
+            '--path',
+            mock.ANY,
+            '--resource',
+            mock.ANY,
+            '--resource',
+            'r2=R2',
+        ]
+        temp_dir = pathlib.Path(args[4]).parent
+        assert '/snap/juju/common' in str(temp_dir)
+        assert args[4] == f'{temp_dir}/_temp.charm'
+        assert args[6] == f'r1={temp_dir}/r1'
+        assert pathlib.Path(args[4]).read_text() == 'CH'
+        assert pathlib.Path(args[6][3:]).read_text() == 'R1'
+        return subprocess.CompletedProcess(args, 0, '', '')
 
+    monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    monkeypatch.setattr('shutil.copy', mock_copy)
-    run.handle(['juju', 'refresh', 'app', '--path', mock_file.name])
 
-    juju = jubilant.Juju()
-    juju.refresh('app', path='/path/to/my.charm')
+    with tempfile.TemporaryDirectory() as temp:
+        (pathlib.Path(temp) / 'my.charm').write_text('CH')
+        (pathlib.Path(temp) / 'r1').write_text('R1')
 
-    assert copy_src == '/path/to/my.charm'
-    assert copy_dst == mock_file.name
+        juju = jubilant.Juju()
+        juju.refresh(
+            'myapp',
+            path=pathlib.Path(temp) / 'my.charm',
+            resources={
+                'r1': str(pathlib.Path(temp) / 'r1'),
+                'r2': 'R2',
+            },
+        )
+
+    assert num_calls == 1

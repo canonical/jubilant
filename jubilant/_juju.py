@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Literal, Union, overload
+from typing import Any, Generator, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import Task
@@ -478,20 +478,8 @@ class Juju:
         if isinstance(overlays, str):
             raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
 
-        charm = str(charm)
-        temp_needed = charm.startswith(('.', '/')) and self._juju_is_snap
-        with (
-            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
-            if temp_needed
-            else contextlib.nullcontext()
-        ) as charm_temp:
-            args = ['deploy']
-
-            if charm_temp is not None:
-                shutil.copy(charm, charm_temp.name)
-                args.append(charm_temp.name)
-            else:
-                args.append(charm)
+        with _deploy_tempdir(self, charm, resources) as (_charm, resources):
+            args = ['deploy', str(_charm)]
 
             if app is not None:
                 args.append(app)
@@ -792,12 +780,7 @@ class Juju:
         """
         args = ['refresh', app]
 
-        temp_needed = path is not None and str(path).startswith(('.', '/')) and self._juju_is_snap
-        with (
-            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
-            if temp_needed
-            else contextlib.nullcontext()
-        ) as path_temp:
+        with _deploy_tempdir(self, path, resources) as (path, resources):
             if base is not None:
                 args.extend(['--base', base])
             if channel is not None:
@@ -808,11 +791,7 @@ class Juju:
             if force:
                 args.extend(['--force', '--force-base', '--force-units'])
             if path is not None:
-                if path_temp is not None:
-                    shutil.copy(path, path_temp.name)
-                    args.extend(['--path', path_temp.name])
-                else:
-                    args.extend(['--path', str(path)])
+                args.extend(['--path', path])
             if resources is not None:
                 for k, v in resources.items():
                     args.extend(['--resource', f'{k}={v}'])
@@ -1361,3 +1340,42 @@ def _status_line_ok(line: str) -> bool:
     if field.endswith('.since'):
         return False
     return True
+
+
+@contextlib.contextmanager
+def _deploy_tempdir(
+    juju: Juju,
+    charm: str | pathlib.Path | None,
+    resources: Mapping[str, str] | None,
+) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
+    if charm is not None:
+        charm = str(charm)
+    charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
+    resources_needs_temp = resources is not None and any(
+        v.startswith(('.', '/')) for v in resources.values()
+    )
+    needs_temp = juju._juju_is_snap and (charm_needs_temp or resources_needs_temp)
+    if not needs_temp:
+        yield charm, resources
+        return
+
+    with tempfile.TemporaryDirectory(dir=juju._temp_dir) as temp_dir:
+        if charm_needs_temp:
+            assert charm is not None
+            temp = os.path.join(temp_dir, '_temp.charm')
+            shutil.copy(charm, temp)
+            charm = temp
+
+        if resources_needs_temp:
+            assert resources is not None
+            resources_temp = {}
+            for k, v in resources.items():
+                if not v.startswith(('.', '/')):
+                    resources_temp[k] = v
+                    continue
+                temp = os.path.join(temp_dir, k)
+                shutil.copy(v, temp)
+                resources_temp[k] = temp
+            resources = resources_temp
+
+        yield charm, resources
