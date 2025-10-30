@@ -56,6 +56,7 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 
 def test_remove_application(juju: jubilant.Juju):
     juju.remove_application('snappass-test')
+    juju.remove_application('testdb')
     juju.wait(lambda status: not status.apps)
 
 
