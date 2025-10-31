@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pathlib
+import tempfile
 
 import pytest
 
@@ -140,9 +141,12 @@ def test_scp(juju: jubilant.Juju):
     assert 'redis:' in passwd
 
     # Test a round trip
-    juju.scp(__file__, 'snappass-test/0:/tmp/foobar.py')
-    juju.scp('snappass-test/0:/tmp/foobar.py', 'foobar.py')
-    assert pathlib.Path('foobar.py').read_text() == pathlib.Path(__file__).read_text()
+    with tempfile.NamedTemporaryFile('w+') as fsrc, tempfile.NamedTemporaryFile('w+') as fdst:
+        fsrc.write('roundtrip')
+        fsrc.flush()
+        juju.scp(fsrc.name, 'snappass-test/0:/tmp/roundtrip.py')
+        juju.scp('snappass-test/0:/tmp/roundtrip.py', fdst.name)
+        assert pathlib.Path(fdst.name).read_text() == 'roundtrip'
 
 
 def test_cli_input(juju: jubilant.Juju):

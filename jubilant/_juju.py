@@ -489,7 +489,7 @@ class Juju:
         if isinstance(overlays, str):
             raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
 
-        with _deploy_tempdir(self, charm, resources) as (_charm, resources):
+        with self._deploy_tempdir(charm, resources) as (_charm, resources):
             args = ['deploy', str(_charm)]
 
             if app is not None:
@@ -788,7 +788,7 @@ class Juju:
         """
         args = ['refresh', app]
 
-        with _deploy_tempdir(self, path, resources) as (path, resources):
+        with self._deploy_tempdir(path, resources) as (path, resources):
             if base is not None:
                 args.extend(['--base', base])
             if channel is not None:
@@ -1028,6 +1028,7 @@ class Juju:
                 args.append(source)
                 args.append(file_temp.name)
                 self.cli(*args)
+
                 shutil.copy(file_temp.name, destination)
 
             else:
@@ -1323,6 +1324,43 @@ class Juju:
         else:
             return tempfile.gettempdir()
 
+    # This context manager is for deploy() and refresh(), and automatically copies
+    # a local charm file and local resource files into a temporary directory if Juju
+    # is running as a snap (in which case /tmp is not accessible).
+    @contextlib.contextmanager
+    def _deploy_tempdir(
+        self,
+        charm: str | pathlib.Path | None,
+        resources: Mapping[str, str] | None,
+    ) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
+        if charm is not None:
+            charm = str(charm)
+        charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
+        resources_needs_temp = resources is not None and any(
+            v.startswith(('.', '/')) for v in resources.values()
+        )
+        needs_temp = self._juju_is_snap and (charm_needs_temp or resources_needs_temp)
+        if not needs_temp:
+            yield charm, resources
+            return
+
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as temp_dir:
+            if charm_needs_temp:
+                assert charm is not None
+                temp = os.path.join(temp_dir, '_temp.charm')
+                shutil.copy(charm, temp)
+                charm = temp
+
+            if resources_needs_temp:
+                assert resources is not None
+                resources = dict(resources)
+                for k, v in resources.items():
+                    if v.startswith(('.', '/')):
+                        resources[k] = os.path.join(temp_dir, k)
+                        shutil.copy(v, resources[k])
+
+            yield charm, resources
+
 
 def _format_config(k: str, v: ConfigValue) -> str:
     if v is None:  # type: ignore
@@ -1353,41 +1391,3 @@ def _status_line_ok(line: str) -> bool:
     if field.endswith('.since'):
         return False
     return True
-
-
-# This context manager is for deploy() and refresh(), and automatically copies
-# a local charm file and local resource files into a temporary directory if Juju
-# is running as a snap (in which case /tmp is not accessible).
-@contextlib.contextmanager
-def _deploy_tempdir(
-    juju: Juju,
-    charm: str | pathlib.Path | None,
-    resources: Mapping[str, str] | None,
-) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
-    if charm is not None:
-        charm = str(charm)
-    charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
-    resources_needs_temp = resources is not None and any(
-        v.startswith(('.', '/')) for v in resources.values()
-    )
-    needs_temp = juju._juju_is_snap and (charm_needs_temp or resources_needs_temp)
-    if not needs_temp:
-        yield charm, resources
-        return
-
-    with tempfile.TemporaryDirectory(dir=juju._temp_dir) as temp_dir:
-        if charm_needs_temp:
-            assert charm is not None
-            temp = os.path.join(temp_dir, '_temp.charm')
-            shutil.copy(charm, temp)
-            charm = temp
-
-        if resources_needs_temp:
-            assert resources is not None
-            resources = dict(resources)
-            for k, v in resources.items():
-                if v.startswith(('.', '/')):
-                    resources[k] = os.path.join(temp_dir, k)
-                    shutil.copy(v, resources[k])
-
-        yield charm, resources
