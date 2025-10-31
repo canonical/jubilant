@@ -1,4 +1,13 @@
+"""Dataclasses that contain parsed output from ``juju show-model --format=json``.
+
+These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:modelinfo-dataclasses-4>`_
+the Go structs in the Juju codebase, to ensure they are correct. Class names
+come from the Go struct name, whereas attribute names come from the JSON field
+names.
+"""
+
 from __future__ import annotations
+
 import dataclasses
 from typing import Any
 
@@ -12,7 +21,7 @@ class ModelCredential:
     validity_check: str = ''
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ModelCredential:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelCredential:
         return cls(
             name=d['name'],
             owner=d['owner'],
@@ -32,7 +41,7 @@ class ModelStatus:
     migration_end: str = ''
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ModelStatus:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
         return cls(
             current=d.get('current') or '',
             message=d.get('message') or '',
@@ -52,7 +61,7 @@ class ModelUserInfo:
     display_name: str = ''
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ModelUserInfo:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelUserInfo:
         return cls(
             display_name=d.get('display-name') or '',
             access=d['access'],
@@ -65,7 +74,7 @@ class ModelMachineInfo:
     cores: int
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ModelMachineInfo:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelMachineInfo:
         return cls(
             cores=d['cores'],
         )
@@ -79,7 +88,7 @@ class SecretBackendInfo:
     message: str = ''
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> SecretBackendInfo:
+    def _from_dict(cls, d: dict[str, Any]) -> SecretBackendInfo:
         return cls(
             num_secrets=d['num-secrets'],
             status=d['status'],
@@ -95,7 +104,7 @@ class SupportedFeature:
     version: str = ''
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> SupportedFeature:
+    def _from_dict(cls, d: dict[str, Any]) -> SupportedFeature:
         return cls(
             name=d['name'],
             description=d['description'],
@@ -105,6 +114,8 @@ class SupportedFeature:
 
 @dataclasses.dataclass(frozen=True)
 class ModelInfo:
+    """Parsed version of the object returned by ``juju show-model --format=json``."""
+
     name: str
     short_name: str
     model_uuid: str
@@ -118,15 +129,15 @@ class ModelInfo:
     region: str = ''
     type: str = ''
     status: ModelStatus = dataclasses.field(default_factory=ModelStatus)
-    users: dict[str, ModelUserInfo] = dataclasses.field(default_factory=dict)
-    machines: dict[str, ModelMachineInfo] = dataclasses.field(default_factory=dict)
-    secret_backends: dict[str, SecretBackendInfo] = dataclasses.field(default_factory=dict)
+    users: dict[str, ModelUserInfo] = dataclasses.field(default_factory=dict)  # type: ignore
+    machines: dict[str, ModelMachineInfo] = dataclasses.field(default_factory=dict)  # type: ignore
+    secret_backends: dict[str, SecretBackendInfo] = dataclasses.field(default_factory=dict)  # type: ignore
     agent_version: str = ''
     credential: ModelCredential | None = None
-    supported_features: list[SupportedFeature] = dataclasses.field(default_factory=list)
+    supported_features: list[SupportedFeature] = dataclasses.field(default_factory=list)  # type: ignore
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ModelInfo:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelInfo:
         return cls(
             name=d['name'],
             short_name=d['short-name'],
@@ -139,11 +150,27 @@ class ModelInfo:
             region=d.get('region') or '',
             type=d.get('type') or '',
             life=d['life'],
-            status=ModelStatus.from_dict(d['status']) if 'status' in d else ModelStatus(),
-            users={k: ModelUserInfo.from_dict(v) for k, v in d['users'].items()} if 'users' in d else {},
-            machines={k: ModelMachineInfo.from_dict(v) for k, v in d['machines'].items()} if 'machines' in d else {},
-            secret_backends={k: SecretBackendInfo.from_dict(v) for k, v in d['secret-backends'].items()} if 'secret-backends' in d else {},
+            status=ModelStatus._from_dict(d['status']) if 'status' in d else ModelStatus(),
+            users=(
+                {k: ModelUserInfo._from_dict(v) for k, v in d['users'].items()}
+                if 'users' in d
+                else {}
+            ),
+            machines=(
+                {k: ModelMachineInfo._from_dict(v) for k, v in d['machines'].items()}
+                if 'machines' in d
+                else {}
+            ),
+            secret_backends=(
+                {k: SecretBackendInfo._from_dict(v) for k, v in d['secret-backends'].items()}
+                if 'secret-backends' in d
+                else {}
+            ),
             agent_version=d.get('agent-version') or '',
-            credential=ModelCredential.from_dict(d['credential']) if 'credential' in d else None,
-            supported_features=[SupportedFeature.from_dict(x) for x in d['supported-features']] if 'supported-features' in d else [],
+            credential=ModelCredential._from_dict(d['credential']) if 'credential' in d else None,
+            supported_features=(
+                [SupportedFeature._from_dict(x) for x in d['supported-features']]
+                if 'supported-features' in d
+                else []
+            ),
         )
