@@ -16,6 +16,7 @@ from typing import Any, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import Task
+from ._version import Version
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
 
@@ -1191,6 +1192,12 @@ class Juju:
             file.flush()
             args.extend(['--file', file.name])
             self.cli(*args)
+
+    def version(self) -> Version:
+        """Return the parsed Juju CLI version."""
+        stdout = self.cli('version', '--format', 'json', '--all', include_model=False)
+        version_dict = json.loads(stdout)
+        return Version._from_dict(version_dict)
 
     def wait(
         self,

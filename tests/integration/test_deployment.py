@@ -57,3 +57,9 @@ def test_deploy_with_resources(juju: jubilant.Juju):
         },
     )
     juju.wait(lambda status: status.apps['snappass-with-resources'].is_active)
+
+
+def test_version(juju: jubilant.Juju):
+    version = juju.version()
+    raw_version = juju.cli('version', include_model=False).strip()
+    assert str(version) == raw_version

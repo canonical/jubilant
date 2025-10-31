@@ -17,6 +17,7 @@ from ._all_any import (
 from ._juju import CLIError, ConfigValue, Juju, WaitError
 from ._task import Task, TaskError
 from ._test_helpers import temp_model
+from ._version import Version
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
 
@@ -30,6 +31,7 @@ __all__ = [
     'Status',
     'Task',
     'TaskError',
+    'Version',
     'WaitError',
     'all_active',
     'all_agents_idle',
