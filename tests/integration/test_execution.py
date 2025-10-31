@@ -30,6 +30,16 @@ def test_run_success(juju: jubilant.Juju):
     }
 
 
+def test_run_leader(juju: jubilant.Juju):
+    task = juju.run('testdb/leader', 'do-thing', {'param2': 'value2'})
+    assert task.success
+    assert task.results == {
+        'config': {'testoption': 'foobar'},
+        'params': {'param2': 'value2'},
+        'thingy': 'foo',
+    }
+
+
 def test_run_error(juju: jubilant.Juju):
     with pytest.raises(jubilant.TaskError) as excinfo:
         juju.run('testdb/0', 'do-thing', {'error': 'ERR'})
@@ -75,6 +85,12 @@ def test_exec_success(juju: jubilant.Juju):
     task = juju.exec('echo', 'bar', 'baz', unit='testdb/0')
     assert task.success
     assert task.stdout == 'bar baz\n'
+
+
+def test_exec_leader(juju: jubilant.Juju):
+    task = juju.exec('echo foo', unit='testdb/leader')
+    assert task.success
+    assert task.stdout == 'foo\n'
 
 
 def test_exec_error(juju: jubilant.Juju):

@@ -48,6 +48,40 @@ def test_completed(run: mocks.Run):
     assert task.success
 
 
+def test_leader(run: mocks.Run):
+    out_json = """
+{
+  "mysql/0": {
+    "id": "42",
+    "results": {
+      "password": "pass",
+      "return-code": 0,
+      "username": "user",
+      "stdout": "OUT",
+      "stderr": "ERR"
+    },
+    "status": "completed"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/leader', 'get-password'], stdout=out_json
+    )
+    juju = jubilant.Juju()
+
+    task = juju.run('mysql/leader', 'get-password')
+
+    assert task == jubilant.Task(
+        id='42',
+        status='completed',
+        results={'username': 'user', 'password': 'pass'},
+        return_code=0,
+        stdout='OUT',
+        stderr='ERR',
+    )
+    assert task.success
+
+
 def test_not_found(run: mocks.Run):
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'])
     juju = jubilant.Juju()

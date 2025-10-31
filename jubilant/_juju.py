@@ -308,7 +308,7 @@ class Juju:
     ) -> tuple[str, str]:
         """Run a Juju CLI command and return its standard output and standard error."""
         if include_model and self.model is not None:
-            args = (args[0], '--model', self.model) + args[1:]
+            args = (args[0], '--model', self.model, *args[1:])
         if log:
             logger.info('cli: juju %s', shlex.join(args))
         try:
@@ -419,6 +419,17 @@ class Juju:
 
     def debug_log(self, *, limit: int = 0) -> str:
         """Return debug log messages from a model.
+
+        For example, to create a pytest fixture which shows the last 1000 log lines if any tests
+        fail::
+
+            @pytest.fixture(scope='module')
+            def juju(request: pytest.FixtureRequest):
+                with jubilant.temp_model() as juju:
+                    yield juju  # run the test
+                    if request.session.testsfailed:
+                        log = juju.debug_log(limit=1000)
+                        print(log, end='')
 
         Args:
             limit: Limit the result to the most recent *limit* lines. Defaults to 0, meaning
@@ -583,7 +594,7 @@ class Juju:
             machine: ID of machine to run the command on.
             unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
             wait: Maximum time to wait for command to finish; :class:`TimeoutError` is raised if
-                this is reached. Default is to wait indefinitely.
+                this is reached. Juju's default is to wait 5 minutes.
 
         Returns:
             The task created to run the command, including logs, failure message, and so on.
@@ -622,15 +633,12 @@ class Juju:
 
         # Command doesn't return any stdout if no units exist.
         results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-        if machine is not None:
-            if str(machine) not in results:
-                raise ValueError(f'machine {machine!r} not found, stderr:\n{stderr}')
-            result = results[str(machine)]
-        else:
-            if unit not in results:
-                raise ValueError(f'unit {unit!r} not found, stderr:\n{stderr}')
-            result = results[unit]
-        task = Task._from_dict(result)
+        if not results:
+            raise ValueError(f'error running command, stderr:\n{stderr}')
+        # Don't look up results[unit] directly, because if the caller specifies
+        # app/leader it is returned as app/N, for example app/0.
+        task_dict = next(iter(results.values()))
+        task = Task._from_dict(task_dict)
         task.raise_on_failure()
         return task
 
@@ -923,7 +931,7 @@ class Juju:
             action: Name of action to run.
             params: Named parameters to pass to the action.
             wait: Maximum time to wait for action to finish; :class:`TimeoutError` is raised if
-                this is reached. Default is to wait indefinitely.
+                this is reached. Juju's default is to wait 60 seconds.
 
         Returns:
             The task created to run the action, including logs, failure message, and so on.
@@ -960,12 +968,13 @@ class Juju:
                 stderr = exc.stderr
 
             # Command doesn't return any stdout if no units exist.
-            all_tasks: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
-            if unit not in all_tasks:
-                raise ValueError(
-                    f'action {action!r} not defined or unit {unit!r} not found, stderr:\n{stderr}'
-                )
-            task = Task._from_dict(all_tasks[unit])
+            results: dict[str, Any] = json.loads(stdout) if stdout.strip() else {}
+            if not results:
+                raise ValueError(f'error running action {action!r}, stderr:\n{stderr}')
+            # Don't look up results[unit] directly, because if the caller specifies
+            # app/leader it is returned as app/N, for example app/0.
+            task_dict = next(iter(results.values()))
+            task = Task._from_dict(task_dict)
             task.raise_on_failure()
             return task
 
@@ -1224,9 +1233,6 @@ class Juju:
         and returns the last status after the *ready* callable returns true for *successes*
         times in a row.
 
-        This function logs the status object after the first status call, and after subsequent
-        calls if the status object has changed.
-
         Example::
 
             juju = jubilant.Juju()
@@ -1241,6 +1247,13 @@ class Juju:
             )
 
         For more examples, see `Tutorial | Use a custom wait condition <https://documentation.ubuntu.com/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
+
+        This function logs the status object after the first status call, and after subsequent
+        calls if the status object has changed. Logs are sent to the logger named
+        ``jubilant.wait`` at INFO level, so to disable these logs, set the level to WARNING or
+        above::
+
+            logging.getLogger('jubilant.wait').setLevel('WARNING')
 
         Args:
             ready: Callable that takes a :class:`Status` object and returns true when the wait
