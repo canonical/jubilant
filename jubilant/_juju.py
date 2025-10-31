@@ -1384,14 +1384,10 @@ def _deploy_tempdir(
 
         if resources_needs_temp:
             assert resources is not None
-            resources_temp = {}
+            resources = dict(resources)
             for k, v in resources.items():
-                if not v.startswith(('.', '/')):
-                    resources_temp[k] = v
-                    continue
-                temp = os.path.join(temp_dir, k)
-                shutil.copy(v, temp)
-                resources_temp[k] = temp
-            resources = resources_temp
+                if v.startswith(('.', '/')):
+                    resources[k] = os.path.join(temp_dir, k)
+                    shutil.copy(v, resources[k])
 
         yield charm, resources
