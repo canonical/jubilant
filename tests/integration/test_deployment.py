@@ -31,8 +31,14 @@ def test_deploy(juju: jubilant.Juju):
     assert jubilant.all_agents_idle(status, 'snappass-test')
 
 
-def test_refresh_path(juju: jubilant.Juju):
+@pytest.fixture
+def testdb_app(juju: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
+    yield None
+    juju.remove_application('testdb')
+
+
+def test_refresh_path(juju: jubilant.Juju, testdb_app: None):
     juju.wait(
         lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
     )
@@ -56,7 +62,6 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 
 def test_remove_application(juju: jubilant.Juju):
     juju.remove_application('snappass-test')
-    juju.remove_application('testdb')
     juju.wait(lambda status: not status.apps)
 
 
