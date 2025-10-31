@@ -31,23 +31,6 @@ def test_deploy(juju: jubilant.Juju):
     assert jubilant.all_agents_idle(status, 'snappass-test')
 
 
-@pytest.fixture
-def testdb_app(juju: jubilant.Juju):
-    juju.deploy(helpers.find_charm('testdb'))
-    yield None
-    juju.remove_application('testdb')
-
-
-def test_refresh_path(juju: jubilant.Juju, testdb_app: None):
-    juju.wait(
-        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
-    )
-    juju.refresh('testdb', path=helpers.find_charm('testdb'))
-    juju.wait(
-        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
-    )
-
-
 def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.add_unit('snappass-test')
     juju.wait(
@@ -76,3 +59,14 @@ def test_deploy_with_resources(juju: jubilant.Juju):
         },
     )
     juju.wait(lambda status: status.apps['snappass-with-resources'].is_active)
+
+
+def test_refresh_path(juju: jubilant.Juju):
+    juju.deploy(helpers.find_charm('testdb'))
+    juju.wait(
+        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+    )
+    juju.refresh('testdb', path=helpers.find_charm('testdb'))
+    juju.wait(
+        lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
+    )
