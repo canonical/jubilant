@@ -1342,6 +1342,9 @@ def _status_line_ok(line: str) -> bool:
     return True
 
 
+# This context manager is for deploy() and refresh(), and automatically copies
+# a local charm file and local resource files into a temporary directory if Juju
+# is running as a snap (in which case /tmp is not accessible).
 @contextlib.contextmanager
 def _deploy_tempdir(
     juju: Juju,
