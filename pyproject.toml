@@ -109,6 +109,10 @@ convention = "google"
 builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
 
 [tool.ruff.lint.per-file-ignores]
+"jubilant/modeltypes.py" = [
+    # Missing docstring in public class
+    "D101",
+]
 "jubilant/statustypes.py" = [
     # Missing docstring in public class
     "D101",

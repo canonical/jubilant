@@ -16,6 +16,7 @@ from typing import Any, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import Task
+from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
 
@@ -1027,6 +1028,24 @@ class Juju:
             Secret._from_dict({'uri': uri_from_juju, **obj})
             for uri_from_juju, obj in output.items()
         ]
+
+    def show_model(self, model: str | None = None) -> ModelInfo:
+        """Get information about the current model (or another model).
+
+        Args:
+            model: Name of the model or ``controller:model``. If omitted,
+                return details about the current model.
+        """
+        args = ['show-model', '--format', 'json']
+        if model is not None:
+            args.append(model)
+        elif self.model is not None:
+            # Use this instance's model if set.
+            args.append(self.model)
+        stdout = self.cli(*args, include_model=False)
+        results = json.loads(stdout)
+        info_dict = next(iter(results.values()))
+        return ModelInfo._from_dict(info_dict)
 
     @overload
     def show_secret(
