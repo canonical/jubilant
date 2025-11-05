@@ -100,32 +100,66 @@ class Juju:
     # Keep the public methods in alphabetical order, so we don't have to think
     # about where to put each new method.
 
+    @overload
+    def add_credential(
+        self,
+        cloud: str,
+        *,
+        file: str | pathlib.Path,
+        region: str | None = None,
+        controller: str | None = None,
+    ) -> None: ...
+
+    @overload
+    def add_credential(
+        self,
+        cloud: str,
+        *,
+        yaml: str | Mapping[str, Any],
+        region: str | None = None,
+        controller: str | None = None,
+    ) -> None: ...
+
     def add_credential(
         self,
         cloud: str,
         *,
         file: str | pathlib.Path | None = None,
+        yaml: str | Mapping[str, Any] | None = None,
         region: str | None = None,
         controller: str | None = None,
     ) -> None:
         """Add a credential for a cloud.
 
-        This command can operate in interactive or non-interactive mode. When *file* is
-        provided, it switches to non-interactive mode.
-
         Args:
             cloud: Name of the cloud to add credentials for.
-            file: Path to a YAML file containing credentials to add. If not specified,
-                the command will run in interactive mode (not suitable for automation).
+            file: Path to a YAML file containing credentials to add. Either this or *yaml*
+                must be specified.
+            yaml: Credentials as a YAML string or dict. If a dict is provided, it's
+                serialized to YAML. Either this or *file* must be specified.
             region: Cloud region that the credential is valid for.
             controller: Controller to operate in. If specified, the credential is uploaded
                 to the controller. If not specified, the credential is added to the local
                 client only.
         """
+        if (file is None) == (yaml is None):
+            raise ValueError('exactly one of file or yaml must be specified')
+
         args = ['add-credential', cloud]
 
         if file is not None:
             args.extend(['--file', str(file)])
+        elif yaml is not None:
+            with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as temp_file:
+                if isinstance(yaml, str):
+                    temp_file.write(yaml)
+                else:
+                    _yaml.safe_dump(yaml, temp_file)
+                temp_file.flush()
+                args.extend(['--file', temp_file.name])
+                self.cli(*args, include_model=False)
+                return
+
         if region is not None:
             args.extend(['--region', region])
         if controller is not None:
