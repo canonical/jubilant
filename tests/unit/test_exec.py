@@ -87,7 +87,7 @@ def test_machine(run: mocks.Run):
     )
     juju = jubilant.Juju()
 
-    task = juju.exec('echo', 'bar', machine=3)
+    task = juju.exec('echo', 'bar', machine='3')
 
     assert task == jubilant.Task(
         id='28',
@@ -179,7 +179,7 @@ def test_machine_not_found(run: mocks.Run):
     juju = jubilant.Juju()
 
     with pytest.raises(ValueError):
-        juju.exec('echo', machine=0)
+        juju.exec('echo', machine='0')
 
 
 def test_unit_not_found(run: mocks.Run):
@@ -196,3 +196,67 @@ def test_type_errors():
         juju.exec('echo')  # type: ignore
     with pytest.raises(TypeError):
         juju.exec('echo', machine=0, unit='ubuntu/0')  # type: ignore
+
+
+def test_machine_string(run: mocks.Run):
+    """Test that machine parameter accepts string IDs."""
+    out_json = r"""
+{
+  "0": {
+    "id": "29",
+    "results": {
+      "return-code": 0,
+      "stdout": "hello\n"
+    },
+    "status": "completed",
+    "unit": "ubuntu/0"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--machine', '0', '--', 'echo', 'hello'],
+        stdout=out_json,
+    )
+    juju = jubilant.Juju()
+
+    task = juju.exec('echo', 'hello', machine='0')
+
+    assert task == jubilant.Task(
+        id='29',
+        status='completed',
+        return_code=0,
+        stdout='hello\n',
+    )
+    assert task.success
+
+
+def test_machine_lxd_container(run: mocks.Run):
+    """Test that machine parameter accepts LXD container IDs like '0/lxd/0'."""
+    out_json = r"""
+{
+  "0/lxd/0": {
+    "id": "30",
+    "results": {
+      "return-code": 0,
+      "stdout": "container-hostname\n"
+    },
+    "status": "completed",
+    "unit": "ubuntu/0"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--machine', '0/lxd/0', '--', 'hostname'],
+        stdout=out_json,
+    )
+    juju = jubilant.Juju()
+
+    task = juju.exec('hostname', machine='0/lxd/0')
+
+    assert task == jubilant.Task(
+        id='30',
+        status='completed',
+        return_code=0,
+        stdout='container-hostname\n',
+    )
+    assert task.success
