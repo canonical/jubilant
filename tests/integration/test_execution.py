@@ -114,7 +114,7 @@ def test_exec_unit_not_found(juju: jubilant.Juju):
 
 def test_exec_error_machine_on_k8s(juju: jubilant.Juju):
     with pytest.raises(jubilant.CLIError):
-        juju.exec('echo foo', machine='0')
+        juju.exec('echo foo', machine=0)
 
 
 def test_ssh_and_scp(juju: jubilant.Juju):

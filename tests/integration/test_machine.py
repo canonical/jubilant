@@ -14,13 +14,13 @@ def setup(juju: jubilant.Juju):
 
 
 def test_exec(juju: jubilant.Juju):
-    task = juju.exec('echo foo', machine='0')
+    task = juju.exec('echo foo', machine=0)
     assert task.success
     assert task.return_code == 0
     assert task.stdout == 'foo\n'
     assert task.stderr == ''
 
-    task = juju.exec('echo', 'bar', 'baz', machine='0')
+    task = juju.exec('echo', 'bar', 'baz', machine=0)
     assert task.success
     assert task.stdout == 'bar baz\n'
 

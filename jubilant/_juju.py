@@ -563,7 +563,9 @@ class Juju:
             self.model = None
 
     @overload
-    def exec(self, command: str, *args: str, machine: str, wait: float | None = None) -> Task: ...
+    def exec(
+        self, command: str, *args: str, machine: int | str, wait: float | None = None
+    ) -> Task: ...
 
     @overload
     def exec(self, command: str, *args: str, unit: str, wait: float | None = None) -> Task: ...
@@ -572,7 +574,7 @@ class Juju:
         self,
         command: str,
         *args: str,
-        machine: str | None = None,
+        machine: int | str | None = None,
         unit: str | None = None,
         wait: float | None = None,
     ) -> Task:
@@ -589,7 +591,8 @@ class Juju:
                 arguments may also be included here as a single string, for example
                 ``juju.exec('echo foo', ...)``.
             args: Arguments of the command.
-            machine: ID of machine to run the command on, for example ``"0"`` or ``"0/lxd/0"``.
+            machine: ID of machine to run the command on, for example ``0``, ``"0"``,
+                or ``"0/lxd/0"``.
             unit: Name of unit to run the command on, for example ``mysql/0`` or ``mysql/leader``.
             wait: Maximum time to wait for command to finish; :class:`TimeoutError` is raised if
                 this is reached. Juju's default is to wait 5 minutes.

@@ -196,3 +196,35 @@ def test_type_errors():
         juju.exec('echo')  # type: ignore
     with pytest.raises(TypeError):
         juju.exec('echo', machine=0, unit='ubuntu/0')  # type: ignore
+
+
+def test_machine_int(run: mocks.Run):
+    """Test that machine parameter accepts integer IDs."""
+    out_json = r"""
+{
+  "3": {
+    "id": "29",
+    "results": {
+      "return-code": 0,
+      "stdout": "hello\n"
+    },
+    "status": "completed",
+    "unit": "ubuntu/0"
+  }
+}
+"""
+    run.handle(
+        ['juju', 'exec', '--format', 'json', '--machine', '3', '--', 'echo', 'hello'],
+        stdout=out_json,
+    )
+    juju = jubilant.Juju()
+
+    task = juju.exec('echo', 'hello', machine=3)
+
+    assert task == jubilant.Task(
+        id='29',
+        status='completed',
+        return_code=0,
+        stdout='hello\n',
+    )
+    assert task.success
