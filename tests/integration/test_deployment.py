@@ -70,3 +70,9 @@ def test_refresh_path(juju: jubilant.Juju):
     juju.wait(
         lambda status: status.apps['testdb'].units['testdb/0'].workload_status.current == 'unknown'
     )
+
+
+def test_version(juju: jubilant.Juju):
+    version = juju.version()
+    raw_version = juju.cli('version', include_model=False).strip()
+    assert str(version) == raw_version
