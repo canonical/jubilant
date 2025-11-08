@@ -25,7 +25,7 @@ def test_simple(run: mocks.Run):
         arch='amd64',
         git_commit='17876b918429f0063380cdf07dc47f98a890778b',
     )
-    assert version.semver == (3, 6, 11)
+    assert version.tuple == (3, 6, 11)
 
 
 @pytest.mark.parametrize(

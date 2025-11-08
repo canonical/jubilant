@@ -26,6 +26,10 @@ class Version:
     """Parsed Juju CLI version as returned by ``juju version --format=json --all``.
 
     The version from Juju is normally in the form ``major.minor.patch-release-arch``.
+    You can compare versions using the :attr:`tuple` property::
+
+        if juju.version().tuple >= (3, 6, 11):
+            ...  # Juju CLI is at least 3.6.11
     """
 
     major: int
@@ -54,8 +58,8 @@ class Version:
         return f'{prefix}-{self.release}-{self.arch}'
 
     @property
-    def semver(self) -> tuple[int, int, int]:
-        """The semver tuple ``(major, minor, patch)``."""
+    def tuple(self) -> tuple[int, int, int]:
+        """The tuple ``(major, minor, patch)``."""
         return self.major, self.minor, self.patch
 
     @classmethod
