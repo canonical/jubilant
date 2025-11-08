@@ -1,6 +1,6 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI."""
 
-from . import secrettypes, statustypes
+from . import modeltypes, secrettypes, statustypes
 from ._all_any import (
     all_active,
     all_agents_idle,

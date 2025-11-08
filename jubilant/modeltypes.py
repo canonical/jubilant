@@ -31,7 +31,7 @@ class ModelCredential:
 
 
 @dataclasses.dataclass(frozen=True)
-class ModelStatus:
+class ModelStatusInfo:
     current: str = ''
     message: str = ''
     reason: str = ''
@@ -41,7 +41,7 @@ class ModelStatus:
     migration_end: str = ''
 
     @classmethod
-    def _from_dict(cls, d: dict[str, Any]) -> ModelStatus:
+    def _from_dict(cls, d: dict[str, Any]) -> ModelStatusInfo:
         return cls(
             current=d.get('current') or '',
             message=d.get('message') or '',
@@ -128,7 +128,7 @@ class ModelInfo:
 
     region: str = ''
     type: str = ''
-    status: ModelStatus = dataclasses.field(default_factory=ModelStatus)
+    status: ModelStatusInfo = dataclasses.field(default_factory=ModelStatusInfo)
     users: dict[str, ModelUserInfo] = dataclasses.field(default_factory=dict)  # type: ignore
     machines: dict[str, ModelMachineInfo] = dataclasses.field(default_factory=dict)  # type: ignore
     secret_backends: dict[str, SecretBackendInfo] = dataclasses.field(default_factory=dict)  # type: ignore
@@ -147,10 +147,10 @@ class ModelInfo:
             controller_name=d['controller-name'],
             is_controller=d['is-controller'],
             cloud=d['cloud'],
+            life=d['life'],
             region=d.get('region') or '',
             type=d.get('type') or '',
-            life=d['life'],
-            status=ModelStatus._from_dict(d['status']) if 'status' in d else ModelStatus(),
+            status=ModelStatusInfo._from_dict(d['status']) if 'status' in d else ModelStatusInfo(),
             users=(
                 {k: ModelUserInfo._from_dict(v) for k, v in d['users'].items()}
                 if 'users' in d

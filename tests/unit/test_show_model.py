@@ -29,7 +29,7 @@ def test_full(run: mocks.Run):
         life='alive',
         region='localhost',
         type='lxd',
-        status=jubilant.modeltypes.ModelStatus(
+        status=jubilant.modeltypes.ModelStatusInfo(
             current='available',
             since='18 hours ago',
         ),
