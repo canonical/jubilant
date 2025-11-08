@@ -490,7 +490,8 @@ class Juju:
             raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
 
         with self._deploy_tempdir(charm, resources) as (_charm, resources):
-            args = ['deploy', str(_charm)]
+            assert _charm is not None
+            args = ['deploy', _charm]
 
             if app is not None:
                 args.append(app)
@@ -1000,41 +1001,37 @@ class Juju:
         if isinstance(scp_options, str):
             raise TypeError('scp_options must be an iterable of str, not str')
 
+        args = ['scp']
+        if container is not None:
+            args.extend(['--container', container])
+        if not host_key_checks:
+            args.append('--no-host-key-checks')
+        args.append('--')
+        args.extend(scp_options)
+
         source = str(source)
         destination = str(destination)
-        temp_needed = (':' not in source or ':' not in destination) and self._juju_is_snap
-        with (
-            tempfile.NamedTemporaryFile('w+', dir=self._temp_dir)
-            if temp_needed
-            else contextlib.nullcontext()
-        ) as file_temp:
-            args = ['scp']
-            if container is not None:
-                args.extend(['--container', container])
-            if not host_key_checks:
-                args.append('--no-host-key-checks')
-            args.append('--')
-            args.extend(scp_options)
+        temp_needed = (':' not in source) != (':' not in destination) and self._juju_is_snap
+        if not temp_needed:
+            # Simple cases: juju not snap, or local->local, or remote->remote
+            args.append(source)
+            args.append(destination)
+            self.cli(*args)
+            return
 
-            if file_temp is not None and ':' not in source:
+        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file_temp:
+            if ':' not in source:
                 # Local source, remote destination
                 shutil.copy(source, file_temp.name)
                 args.append(file_temp.name)
                 args.append(destination)
                 self.cli(*args)
-
-            elif file_temp is not None and ':' not in destination:
+            else:
                 # Remote source, local destination
                 args.append(source)
                 args.append(file_temp.name)
                 self.cli(*args)
-
                 shutil.copy(file_temp.name, destination)
-
-            else:
-                args.append(source)
-                args.append(destination)
-                self.cli(*args)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
