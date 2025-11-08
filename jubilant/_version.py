@@ -39,7 +39,7 @@ class Version:
 
     git_commit: str | None = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """The string representation of the parsed version.
 
         This recreates the version string from Juju.
