@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Literal, Union, overload
+from typing import Any, Generator, Literal, Union, overload
 
 from . import _pretty, _yaml
 from ._task import Task
@@ -491,52 +491,55 @@ class Juju:
         if isinstance(overlays, str):
             raise TypeError('overlays must be an iterable of str or pathlib.Path, not str')
 
-        args = ['deploy', str(charm)]
-        if app is not None:
-            args.append(app)
+        with self._deploy_tempdir(charm, resources) as (_charm, resources):
+            assert _charm is not None
+            args = ['deploy', _charm]
 
-        if attach_storage:
-            if isinstance(attach_storage, str):
-                args.extend(['--attach-storage', attach_storage])
-            else:
-                args.extend(['--attach-storage', ','.join(attach_storage)])
-        if base is not None:
-            args.extend(['--base', base])
-        if bind is not None:
-            if not isinstance(bind, str):
-                bind = ' '.join(f'{k}={v}' for k, v in bind.items())
-            args.extend(['--bind', bind])
-        if channel is not None:
-            args.extend(['--channel', channel])
-        if config is not None:
-            for k, v in config.items():
-                args.extend(['--config', _format_config(k, v)])
-        if constraints is not None:
-            for k, v in constraints.items():
-                args.extend(['--constraints', f'{k}={v}'])
-        if force:
-            args.append('--force')
-        if num_units != 1:
-            args.extend(['--num-units', str(num_units)])
-        for overlay in overlays:
-            args.extend(['--overlay', str(overlay)])
-        if resources is not None:
-            for k, v in resources.items():
-                args.extend(['--resource', f'{k}={v}'])
-        if revision is not None:
-            args.extend(['--revision', str(revision)])
-        if storage is not None:
-            for k, v in storage.items():
-                args.extend(['--storage', f'{k}={v}'])
-        if to:
-            if isinstance(to, str):
-                args.extend(['--to', to])
-            else:
-                args.extend(['--to', ','.join(to)])
-        if trust:
-            args.append('--trust')
+            if app is not None:
+                args.append(app)
 
-        self.cli(*args)
+            if attach_storage:
+                if isinstance(attach_storage, str):
+                    args.extend(['--attach-storage', attach_storage])
+                else:
+                    args.extend(['--attach-storage', ','.join(attach_storage)])
+            if base is not None:
+                args.extend(['--base', base])
+            if bind is not None:
+                if not isinstance(bind, str):
+                    bind = ' '.join(f'{k}={v}' for k, v in bind.items())
+                args.extend(['--bind', bind])
+            if channel is not None:
+                args.extend(['--channel', channel])
+            if config is not None:
+                for k, v in config.items():
+                    args.extend(['--config', _format_config(k, v)])
+            if constraints is not None:
+                for k, v in constraints.items():
+                    args.extend(['--constraints', f'{k}={v}'])
+            if force:
+                args.append('--force')
+            if num_units != 1:
+                args.extend(['--num-units', str(num_units)])
+            for overlay in overlays:
+                args.extend(['--overlay', str(overlay)])
+            if resources is not None:
+                for k, v in resources.items():
+                    args.extend(['--resource', f'{k}={v}'])
+            if revision is not None:
+                args.extend(['--revision', str(revision)])
+            if storage is not None:
+                for k, v in storage.items():
+                    args.extend(['--storage', f'{k}={v}'])
+            if to:
+                if isinstance(to, str):
+                    args.extend(['--to', to])
+                else:
+                    args.extend(['--to', ','.join(to)])
+            if trust:
+                args.append('--trust')
+
+            self.cli(*args)
 
     def destroy_model(
         self,
@@ -788,29 +791,30 @@ class Juju:
         """
         args = ['refresh', app]
 
-        if base is not None:
-            args.extend(['--base', base])
-        if channel is not None:
-            args.extend(['--channel', channel])
-        if config is not None:
-            for k, v in config.items():
-                args.extend(['--config', _format_config(k, v)])
-        if force:
-            args.extend(['--force', '--force-base', '--force-units'])
-        if path is not None:
-            args.extend(['--path', str(path)])
-        if resources is not None:
-            for k, v in resources.items():
-                args.extend(['--resource', f'{k}={v}'])
-        if revision is not None:
-            args.extend(['--revision', str(revision)])
-        if storage is not None:
-            for k, v in storage.items():
-                args.extend(['--storage', f'{k}={v}'])
-        if trust:
-            args.append('--trust')
+        with self._deploy_tempdir(path, resources) as (path, resources):
+            if base is not None:
+                args.extend(['--base', base])
+            if channel is not None:
+                args.extend(['--channel', channel])
+            if config is not None:
+                for k, v in config.items():
+                    args.extend(['--config', _format_config(k, v)])
+            if force:
+                args.extend(['--force', '--force-base', '--force-units'])
+            if path is not None:
+                args.extend(['--path', path])
+            if resources is not None:
+                for k, v in resources.items():
+                    args.extend(['--resource', f'{k}={v}'])
+            if revision is not None:
+                args.extend(['--revision', str(revision)])
+            if storage is not None:
+                for k, v in storage.items():
+                    args.extend(['--storage', f'{k}={v}'])
+            if trust:
+                args.append('--trust')
 
-        self.cli(*args)
+            self.cli(*args)
 
     def remove_application(
         self,
@@ -1006,10 +1010,30 @@ class Juju:
             args.append('--no-host-key-checks')
         args.append('--')
         args.extend(scp_options)
-        args.append(str(source))
-        args.append(str(destination))
 
-        self.cli(*args)
+        source = str(source)
+        destination = str(destination)
+        temp_needed = (':' not in source) != (':' not in destination) and self._juju_is_snap
+        if not temp_needed:
+            # Simple cases: juju not snap, or local->local, or remote->remote
+            args.append(source)
+            args.append(destination)
+            self.cli(*args)
+            return
+
+        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file_temp:
+            if ':' not in source:
+                # Local source, remote destination
+                shutil.copy(source, file_temp.name)
+                args.append(file_temp.name)
+                args.append(destination)
+                self.cli(*args)
+            else:
+                # Remote source, local destination
+                args.append(source)
+                args.append(file_temp.name)
+                self.cli(*args)
+                shutil.copy(file_temp.name, destination)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
@@ -1322,6 +1346,43 @@ class Juju:
             return temp_dir
         else:
             return tempfile.gettempdir()
+
+    # This context manager is for deploy() and refresh(), and automatically copies
+    # a local charm file and local resource files into a temporary directory if Juju
+    # is running as a snap (in which case /tmp is not accessible).
+    @contextlib.contextmanager
+    def _deploy_tempdir(
+        self,
+        charm: str | pathlib.Path | None,
+        resources: Mapping[str, str] | None,
+    ) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
+        if charm is not None:
+            charm = str(charm)
+        charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
+        resources_needs_temp = resources is not None and any(
+            v.startswith(('.', '/')) for v in resources.values()
+        )
+        needs_temp = self._juju_is_snap and (charm_needs_temp or resources_needs_temp)
+        if not needs_temp:
+            yield charm, resources
+            return
+
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as temp_dir:
+            if charm_needs_temp:
+                assert charm is not None
+                temp = os.path.join(temp_dir, '_temp.charm')
+                shutil.copy(charm, temp)
+                charm = temp
+
+            if resources_needs_temp:
+                assert resources is not None
+                resources = dict(resources)
+                for k, v in resources.items():
+                    if v.startswith(('.', '/')):
+                        resources[k] = os.path.join(temp_dir, k)
+                        shutil.copy(v, resources[k])
+
+            yield charm, resources
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
