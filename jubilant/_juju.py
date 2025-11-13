@@ -138,7 +138,7 @@ class Juju:
             cloud: Name of the cloud to add credentials for.
             client: Set to True to save credentials on the client, meaning controllers
                 created later will have access to them. You must specify ``client=True``
-                 or provide *controller* (or both).
+                or provide *controller* (or both).
             controller: If specified, save credentials to the named controller.
             file: Path to a YAML file containing credentials to add. Either this or *yaml*
                 must be specified, but not both.
