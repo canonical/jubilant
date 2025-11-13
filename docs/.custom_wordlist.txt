@@ -1,4 +1,13 @@
 # Ensure the last line in this file has a newline at the end, to support concatenation
+Dependabot
+IDE's
 Jubilant's
+Pythonic
+callables
+docstrings
+pytest
+pytest's
 teardown
+websocket
+websockets
 zizmor
