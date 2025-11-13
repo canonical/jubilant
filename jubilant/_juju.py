@@ -169,10 +169,9 @@ class Juju:
                 temp_file.flush()
                 args.extend(['--file', temp_file.name])
                 self.cli(*args, include_model=False)
-                return
-
-        args.extend(['--file', str(file)])
-        self.cli(*args, include_model=False)
+        else:
+            args.extend(['--file', str(file)])
+            self.cli(*args, include_model=False)
 
     def add_model(
         self,
