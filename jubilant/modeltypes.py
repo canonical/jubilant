@@ -63,9 +63,9 @@ class ModelUserInfo:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> ModelUserInfo:
         return cls(
-            display_name=d.get('display-name') or '',
             access=d['access'],
             last_connection=d['last-connection'],
+            display_name=d.get('display-name') or '',
         )
 
 
