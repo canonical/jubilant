@@ -102,6 +102,79 @@ class Juju:
     # Keep the public methods in alphabetical order, so we don't have to think
     # about where to put each new method.
 
+    @overload
+    def add_credential(
+        self,
+        cloud: str,
+        *,
+        client: bool = False,
+        controller: str | None = None,
+        file: str | pathlib.Path,
+        region: str | None = None,
+    ) -> None: ...
+
+    @overload
+    def add_credential(
+        self,
+        cloud: str,
+        *,
+        client: bool = False,
+        controller: str | None = None,
+        region: str | None = None,
+        yaml: str | Mapping[str, Any],
+    ) -> None: ...
+
+    def add_credential(
+        self,
+        cloud: str,
+        *,
+        client: bool = False,
+        controller: str | None = None,
+        file: str | pathlib.Path | None = None,
+        region: str | None = None,
+        yaml: str | Mapping[str, Any] | None = None,
+    ) -> None:
+        """Add a credential for a cloud.
+
+        Args:
+            cloud: Name of the cloud to add credentials for.
+            client: Set to True to save credentials on the client, meaning controllers
+                created later will have access to them. You must specify ``client=True``
+                or provide *controller* (or both).
+            controller: If specified, save credentials to the named controller.
+            file: Path to a YAML file containing credentials to add. Either this or *yaml*
+                must be specified, but not both.
+            yaml: Credentials as a YAML string or dict. If a dict is provided, it's
+                serialized to YAML. Either this or *file* must be specified, but not both.
+            region: Cloud region that the credential is valid for.
+        """
+        if not client and controller is None:
+            raise TypeError('at least one of "client" and "controller" must be specified')
+        if (file is None) == (yaml is None):
+            raise TypeError('either "file" or "yaml" must be specified, but not both')
+
+        args = ['add-credential', cloud]
+
+        if client:
+            args.append('--client')
+        if controller is not None:
+            args.extend(['--controller', controller])
+        if region is not None:
+            args.extend(['--region', region])
+
+        if yaml is not None:
+            with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as temp_file:
+                if isinstance(yaml, str):
+                    temp_file.write(yaml)
+                else:
+                    _yaml.safe_dump(yaml, temp_file)
+                temp_file.flush()
+                args.extend(['--file', temp_file.name])
+                self.cli(*args, include_model=False)
+        else:
+            args.extend(['--file', str(file)])
+            self.cli(*args, include_model=False)
+
     def add_model(
         self,
         model: str,
