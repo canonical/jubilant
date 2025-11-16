@@ -104,10 +104,9 @@ class Juju:
     def add_credential(
         self,
         cloud: str,
+        credential: str | pathlib.Path | Mapping[str, Any],
         *,
-        client: bool = False,
-        controller: str | None = None,
-        file: str | pathlib.Path,
+        client: bool = True,
         region: str | None = None,
     ) -> None: ...
 
@@ -115,41 +114,46 @@ class Juju:
     def add_credential(
         self,
         cloud: str,
+        credential: str | pathlib.Path | Mapping[str, Any],
         *,
-        client: bool = False,
-        controller: str | None = None,
+        controller: str,
         region: str | None = None,
-        yaml: str | Mapping[str, Any],
+    ) -> None: ...
+
+    @overload
+    def add_credential(
+        self,
+        cloud: str,
+        credential: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: bool = True,
+        controller: str,
+        region: str | None = None,
     ) -> None: ...
 
     def add_credential(
         self,
         cloud: str,
+        credential: str | pathlib.Path | Mapping[str, Any],
         *,
         client: bool = False,
         controller: str | None = None,
-        file: str | pathlib.Path | None = None,
         region: str | None = None,
-        yaml: str | Mapping[str, Any] | None = None,
     ) -> None:
         """Add a credential for a cloud.
 
         Args:
             cloud: Name of the cloud to add credentials for.
+            credential: Path to a YAML file containing credential to add, or a mapping
+                representing the parsed credential YAML (``{'credentials': ...}``).
             client: Set to True to save credentials on the client, meaning controllers
                 created later will have access to them. You must specify ``client=True``
                 or provide *controller* (or both).
             controller: If specified, save credentials to the named controller.
-            file: Path to a YAML file containing credentials to add. Either this or *yaml*
-                must be specified, but not both.
-            yaml: Credentials as a YAML string or dict. If a dict is provided, it's
-                serialized to YAML. Either this or *file* must be specified, but not both.
             region: Cloud region that the credential is valid for.
         """
         if not client and controller is None:
             raise TypeError('at least one of "client" and "controller" must be specified')
-        if (file is None) == (yaml is None):
-            raise TypeError('either "file" or "yaml" must be specified, but not both')
 
         args = ['add-credential', cloud]
 
@@ -160,18 +164,15 @@ class Juju:
         if region is not None:
             args.extend(['--region', region])
 
-        if yaml is not None:
+        if isinstance(credential, (str, pathlib.Path)):
+            args.extend(['--file', str(credential)])
+            self.cli(*args, include_model=False)
+        else:
             with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as temp_file:
-                if isinstance(yaml, str):
-                    temp_file.write(yaml)
-                else:
-                    _yaml.safe_dump(yaml, temp_file)
+                _yaml.safe_dump(credential, temp_file)
                 temp_file.flush()
                 args.extend(['--file', temp_file.name])
                 self.cli(*args, include_model=False)
-        else:
-            args.extend(['--file', str(file)])
-            self.cli(*args, include_model=False)
 
     def add_model(
         self,
