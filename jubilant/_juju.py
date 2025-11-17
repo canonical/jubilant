@@ -106,7 +106,8 @@ class Juju:
         cloud: str,
         credential: str | pathlib.Path | Mapping[str, Any],
         *,
-        client: bool = True,
+        client: Literal[True],
+        controller: None = None,
         region: str | None = None,
     ) -> None: ...
 
@@ -116,17 +117,7 @@ class Juju:
         cloud: str,
         credential: str | pathlib.Path | Mapping[str, Any],
         *,
-        controller: str,
-        region: str | None = None,
-    ) -> None: ...
-
-    @overload
-    def add_credential(
-        self,
-        cloud: str,
-        credential: str | pathlib.Path | Mapping[str, Any],
-        *,
-        client: bool = True,
+        client: bool = False,
         controller: str,
         region: str | None = None,
     ) -> None: ...
@@ -153,7 +144,7 @@ class Juju:
             region: Cloud region that the credential is valid for.
         """
         if not client and controller is None:
-            raise TypeError('at least one of "client" and "controller" must be specified')
+            raise TypeError('"client" must be True or "controller" must be specified (or both)')
 
         args = ['add-credential', cloud]
 
