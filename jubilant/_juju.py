@@ -19,6 +19,7 @@ from ._task import Task
 from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
+from .sshkeytypes import SSHKey
 from .statustypes import Status
 
 logger = logging.getLogger('jubilant')
@@ -236,6 +237,21 @@ class Juju:
             output = self.cli(*args)
 
         return SecretURI(output.strip())
+
+    def add_ssh_key(self, *ssh_keys: str) -> None:
+        """Add SSH keys to the model.
+
+        The SSH keys are added to all current and future machines in the model.
+
+        Args:
+            ssh_keys: One or more SSH public keys to add. Each key should be the full
+                SSH public key string (e.g., "ssh-rsa AAAAB3... user@host").
+        """
+        if not ssh_keys:
+            raise TypeError('at least one SSH key must be specified')
+
+        args = ['add-ssh-key', *ssh_keys]
+        self.cli(*args)
 
     def add_unit(
         self,
@@ -936,6 +952,23 @@ class Juju:
             args.extend(['--revision', str(revision)])
         self.cli(*args)
 
+    def remove_ssh_key(self, *keys: str) -> None:
+        """Remove SSH keys from the model.
+
+        The SSH keys are removed from all machines in the model.
+
+        Args:
+            keys: One or more SSH key identifiers to remove. Each identifier can be:
+                - A key fingerprint (e.g., "45:7f:33:2c:10:4e:6c:14:e3:a1:a4:c8:b2:e1:34:b4")
+                - A key comment (e.g., "user@host")
+                - The full SSH public key string
+        """
+        if not keys:
+            raise TypeError('at least one SSH key identifier must be specified')
+
+        args = ['remove-ssh-key', *keys]
+        self.cli(*args)
+
     def remove_unit(
         self,
         *app_or_unit: str,
@@ -1245,6 +1278,22 @@ class Juju:
         cli_args.extend(args)
 
         return self.cli(*cli_args)
+
+    def ssh_keys(self, *, full: bool = False) -> list[SSHKey]:
+        """List SSH keys in the model.
+
+        Args:
+            full: If True, include the full SSH public key in the results.
+
+        Returns:
+            A list of SSH keys in the model.
+        """
+        args = ['ssh-keys', '--format', 'json']
+        if full:
+            args.append('--full')
+        stdout = self.cli(*args)
+        output = json.loads(stdout)
+        return [SSHKey._from_dict(key) for key in output]
 
     def status(self) -> Status:
         """Fetch the status of the current model, including its applications and units."""
