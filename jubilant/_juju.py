@@ -244,7 +244,7 @@ class Juju:
 
         Args:
             key: SSH public key or keys to add. Each key should be the full
-                SSH public key string (e.g., "ssh-rsa AAAAB3... user@host").
+                SSH public key string (for example, `ssh-rsa AAAAB3... user@host`).
         """
         keys = [key] if isinstance(key, str) else list(key)
 
