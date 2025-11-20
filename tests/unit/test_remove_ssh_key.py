@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 import jubilant
 from tests.unit import mocks
 
@@ -33,11 +31,4 @@ def test_remove_ssh_key_multiple(run: mocks.Run):
     )
     juju = jubilant.Juju()
 
-    juju.remove_ssh_key('user1@host', 'user2@host')
-
-
-def test_remove_ssh_key_no_keys():
-    juju = jubilant.Juju()
-
-    with pytest.raises(TypeError, match='at least one SSH key identifier must be specified'):
-        juju.remove_ssh_key()
+    juju.remove_ssh_key(['user1@host', 'user2@host'])

@@ -1,6 +1,6 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI."""
 
-from . import modeltypes, secrettypes, sshkeytypes, statustypes
+from . import modeltypes, secrettypes, statustypes
 from ._all_any import (
     all_active,
     all_agents_idle,
@@ -20,7 +20,6 @@ from ._test_helpers import temp_model
 from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
-from .sshkeytypes import SSHKey
 from .statustypes import Status
 
 __all__ = [
@@ -29,7 +28,6 @@ __all__ = [
     'Juju',
     'ModelInfo',
     'RevealedSecret',
-    'SSHKey',
     'Secret',
     'SecretURI',
     'Status',
@@ -50,7 +48,6 @@ __all__ = [
     'any_waiting',
     'modeltypes',
     'secrettypes',
-    'sshkeytypes',
     'statustypes',
     'temp_model',
 ]
