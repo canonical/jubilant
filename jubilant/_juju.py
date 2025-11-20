@@ -956,10 +956,9 @@ class Juju:
         The SSH keys are removed from all machines in the model.
 
         Args:
-            key: SSH key identifier or identifiers to remove. Each identifier can be:
-                - A key fingerprint (e.g., "45:7f:33:2c:10:4e:6c:14:e3:a1:a4:c8:b2:e1:34:b4")
-                - A key comment (e.g., "user@host")
-                - The full SSH public key string
+            key: SSH key identifier or identifiers to remove. Each identifier can be
+                a key fingerprint (for example, "45:7f:33:2c:10:4e:6c:14:e3:a1:a4:c8:b2:e1:34:b4"),
+                a key comment (for example, "user@host"), or the full SSH public key string.
         """
         keys = [key] if isinstance(key, str) else list(key)
 
