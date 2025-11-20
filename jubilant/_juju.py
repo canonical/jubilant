@@ -237,16 +237,16 @@ class Juju:
 
         return SecretURI(output.strip())
 
-    def add_ssh_key(self, ssh_key: str | Iterable[str]) -> None:
+    def add_ssh_key(self, key: str | Iterable[str]) -> None:
         """Add SSH keys to the model.
 
         The SSH keys are added to all current and future machines in the model.
 
         Args:
-            ssh_key: SSH public key or keys to add. Each key should be the full
+            key: SSH public key or keys to add. Each key should be the full
                 SSH public key string (e.g., "ssh-rsa AAAAB3... user@host").
         """
-        keys = [ssh_key] if isinstance(ssh_key, str) else list(ssh_key)
+        keys = [key] if isinstance(key, str) else list(key)
 
         args = ['add-ssh-key', *keys]
         self.cli(*args)
