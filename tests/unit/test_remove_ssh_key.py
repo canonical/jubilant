@@ -31,4 +31,4 @@ def test_remove_ssh_key_multiple(run: mocks.Run):
     )
     juju = jubilant.Juju()
 
-    juju.remove_ssh_key(['user1@host', 'user2@host'])
+    juju.remove_ssh_key('user1@host', 'user2@host')

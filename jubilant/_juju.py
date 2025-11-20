@@ -237,17 +237,15 @@ class Juju:
 
         return SecretURI(output.strip())
 
-    def add_ssh_key(self, key: str | Iterable[str]) -> None:
+    def add_ssh_key(self, *keys: str) -> None:
         """Add SSH keys to the model.
 
         The SSH keys are added to all current and future machines in the model.
 
         Args:
-            key: SSH public key or keys to add. Each key should be the full
+            keys: SSH public key or keys to add. Each key should be the full
                 SSH public key string (for example, `ssh-rsa AAAAB3... user@host`).
         """
-        keys = [key] if isinstance(key, str) else list(key)
-
         args = ['add-ssh-key', *keys]
         self.cli(*args)
 
@@ -950,19 +948,17 @@ class Juju:
             args.extend(['--revision', str(revision)])
         self.cli(*args)
 
-    def remove_ssh_key(self, key: str | Iterable[str]) -> None:
+    def remove_ssh_key(self, *ids: str) -> None:
         """Remove SSH keys from the model.
 
         The SSH keys are removed from all machines in the model.
 
         Args:
-            key: SSH key identifier or identifiers to remove. Each identifier can be
+            ids: SSH key identifier or identifiers to remove. Each identifier can be
                 a key fingerprint (for example, `45:7f:33:2c:10:4e:6c:14:e3:a1:a4:c8:b2:e1:34:b4`),
                 a key comment (for example, `user@host`), or the full SSH public key string.
         """
-        keys = [key] if isinstance(key, str) else list(key)
-
-        args = ['remove-ssh-key', *keys]
+        args = ['remove-ssh-key', *ids]
         self.cli(*args)
 
     def remove_unit(

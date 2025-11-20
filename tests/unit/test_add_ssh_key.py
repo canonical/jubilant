@@ -27,8 +27,6 @@ def test_add_ssh_key_multiple(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.add_ssh_key(
-        [
-            'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB user1@host',
-            'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAC user2@host',
-        ]
+        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB user1@host',
+        'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAC user2@host',
     )
