@@ -5,16 +5,15 @@ import re
 from typing import Any
 
 # Per https://github.com/juju/juju/blob/afed87bbe98189805bc81e1af5d5fac70195fc86/core/semversion/version.go#L86-L91,
-# support version strings in the following formats:
+# support version strings in the following formats ("1.2-release-arch" is not
+# allowed in "strict" mode):
 #
-# 1.2-release-arch
 # 1.2.3-release-arch
 # 1.2.3.4-release-arch
 # 1.2-alpha3-release-arch
 # 1.2-alpha3.4-release-arch
 majmin = r'^(\d+)\.(\d+)'
 relarch = r'([^-]+)-([^-]+)$'
-majmin_re = re.compile(rf'{majmin}-{relarch}')
 majmin_patch_re = re.compile(rf'{majmin}\.(\d+)-{relarch}')
 majmin_patch_build_re = re.compile(rf'{majmin}\.(\d+)\.(\d+)-{relarch}')
 majmin_tag_re = re.compile(rf'{majmin}-([a-z]+)(\d+)-{relarch}')
@@ -51,7 +50,7 @@ class Version:
         prefix = f'{self.major}.{self.minor}'
         if self.tag is not None:
             prefix += f'-{self.tag}{self.patch}'
-        elif self.patch != 0:
+        else:
             prefix += f'.{self.patch}'
         if self.build is not None:
             prefix += f'.{self.build}'
@@ -65,13 +64,10 @@ class Version:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Version:
         version = d['version']
-        patch = 0
         tag = None
         build = None
 
-        if match := majmin_re.match(version):
-            major, minor, release, arch = match.groups()
-        elif match := majmin_patch_re.match(version):
+        if match := majmin_patch_re.match(version):
             major, minor, patch, release, arch = match.groups()
         elif match := majmin_patch_build_re.match(version):
             major, minor, patch, build, release, arch = match.groups()

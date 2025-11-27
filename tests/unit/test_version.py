@@ -35,8 +35,10 @@ def test_simple(run: mocks.Run):
             '3.6.11-genericlinux-amd64',
             jubilant.Version(3, 6, 11, release='genericlinux', arch='amd64'),
         ),
-        ('3.1-rel-arch', jubilant.Version(3, 1, 0, release='rel', arch='arch')),
-        ('1.2-rel-arch', jubilant.Version(1, 2, 0, release='rel', arch='arch')),
+        (
+            '4.0.0-genericlinux-amd64',
+            jubilant.Version(4, 0, 0, release='genericlinux', arch='amd64'),
+        ),
         ('2.3.4-rel-arch', jubilant.Version(2, 3, 4, release='rel', arch='arch')),
         ('3.4.5.6-rel-arch', jubilant.Version(3, 4, 5, build=6, release='rel', arch='arch')),
         ('4.5-beta6-rel-arch', jubilant.Version(4, 5, 6, tag='beta', release='rel', arch='arch')),
