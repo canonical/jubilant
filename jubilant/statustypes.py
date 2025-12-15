@@ -134,11 +134,9 @@ class UnitStatus:
             public_address=d.get('public-address') or '',
             address=d.get('address') or '',
             provider_id=d.get('provider-id') or '',
-            subordinates=(
-                {k: UnitStatus._from_dict(v) for k, v in d['subordinates'].items()}
-                if 'subordinates' in d
-                else {}
-            ),
+            subordinates={
+                k: UnitStatus._from_dict(v) for k, v in d.get('subordinates', {}).items()
+            },
         )
 
     @property
@@ -224,20 +222,12 @@ class AppStatus:
                 if 'application-status' in d
                 else StatusInfo()
             ),
-            relations=(
-                {
-                    k: [AppStatusRelation._from_dict(x) for x in v]
-                    for k, v in d['relations'].items()
-                }
-                if 'relations' in d
-                else {}
-            ),
+            relations={
+                k: [AppStatusRelation._from_dict(x) for x in v]
+                for k, v in d.get('relations', {}).items()
+            },
             subordinate_to=d.get('subordinate-to') or [],
-            units=(
-                {k: UnitStatus._from_dict(v) for k, v in d['units'].items()}
-                if 'units' in d
-                else {}
-            ),
+            units={k: UnitStatus._from_dict(v) for k, v in d.get('units', {}).items()},
             version=d.get('version') or '',
             endpoint_bindings=d.get('endpoint-bindings') or {},
         )
@@ -358,21 +348,13 @@ class FilesystemAttachments:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> FilesystemAttachments:
         return cls(
-            machines=(
-                {k: FilesystemAttachment._from_dict(v) for k, v in d['machines'].items()}
-                if 'machines' in d
-                else {}
-            ),
-            containers=(
-                {k: FilesystemAttachment._from_dict(v) for k, v in d['containers'].items()}
-                if 'containers' in d
-                else {}
-            ),
-            units=(
-                {k: UnitStorageAttachment._from_dict(v) for k, v in d['units'].items()}
-                if 'units' in d
-                else {}
-            ),
+            machines={
+                k: FilesystemAttachment._from_dict(v) for k, v in d.get('machines', {}).items()
+            },
+            containers={
+                k: FilesystemAttachment._from_dict(v) for k, v in d.get('containers', {}).items()
+            },
+            units={k: UnitStorageAttachment._from_dict(v) for k, v in d.get('units', {}).items()},
         )
 
 
@@ -435,21 +417,11 @@ class VolumeAttachments:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> VolumeAttachments:
         return cls(
-            machines=(
-                {k: VolumeAttachment._from_dict(v) for k, v in d['machines'].items()}
-                if 'machines' in d
-                else {}
-            ),
-            containers=(
-                {k: VolumeAttachment._from_dict(v) for k, v in d['containers'].items()}
-                if 'containers' in d
-                else {}
-            ),
-            units=(
-                {k: UnitStorageAttachment._from_dict(v) for k, v in d['units'].items()}
-                if 'units' in d
-                else {}
-            ),
+            machines={k: VolumeAttachment._from_dict(v) for k, v in d.get('machines', {}).items()},
+            containers={
+                k: VolumeAttachment._from_dict(v) for k, v in d.get('containers', {}).items()
+            },
+            units={k: UnitStorageAttachment._from_dict(v) for k, v in d.get('units', {}).items()},
         )
 
 
@@ -498,21 +470,11 @@ class CombinedStorage:
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> CombinedStorage:
         return cls(
-            storage=(
-                {k: StorageInfo._from_dict(v) for k, v in d['storage'].items()}
-                if 'storage' in d
-                else {}
-            ),
-            filesystems=(
-                {k: FilesystemInfo._from_dict(v) for k, v in d['filesystems'].items()}
-                if 'filesystems' in d
-                else {}
-            ),
-            volumes=(
-                {k: VolumeInfo._from_dict(v) for k, v in d['volumes'].items()}
-                if 'volumes' in d
-                else {}
-            ),
+            storage={k: StorageInfo._from_dict(v) for k, v in d.get('storage', {}).items()},
+            filesystems={
+                k: FilesystemInfo._from_dict(v) for k, v in d.get('filesystems', {}).items()
+            },
+            volumes={k: VolumeInfo._from_dict(v) for k, v in d.get('volumes', {}).items()},
         )
 
 
@@ -614,25 +576,20 @@ class MachineStatus:
                 else StatusInfo()
             ),
             base=FormattedBase._from_dict(d['base']) if 'base' in d else None,
-            network_interfaces=(
-                {k: NetworkInterface._from_dict(v) for k, v in d['network-interfaces'].items()}
-                if 'network-interfaces' in d
-                else {}
-            ),
-            containers=(
-                {k: MachineStatus._from_dict(v) for k, v in d['containers'].items()}
-                if 'containers' in d
-                else {}
-            ),
+            network_interfaces={
+                k: NetworkInterface._from_dict(v)
+                for k, v in d.get('network-interfaces', {}).items()
+            },
+            containers={
+                k: MachineStatus._from_dict(v) for k, v in d.get('containers', {}).items()
+            },
             constraints=d.get('constraints') or '',
             hardware=d.get('hardware') or '',
             controller_member_status=d.get('controller-member-status') or '',
             ha_primary=d.get('ha-primary') or False,
-            lxd_profiles=(
-                {k: LxdProfileContents._from_dict(v) for k, v in d['lxd-profiles'].items()}
-                if 'lxd-profiles' in d
-                else {}
-            ),
+            lxd_profiles={
+                k: LxdProfileContents._from_dict(v) for k, v in d.get('lxd-profiles', {}).items()
+            },
         )
 
 
@@ -733,11 +690,7 @@ class RemoteAppStatus:
             )
         return cls(
             url=d['url'],
-            endpoints=(
-                {k: RemoteEndpoint._from_dict(v) for k, v in d['endpoints'].items()}
-                if 'endpoints' in d
-                else {}
-            ),
+            endpoints={k: RemoteEndpoint._from_dict(v) for k, v in d.get('endpoints', {}).items()},
             life=d.get('life') or '',
             app_status=(
                 StatusInfo._from_dict(d['application-status'])
@@ -779,16 +732,11 @@ class Status:
             model=ModelStatus._from_dict(d['model']),
             machines={k: MachineStatus._from_dict(v) for k, v in d['machines'].items()},
             apps={k: AppStatus._from_dict(v) for k, v in d['applications'].items()},
-            app_endpoints=(
-                {k: RemoteAppStatus._from_dict(v) for k, v in d['application-endpoints'].items()}
-                if 'application-endpoints' in d
-                else {}
-            ),
-            offers=(
-                {k: OfferStatus._from_dict(v) for k, v in d['offers'].items()}
-                if 'offers' in d
-                else {}
-            ),
+            app_endpoints={
+                k: RemoteAppStatus._from_dict(v)
+                for k, v in d.get('application-endpoints', {}).items()
+            },
+            offers={k: OfferStatus._from_dict(v) for k, v in d.get('offers', {}).items()},
             storage=(
                 CombinedStorage._from_dict(d['storage']) if 'storage' in d else CombinedStorage()
             ),
