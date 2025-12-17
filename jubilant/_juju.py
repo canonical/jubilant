@@ -1409,7 +1409,7 @@ class Juju:
                     logger_wait.info('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
-                name = getattr(error, '__qualname__', f'at 0x{id(error):x}')
+                name = getattr(error, '__qualname__', repr(error))
                 raise WaitError(f'error function {name} returned true\n{status}')
 
             if ready(status):
