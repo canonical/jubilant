@@ -20,6 +20,11 @@ majmin_tag_re = re.compile(rf'{majmin}-([a-z]+)(\d+)-{relarch}')
 majmin_tag_build_re = re.compile(rf'{majmin}-([a-z]+)(\d+)\.(\d+)-{relarch}')
 
 
+# To avoid type checker issues with the Version.tuple property being named "tuple".
+# See https://github.com/astral-sh/ty/issues/1747
+_tuple = tuple
+
+
 @dataclasses.dataclass(frozen=True)
 class Version:
     """Parsed Juju CLI version as returned by ``juju version --format=json --all``.
@@ -57,7 +62,7 @@ class Version:
         return f'{prefix}-{self.release}-{self.arch}'
 
     @property
-    def tuple(self) -> tuple[int, int, int]:
+    def tuple(self) -> _tuple[int, int, int]:
         """The tuple ``(major, minor, patch)``."""
         return self.major, self.minor, self.patch
 
