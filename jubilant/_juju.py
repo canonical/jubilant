@@ -805,6 +805,43 @@ class Juju:
 
         self.cli(*args)
 
+    def model_constraints(
+        self,
+        model: str | None = None,
+        constraints: Mapping[str, bool | int | float | str] | None = None,
+    ) -> Mapping[str, bool | int | float | str] | None:
+        """Gets or sets machine constraints on a model.
+
+        Sets new constraints if *constraints* argument is provided.
+        If not, gets you the current details.
+
+        Args:
+            model: Name of the model or ``controller:model``. If omitted,
+                this is taken to be the current model.
+            constraints: Named constraints to be set.
+        """
+        args: list[str] = []
+        if constraints:
+            args.append('set-model-constraints')
+            args.extend(_format_config(k, v) for k, v in constraints.items())
+            if model is not None:
+                args.extend(['--model', model])
+                self.cli(*args, include_model=False)
+            else:
+                self.cli(*args)
+
+            return None
+        else:
+            args.extend(['model-constraints', '--format', 'json'])
+            stdout: str
+            if model is not None:
+                args.extend(['--model', model])
+                stdout = self.cli(*args, include_model=False)
+            else:
+                stdout = self.cli(*args)
+
+            return json.loads(stdout)
+
     def offer(
         self,
         app: str,
