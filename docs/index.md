@@ -70,3 +70,11 @@ Jubilant is a member of the Ubuntu family. It's an open source project that warm
 - [Code of conduct](https://ubuntu.com/community/ethos/code-of-conduct)
 
 For support, join [Charm Development](https://matrix.to/#/#charmhub-charmdev:ubuntu.com) on Matrix. You'll be able to chat with the maintainers of Jubilant (the Canonical Charm Tech team) and a friendly community of charm developers!
+
+## Looking for more?
+
+The Ops repository has several [demo charms](https://github.com/canonical/operator/tree/main/examples) that you can experiment with. The demo charms use Jubilant for their integration tests.
+
+To follow along with updates and tips about charm development, join our [Discourse forum](https://discourse.charmhub.io/).
+
+[Learn more about the Juju ecosystem](https://juju.is/docs)
