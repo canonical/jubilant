@@ -222,13 +222,13 @@ redirects = {}
 # Link checker exceptions #
 ###########################
 
-# A regex list of URLs that are ignored by 'make linkcheck'
-#
-# TODO: [@dwilding DONE] Remove or adjust the ACME entry after you update the contributing guide
+# During linkcheck, if a target URL matches any of these regexes (using re.match)
+# then the URL is skipped.
 
 linkcheck_ignore = [
-    "http://127.0.0.1:8000"
-    ]
+    # Excluded because the pages don't contain elements with an ID matching the URL fragment.
+    r"https://matrix\.to/#/",
+]
 
 
 # A regex list of URLs where anchors are ignored by 'make linkcheck'
