@@ -63,7 +63,7 @@ The library provides:
 
 ## Project and community
 
-Jubilant is a member of the Ubuntu family. It's an open source project that warmly welcomes community contributions, suggestions, fixes and constructive feedback.
+Jubilant is a member of the Ubuntu family. It's an open source project ([Apache license](https://www.apache.org/licenses/LICENSE-2.0)) that warmly welcomes community contributions, suggestions, fixes and constructive feedback.
 
 - [Report a bug](https://github.com/canonical/jubilant/issues)
 - [Contribute](https://github.com/canonical/jubilant?tab=readme-ov-file#contributing-and-developing)
