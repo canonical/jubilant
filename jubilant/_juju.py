@@ -47,6 +47,7 @@ ConfigValue = Union[bool, int, float, str, SecretURI]
 ConstraintValue = Union[bool, int, float, str]
 """The possible types a constraint (model, bootstrap or deployment contraint) value can be."""
 
+
 class Juju:
     """Instantiate this class to run Juju commands.
 
@@ -1525,12 +1526,14 @@ def _format_config(k: str, v: ConfigValue) -> str:
         v = 'true' if v else 'false'
     return f'{k}={v}'
 
+
 def _format_constraint(k: str, v: ConstraintValue) -> str:
     if v is None:  # type: ignore
         raise TypeError(f'unexpected None value for constraint key {k!r}')
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
+
 
 def _status_diff(old: Status | None, new: Status) -> str:
     """Return a line-based diff of two status objects."""
