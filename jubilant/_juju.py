@@ -44,6 +44,8 @@ class WaitError(Exception):
 ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
 
+ConstraintValue = Union[bool, int, float, str]
+"""The possible types a constraint (model, bootstrap or deployment contraint) value can be."""
 
 class Juju:
     """Instantiate this class to run Juju commands.
@@ -805,42 +807,37 @@ class Juju:
 
         self.cli(*args)
 
+    @overload
+    def model_constraints(self) -> Mapping[str, ConstraintValue]: ...
+
+    @overload
+    def model_constraints(self, constraints: Mapping[str, ConstraintValue]) -> None: ...
+
     def model_constraints(
         self,
-        model: str | None = None,
-        constraints: Mapping[str, bool | int | float | str] | None = None,
-    ) -> Mapping[str, bool | int | float | str] | None:
-        """Gets or sets machine constraints on a model.
+        constraints: Mapping[str, ConstraintValue] | None = None,
+    ) -> Mapping[str, ConstraintValue] | None:
+        """Get or set machine constraints on a model.
 
-        Sets new constraints if *constraints* argument is provided.
-        If not, gets you the current details.
+        If called with no arguments, get the model constraints. If called with the
+        *constraints* argument, set the model constraints and return None.
 
         Args:
-            model: Name of the model or ``controller:model``. If omitted,
-                this is taken to be the current model.
-            constraints: Named constraints to be set.
+            constraints: Model constraints to set, for example, ``{'mem': '8G', 'cores': 4}``.
         """
         args: list[str] = []
-        if constraints:
-            args.append('set-model-constraints')
-            args.extend(_format_config(k, v) for k, v in constraints.items())
-            if model is not None:
-                args.extend(['--model', model])
-                self.cli(*args, include_model=False)
-            else:
-                self.cli(*args)
-
-            return None
-        else:
+        if constraints is None:
             args.extend(['model-constraints', '--format', 'json'])
             stdout: str
-            if model is not None:
-                args.extend(['--model', model])
-                stdout = self.cli(*args, include_model=False)
-            else:
-                stdout = self.cli(*args)
+            stdout = self.cli(*args)
 
             return json.loads(stdout)
+
+        args.append('set-model-constraints')
+        args.extend(_format_constraint(k, v) for k, v in constraints.items())
+        self.cli(*args)
+
+        return None
 
     def offer(
         self,
@@ -1528,6 +1525,12 @@ def _format_config(k: str, v: ConfigValue) -> str:
         v = 'true' if v else 'false'
     return f'{k}={v}'
 
+def _format_constraint(k: str, v: ConstraintValue) -> str:
+    if v is None:  # type: ignore
+        raise TypeError(f'unexpected None value for constraint key {k!r}')
+    if isinstance(v, bool):
+        v = 'true' if v else 'false'
+    return f'{k}={v}'
 
 def _status_diff(old: Status | None, new: Status) -> str:
     """Return a line-based diff of two status objects."""
