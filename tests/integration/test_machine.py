@@ -13,8 +13,6 @@ from . import helpers
 
 pytestmark = pytest.mark.machine
 
-MODEL_CONSTRAINTS = {'mem': '1G', 'cores': 4}
-
 
 @pytest.fixture(scope='module', autouse=True)
 def setup(juju: jubilant.Juju):

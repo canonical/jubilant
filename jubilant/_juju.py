@@ -45,7 +45,7 @@ ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
 
 ConstraintValue = Union[bool, int, float, str]
-"""The possible types a constraint (model, bootstrap or deployment contraint) value can be."""
+"""The possible types a constraint value can be (model, bootstrap or deployment constraint)."""
 
 
 class Juju:
@@ -826,19 +826,13 @@ class Juju:
         Args:
             constraints: Model constraints to set, for example, ``{'mem': '8G', 'cores': 4}``.
         """
-        args: list[str] = []
         if constraints is None:
-            args.extend(['model-constraints', '--format', 'json'])
-            stdout: str
-            stdout = self.cli(*args)
-
+            stdout = self.cli('model-constraints', '--format', 'json')
             return json.loads(stdout)
 
-        args.append('set-model-constraints')
+        args = ['set-model-constraints']
         args.extend(_format_constraint(k, v) for k, v in constraints.items())
         self.cli(*args)
-
-        return None
 
     def offer(
         self,
