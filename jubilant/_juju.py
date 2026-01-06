@@ -44,6 +44,9 @@ class WaitError(Exception):
 ConfigValue = Union[bool, int, float, str, SecretURI]
 """The possible types a charm config value can be."""
 
+ConstraintValue = Union[bool, int, float, str]
+"""The possible types a constraint value can be (model, bootstrap or deployment constraint)."""
+
 
 class Juju:
     """Instantiate this class to run Juju commands.
@@ -805,6 +808,32 @@ class Juju:
 
         self.cli(*args)
 
+    @overload
+    def model_constraints(self) -> Mapping[str, ConstraintValue]: ...
+
+    @overload
+    def model_constraints(self, constraints: Mapping[str, ConstraintValue]) -> None: ...
+
+    def model_constraints(
+        self,
+        constraints: Mapping[str, ConstraintValue] | None = None,
+    ) -> Mapping[str, ConstraintValue] | None:
+        """Get or set machine constraints on a model.
+
+        If called with no arguments, get the model constraints. If called with the
+        *constraints* argument, set the model constraints and return None.
+
+        Args:
+            constraints: Model constraints to set, for example, ``{'mem': '8G', 'cores': 4}``.
+        """
+        if constraints is None:
+            stdout = self.cli('model-constraints', '--format', 'json')
+            return json.loads(stdout)
+
+        args = ['set-model-constraints']
+        args.extend(_format_constraint(k, v) for k, v in constraints.items())
+        self.cli(*args)
+
     def offer(
         self,
         app: str,
@@ -1481,6 +1510,14 @@ class Juju:
 def _format_config(k: str, v: ConfigValue) -> str:
     if v is None:  # type: ignore
         raise TypeError(f'unexpected None value for config key {k!r}')
+    if isinstance(v, bool):
+        v = 'true' if v else 'false'
+    return f'{k}={v}'
+
+
+def _format_constraint(k: str, v: ConstraintValue) -> str:
+    if v is None:  # type: ignore
+        raise TypeError(f'unexpected None value for constraint key {k!r}')
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'

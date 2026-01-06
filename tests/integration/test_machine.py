@@ -74,3 +74,11 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
 
     juju.remove_unit('ubuntu/1')
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps['ubuntu'].units) == 1)
+
+
+def test_model_constraints(juju: jubilant.Juju):
+    initial_constraints = juju.model_constraints()
+    assert not initial_constraints
+    juju.model_constraints(constraints={'mem': '1G', 'cores': 4})
+    new_constraints = juju.model_constraints()
+    assert new_constraints == {'mem': 1024, 'cores': 4}
