@@ -1388,6 +1388,7 @@ class Juju:
                 of the last status, if any, is added as an exception note.
             WaitError: If the *error* callable returns True. A string representation
                 of the last status is added as an exception note.
+            CLIError: If the `juju status` CLI call fails for whatever reason.
         """
         if timeout is None:
             timeout = self.wait_timeout
