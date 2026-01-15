@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.8", "3.10", "3.12", "3.13"]
+        python-version: ["3.8", "3.10", "3.12", "3.14"]
 
     steps:
       - name: Check out repo
@@ -49,11 +49,21 @@ jobs:
   integration-k8s:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        juju-channel: ["3/stable", "4/stable"]
+
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-k8s
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-k8s
       cancel-in-progress: true
 
     steps:
+      - name: Work around https://github.com/canonical/concierge/issues/30
+        run: |
+          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
+          sudo rm -rf /run/containerd
+
       - name: Check out repo
         uses: actions/checkout@v4
 
@@ -64,7 +74,7 @@ jobs:
         run: sudo snap install --classic concierge
 
       - name: Prepare Juju
-        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p microk8s
+        run: sudo concierge prepare --verbose --juju-channel=${{ matrix.juju-channel }} --charmcraft-channel=3.x/stable -p k8s
 
       - name: Pack test charms
         run: make pack
@@ -75,8 +85,13 @@ jobs:
   integration-machine:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        juju-channel: ["3/stable", "4/stable"]
+
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-machine
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-machine
       cancel-in-progress: true
 
     steps:
@@ -90,7 +105,7 @@ jobs:
         run: sudo snap install --classic concierge
 
       - name: Prepare Juju
-        run: sudo concierge prepare --verbose --juju-channel=3/stable --charmcraft-channel=3.x/stable -p machine
+        run: sudo concierge prepare --verbose --juju-channel=${{ matrix.juju-channel }} --charmcraft-channel=3.x/stable -p machine
 
       - name: Pack test charms
         run: make pack

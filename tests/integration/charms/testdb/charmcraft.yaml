@@ -23,6 +23,7 @@ actions:
     params:
       mode:
         type: string
+    additionalProperties: true
 
 config:
   options:

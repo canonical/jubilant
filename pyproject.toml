@@ -28,6 +28,7 @@ Documentation = "https://documentation.ubuntu.com/jubilant/"
 
 [dependency-groups]
 dev = [
+    "cryptography>=43.0.0",  # for generating SSH keys in tests
     "ops==2.23.1",  # for static type checking test charms
     "pyright==1.1.407",
     "pytest==8.3.5",

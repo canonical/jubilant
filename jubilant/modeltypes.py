@@ -151,26 +151,14 @@ class ModelInfo:
             region=d.get('region') or '',
             type=d.get('type') or '',
             status=ModelStatusInfo._from_dict(d['status']) if 'status' in d else ModelStatusInfo(),
-            users=(
-                {k: ModelUserInfo._from_dict(v) for k, v in d['users'].items()}
-                if 'users' in d
-                else {}
-            ),
-            machines=(
-                {k: ModelMachineInfo._from_dict(v) for k, v in d['machines'].items()}
-                if 'machines' in d
-                else {}
-            ),
-            secret_backends=(
-                {k: SecretBackendInfo._from_dict(v) for k, v in d['secret-backends'].items()}
-                if 'secret-backends' in d
-                else {}
-            ),
+            users={k: ModelUserInfo._from_dict(v) for k, v in d.get('users', {}).items()},
+            machines={k: ModelMachineInfo._from_dict(v) for k, v in d.get('machines', {}).items()},
+            secret_backends={
+                k: SecretBackendInfo._from_dict(v) for k, v in d.get('secret-backends', {}).items()
+            },
             agent_version=d.get('agent-version') or '',
             credential=ModelCredential._from_dict(d['credential']) if 'credential' in d else None,
-            supported_features=(
-                [SupportedFeature._from_dict(x) for x in d['supported-features']]
-                if 'supported-features' in d
-                else []
-            ),
+            supported_features=[
+                SupportedFeature._from_dict(x) for x in d.get('supported-features', [])
+            ],
         )

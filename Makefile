@@ -4,7 +4,7 @@ MAKEFLAGS += --always-make
 
 help:  # Display help
 	@echo "Usage: make [target] [ARGS='additional args']\n\nTargets:"
-	@awk -F'#' '/^[a-z-]+:/ { sub(":.*", "", $$1); print " ", $$1, "#", $$2 }' Makefile | column -t -s '#'
+	@awk -F'#' '/^[a-z0-9-]+:/ { sub(":.*", "", $$1); print " ", $$1, "#", $$2 }' Makefile | column -t -s '#'
 
 all: format lint unit  # Run all quick, local commands
 

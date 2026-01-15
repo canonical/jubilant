@@ -98,14 +98,16 @@ class Revision:
     backend: str
     created: datetime.datetime
     updated: datetime.datetime
+    expires: datetime.datetime | None
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> Revision:
         return cls(
             revision=d['revision'],
-            backend=d['backend'],
+            backend=d.get('backend', ''),
             created=_datetime_from_iso(d['created']),
             updated=_datetime_from_iso(d['updated']),
+            expires=_datetime_from_iso(d['expires']) if 'expires' in d else None,
         )
 
 

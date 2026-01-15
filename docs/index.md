@@ -1,3 +1,7 @@
+---
+relatedlinks: "[Charmcraft](https://documentation.ubuntu.com/charmcraft/stable/), [Charmlibs](https://documentation.ubuntu.com/charmlibs/), [Concierge](https://github.com/canonical/concierge), [Juju](https://documentation.ubuntu.com/juju/3.6/), [Ops](https://documentation.ubuntu.com/ops/latest/), [Pebble](https://documentation.ubuntu.com/pebble/)"
+---
+
 # Jubilant
 
 ```{toctree}
@@ -59,10 +63,18 @@ The library provides:
 
 ## Project and community
 
-Jubilant is free software and released under the [Apache license, version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Jubilant is a member of the Ubuntu family. It's an open source project ([Apache license](https://www.apache.org/licenses/LICENSE-2.0)) that warmly welcomes community contributions, suggestions, fixes and constructive feedback.
 
-The Jubilant project is sponsored by [Canonical Ltd](https://www.canonical.com).
-
+- [Report a bug](https://github.com/canonical/jubilant/issues)
+- [Contribute](https://github.com/canonical/jubilant?tab=readme-ov-file#contributing-and-developing)
 - [Code of conduct](https://ubuntu.com/community/ethos/code-of-conduct)
-- [Contribute to the project](https://github.com/canonical/jubilant?tab=readme-ov-file#contributing-and-developing)
-- [Development](https://github.com/canonical/jubilant?tab=readme-ov-file#contributing-and-developing): how to make changes to Jubilant and run its tests
+
+For support, join [Charm Development](https://matrix.to/#/#charmhub-charmdev:ubuntu.com) on Matrix. You'll be able to chat with the maintainers of Jubilant (the Canonical Charm Tech team) and a friendly community of charm developers!
+
+## Looking for more?
+
+The Ops repository has several [demo charms](https://github.com/canonical/operator/tree/main/examples) that you can experiment with. The demo charms use Jubilant for their integration tests.
+
+To follow along with updates and tips about charm development, join our [Discourse forum](https://discourse.charmhub.io/).
+
+[Learn more about the Juju ecosystem](https://juju.is/docs)
