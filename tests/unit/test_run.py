@@ -82,8 +82,20 @@ def test_leader(run: mocks.Run):
     assert task.success
 
 
-def test_not_found(run: mocks.Run):
+def test_not_found_juju3(run: mocks.Run):
     run.handle(['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'])
+    juju = jubilant.Juju()
+
+    with pytest.raises(ValueError):
+        juju.run('mysql/0', 'get-password')
+
+
+def test_not_found_juju4(run: mocks.Run):
+    run.handle(
+        ['juju', 'run', '--format', 'json', 'mysql/0', 'get-password'],
+        returncode=1,
+        stderr='ERROR action "get-password" not defined for unit "mysql/0". (not found)',
+    )
     juju = jubilant.Juju()
 
     with pytest.raises(ValueError):
