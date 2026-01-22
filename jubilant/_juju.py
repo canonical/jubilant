@@ -1060,7 +1060,7 @@ class Juju:
                 # ERROR action "not-defined-action" not defined for unit "unit/0". (not found)
                 if 'not found' in exc.stderr:
                     raise ValueError(
-                        f'error running action {action!r}, stderr:\n{stderr}'
+                        f'error running action {action!r}, stderr:\n{exc.stderr}'
                     ) from None
                 # The "juju run" CLI command fails if the action has an uncaught exception.
                 if 'task failed' not in exc.stderr:
