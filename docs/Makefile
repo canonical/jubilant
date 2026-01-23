@@ -1,6 +1,6 @@
 # Minimal makefile for Sphinx documentation
 #
-# Add your customisation to `Makefile` instead.
+# [DUMMY CHANGE} Add your customisation to `Makefile` instead.
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
