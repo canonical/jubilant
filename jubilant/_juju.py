@@ -1522,8 +1522,6 @@ def _format_config(k: str, v: ConfigValue) -> str:
 
 
 def _format_constraint(k: str, v: ConstraintValue) -> str:
-    if v is None:  # type: ignore
-        raise TypeError(f'unexpected None value for constraint key {k!r}')
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
