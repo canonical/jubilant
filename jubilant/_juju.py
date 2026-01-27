@@ -1514,17 +1514,13 @@ class Juju:
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
-    if v is None:  # type: ignore
-        raise TypeError(f'unexpected None value for config key {k!r}')
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
 
 
 def _format_constraint(k: str, v: ConstraintValue) -> str:
-    if isinstance(v, bool):
-        v = 'true' if v else 'false'
-    return f'{k}={v}'
+    return _format_config(k, v)  # implement in terms of the superset
 
 
 def _status_diff(old: Status | None, new: Status) -> str:

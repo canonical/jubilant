@@ -1,5 +1,3 @@
-import pytest
-
 import jubilant
 
 from . import mocks
@@ -118,9 +116,3 @@ def test_set_with_reset(run: mocks.Run):
     juju = jubilant.Juju()
     retval = juju.config('app1', {'foo': 'bar'}, reset=['baz', 'buzz'])
     assert retval is None
-
-
-def test_format_config_type_error():
-    juju = jubilant.Juju()
-    with pytest.raises(TypeError):
-        juju.config('app1', {'foo': None})  # type: ignore
