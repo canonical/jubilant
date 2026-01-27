@@ -831,7 +831,7 @@ class Juju:
             return json.loads(stdout)
 
         args = ['set-model-constraints']
-        args.extend(_format_constraint(k, v) for k, v in constraints.items())
+        args.extend(_format_config(k, v) for k, v in constraints.items())
         self.cli(*args)
 
     def offer(
@@ -1517,10 +1517,6 @@ def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
-
-
-def _format_constraint(k: str, v: ConstraintValue) -> str:
-    return _format_config(k, v)  # implement in terms of the superset
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
