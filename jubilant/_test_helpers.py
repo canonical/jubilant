@@ -57,8 +57,8 @@ def temp_model(
         if not keep:
             assert juju.model is not None
             try:
-                # We're not using juju.destroy_model() here, as it doesn't have a timeout
-                # parameter. If we add such a parameter, we can update this.
+                # We're not using juju.destroy_model() here, as Juju doesn't provide a way
+                # to specify the timeout for the entire model destruction operation.
                 args = ['destroy-model', juju.model, '--no-prompt', '--destroy-storage', '--force']
                 juju._cli(*args, include_model=False, timeout=10 * 60)
                 juju.model = None

@@ -626,6 +626,9 @@ class Juju:
         *,
         destroy_storage: bool = False,
         force: bool = False,
+        no_wait: bool = False,
+        release_storage: bool = False,
+        timeout: float | None = None,
     ) -> None:
         """Terminate all machines (or containers) and resources for a model.
 
@@ -634,14 +637,26 @@ class Juju:
 
         Args:
             model: Name of model to destroy.
-            destroy_storage: If true, destroy all storage instances in the model.
-            force: If true, force model destruction and ignore any errors.
+            destroy_storage: If True, destroy all storage instances in the model.
+            force: If True, force model destruction and ignore any errors.
+            no_wait: If True, rush through model destruction without waiting for each step
+                to complete.
+            release_storage: If True, release all storage instances in the model.
+                This is mutually exclusive with *destroy_storage*.
+            timeout: Maximum time (in seconds) to wait for each step in the model destruction.
+                This option can only be used with *force*.
         """
         args = ['destroy-model', model, '--no-prompt']
         if destroy_storage:
             args.append('--destroy-storage')
         if force:
             args.append('--force')
+        if no_wait:
+            args.append('--no-wait')
+        if release_storage:
+            args.append('--release-storage')
+        if timeout is not None:
+            args.extend(['--timeout', f'{timeout}s'])
         self.cli(*args, include_model=False)
         if model == self.model:
             self.model = None
