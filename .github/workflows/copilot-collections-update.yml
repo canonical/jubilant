@@ -10,5 +10,3 @@ jobs:
   check-update:  
     # Pinned to main to get the latest logic, but the content comes from the .copilot-collections.yaml file.
     uses: canonical/copilot-collections/.github/workflows/auto_update_collections.yaml@main
-    with:  
-      config_file: ".copilot-collections.yaml"  
