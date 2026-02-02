@@ -13,5 +13,3 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    with:  
-      config_file: ".copilot-collections.yaml"  
