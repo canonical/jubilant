@@ -846,7 +846,7 @@ class Juju:
             return json.loads(stdout)
 
         args = ['set-model-constraints']
-        args.extend(_format_constraint(k, v) for k, v in constraints.items())
+        args.extend(_format_config(k, v) for k, v in constraints.items())
         self.cli(*args)
 
     def offer(
@@ -1529,14 +1529,6 @@ class Juju:
 
 
 def _format_config(k: str, v: ConfigValue) -> str:
-    if v is None:  # type: ignore
-        raise TypeError(f'unexpected None value for config key {k!r}')
-    if isinstance(v, bool):
-        v = 'true' if v else 'false'
-    return f'{k}={v}'
-
-
-def _format_constraint(k: str, v: ConstraintValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
