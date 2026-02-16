@@ -34,7 +34,7 @@ Read [the Charm Tech style guide](https://github.com/canonical/operator/blob/mai
 
 ### Core Module: `jubilant/_juju.py`
 
-The `Juju` class is the main entry point. Every public method corresponds to a Juju CLI command. All commands are executed via `subprocess.run()` through the private `_cli()` method. Errors raise `CLIError` (subclass of `CalledProcessError`).
+The `Juju` class is the main entry point. Every public method except `wait` corresponds to a Juju CLI command. All commands are executed via `subprocess.run()` through the private `_cli()` method. Errors raise `CLIError` (subclass of `CalledProcessError`).
 
 ### Type System: `jubilant/statustypes.py`, `modeltypes.py`, `secrettypes.py`
 
