@@ -391,7 +391,7 @@ class Juju:
         if include_model and self.model is not None:
             args = (args[0], '--model', self.model, *args[1:])
         if log:
-            logger.info('cli: juju %s', shlex.join(args))
+            logger.info('cli: %s %s', self.cli_binary, shlex.join(args))
         try:
             process = subprocess.run(
                 [self.cli_binary, *args],
