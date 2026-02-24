@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import urllib.request
+
 import pytest
-import requests
 
 import jubilant
 
@@ -18,10 +19,13 @@ def test_deploy(juju: jubilant.Juju):
     # Setup has already done "juju deploy", this tests it.
     status = juju.status()
     address = status.apps['snappass-test'].units['snappass-test/0'].address
-    response = requests.get(f'http://{address}:5000/', timeout=10)
-    response.raise_for_status()
-    assert '<title>' in response.text
-    assert 'snappass' in response.text.lower()
+
+    with urllib.request.urlopen(f'http://{address}:5000/', timeout=10) as resp:
+        assert 200 <= resp.status_code < 300
+        body = resp.read().decode('utf-8', errors='replace')
+
+    assert '<title>' in body
+    assert 'snappass' in body.lower()
 
     # Ensure refresh works (though it will already be up to date).
     juju.refresh('snappass-test')
