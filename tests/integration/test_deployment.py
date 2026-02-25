@@ -22,7 +22,7 @@ def test_deploy(juju: jubilant.Juju):
 
     with urllib.request.urlopen(f'http://{address}:5000/', timeout=10) as resp:
         assert 200 <= resp.status < 300
-        body = resp.read().decode('utf-8', errors='replace')
+        body = resp.read().decode()
 
     assert '<title>' in body
     assert 'snappass' in body.lower()
