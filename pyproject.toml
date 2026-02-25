@@ -136,6 +136,9 @@ reportPrivateUsage = false  # silence errors about use of _from_dict outside cla
 reportUnnecessaryTypeIgnoreComment = "error"
 
 [tool.pytest.ini_options]
+markers = [
+  "machine: integration tests that require a Juju machine model",
+]
 pythonpath = [
   "."
 ]
