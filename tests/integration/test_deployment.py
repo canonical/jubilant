@@ -21,7 +21,7 @@ def test_deploy(juju: jubilant.Juju):
     address = status.apps['snappass-test'].units['snappass-test/0'].address
 
     with urllib.request.urlopen(f'http://{address}:5000/', timeout=10) as resp:
-        assert 200 <= resp.status_code < 300
+        assert 200 <= resp.status < 300
         body = resp.read().decode('utf-8', errors='replace')
 
     assert '<title>' in body
