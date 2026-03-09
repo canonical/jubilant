@@ -14,7 +14,7 @@ reference/index
 explanation/index
 ```
 
-Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI, primarily for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
+Jubilant is a Python library that wraps the [Juju](https://canonical.com/juju) CLI, primarily for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
 You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](explanation/design-goals).
 
@@ -77,4 +77,4 @@ The Ops repository has several [demo charms](https://github.com/canonical/operat
 
 To follow along with updates and tips about charm development, join our [Discourse forum](https://discourse.charmhub.io/).
 
-[Learn more about the Juju ecosystem](https://juju.is/docs)
+[Learn more about the Juju ecosystem](https://canonical.com/juju/docs)
