@@ -16,7 +16,7 @@ make unit ARGS='-k test_defaults'                    # Test by name pattern
 make help                   # Run to see all available commands
 ```
 
-## Code Style
+## Code and Documentation Style
 
 - **Line length**: 99 characters
 - **Quotes**: Single quotes
@@ -28,7 +28,9 @@ make help                   # Run to see all available commands
 
 Ensure that `pre-commit` is installed (with the user's permission) so that style is enforced with every commit. If the user does not permit using `pre-commit`, *always* ensure that `make all` shows no issues before committing.
 
-Read [the Charm Tech style guide](https://github.com/canonical/operator/blob/main/STYLE.md) if more clarification is required.
+Read [the Charm Tech style guide](https://github.com/canonical/operator/blob/main/STYLE.md) if more clarification is required, and for details on documentation patterns.
+
+Avoiding writing documentation: that is a task for humans. When reviewing documentation pay particular attention to ensuring that all documentation across the project is consistent, and that the patterns in the Charm Tech style guide are followed.
 
 ## Architecture
 
