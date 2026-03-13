@@ -479,7 +479,7 @@ class Juju:
             juju.consume('othermodel.mysql', controller='ctrl2', owner='admin')
 
         Args:
-            model_and_app: Dotted application and model name to offer endpoints for, for example
+            model_and_app: Dotted application and model name to consume endpoints from, for example
                 ``othermodel.mysql``.
             alias: A local alias for the offer, for use with :meth:`integrate`. Defaults to the
                 application name.
