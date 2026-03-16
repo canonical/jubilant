@@ -28,6 +28,12 @@ def juju(request: pytest.FixtureRequest) -> Generator[jubilant.Juju]:
 
 
 @pytest.fixture(scope='module')
+def juju_version(juju: jubilant.Juju) -> jubilant.Version:
+    """Module-scoped pytest fixture that returns the Juju CLI version."""
+    return juju.version()
+
+
+@pytest.fixture(scope='module')
 def model2(request: pytest.FixtureRequest) -> Generator[jubilant.Juju]:
     """Module-scoped pytest fixture that creates a (second) temporary model."""
     keep_models = cast(bool, request.config.getoption('--keep-models'))
