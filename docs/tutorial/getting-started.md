@@ -82,7 +82,7 @@ def test_deploy(juju: jubilant.Juju):
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 ```
 
-This test deploys the `snappass-test` charm from Charmhub. To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see [How to migrate from pytest-operator | An application fixture](#how_to_migrate_an_application_fixture).
+This test deploys the `snappass-test` charm from Charmhub. To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see {external+operator:ref}`How to migrate integration tests from pytest-operator | An application fixture <how_to_migrate_an_application_fixture>`.
 
 You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, to create a new model for every test function (pytest's default behavior), omit the scope:
 
@@ -92,7 +92,7 @@ def juju():
     ...
 ```
 
-For a more complex fixture that outputs Juju debug logs if tests fail, see [How to migrate from pytest-operator | A `juju` model fixture](#a_juju_model_fixture).
+For a more complex fixture that outputs Juju debug logs if tests fail, see {external+operator:ref}`How to migrate integration tests from pytest-operator | A Juju model fixture <a_juju_model_fixture>`.
 
 
 (use_a_custom_wait_condition)=

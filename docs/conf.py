@@ -384,4 +384,5 @@ maximum_signature_line_length = 80
 # Configuration for intersphinx mapping
 intersphinx_mapping = {
     "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
+    "operator": ("https://documentation.ubuntu.com/ops/latest/", None),
 }
