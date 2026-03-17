@@ -9,7 +9,6 @@ relatedlinks: "[Charmcraft](https://documentation.ubuntu.com/charmcraft/stable/)
 :hidden: true
 
 Tutorial <tutorial/getting-started>
-how-to/index
 reference/index
 explanation/index
 ```
@@ -36,19 +35,13 @@ The library provides:
 **Start here**: a hands-on introduction to Jubilant, including how to write a charm integration test
 ```
 
-```{grid-item-card} [How-to guides](how-to/index)
-**Step-by-step guides** covering key operations and common tasks
-- [Migrate from pytest-operator](how-to/migrate-from-pytest-operator)
-```
-````
-
-````{grid} 1 1 2 2
-:reverse:
 ```{grid-item-card} [Reference](reference/index)
 **Technical information**
 - [API reference](reference/jubilant)
 ```
+````
 
+````{grid} 1 1 2 2
 ```{grid-item-card} [Explanation](explanation/index)
 **Discussion and clarification** of key topics
 - [Design goals](explanation/design-goals)
