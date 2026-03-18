@@ -861,13 +861,12 @@ class Juju:
 
         Examples::
 
-            juju.offer('mysql', endpoint='db')  # Offers from the current model.
+            juju.offer('mysql', endpoint='db')
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
 
         Args:
             app: Application name to offer endpoints for. May include a dotted model name, for
-                example ``mymodel.mysql``. If you don't specify a model name, Juju uses the
-                current model, even if ``self.model`` is not None.
+                example ``mymodel.mysql``.
             controller: Name of controller to operate in. If not specified, use the current
                 controller.
             endpoint: Endpoint or endpoints to offer.
