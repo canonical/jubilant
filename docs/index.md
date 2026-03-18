@@ -9,12 +9,11 @@ relatedlinks: "[Charmcraft](https://documentation.ubuntu.com/charmcraft/stable/)
 :hidden: true
 
 Tutorial <tutorial/getting-started>
-how-to/index
 reference/index
 explanation/index
 ```
 
-Jubilant is a Python library that wraps the [Juju](https://juju.is/) CLI, primarily for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
+Jubilant is a Python library that wraps the [Juju](https://canonical.com/juju) CLI, primarily for use in charm integration tests. It provides methods that map 1:1 to Juju CLI commands, but with a type-annotated, Pythonic interface.
 
 You should consider switching to Jubilant if your integration tests currently use [pytest-operator](https://github.com/charmed-kubernetes/pytest-operator) (and they probably do). Jubilant has an API you'll pick up quickly, and it avoids some of the pain points of [python-libjuju](https://github.com/juju/python-libjuju/), such as websocket failures and having to use `async`. Read our [design goals](explanation/design-goals).
 
@@ -36,19 +35,13 @@ The library provides:
 **Start here**: a hands-on introduction to Jubilant, including how to write a charm integration test
 ```
 
-```{grid-item-card} [How-to guides](how-to/index)
-**Step-by-step guides** covering key operations and common tasks
-- [Migrate from pytest-operator](how-to/migrate-from-pytest-operator)
-```
-````
-
-````{grid} 1 1 2 2
-:reverse:
 ```{grid-item-card} [Reference](reference/index)
 **Technical information**
 - [API reference](reference/jubilant)
 ```
+````
 
+````{grid} 1 1 2 2
 ```{grid-item-card} [Explanation](explanation/index)
 **Discussion and clarification** of key topics
 - [Design goals](explanation/design-goals)
@@ -77,4 +70,4 @@ The Ops repository has several [demo charms](https://github.com/canonical/operat
 
 To follow along with updates and tips about charm development, join our [Discourse forum](https://discourse.charmhub.io/).
 
-[Learn more about the Juju ecosystem](https://juju.is/docs)
+[Learn more about the Juju ecosystem](https://canonical.com/juju/docs)

@@ -110,7 +110,7 @@ html_context = {
     # TODO: If there's no such website,
     #       remove the {{ product_page }} link from the page header template
     #       (usually .sphinx/_templates/header.html; also, see README.rst).
-    "product_page": "github.com/canonical/jubilant",
+    "product_page": "canonical.com/juju/docs",
     # Product tag image; the orange part of your logo, shown in the page header
     #
     # TODO: [@dwilding DONE] To add a tag image, uncomment and update as needed.
@@ -384,4 +384,5 @@ maximum_signature_line_length = 80
 # Configuration for intersphinx mapping
 intersphinx_mapping = {
     "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
+    "operator": ("https://documentation.ubuntu.com/ops/latest/", None),
 }
