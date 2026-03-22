@@ -874,6 +874,10 @@ class Juju:
         """
         if not isinstance(endpoint, str):
             endpoint = ','.join(endpoint)
+        if self.model and '.' not in app and not controller:
+            use_controller, _, use_model = self.model.rpartition(':')
+            app = f'{use_model}.{app}'
+            controller = use_controller or None
         app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
         if controller:
