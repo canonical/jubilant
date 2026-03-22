@@ -57,41 +57,73 @@ test   k8s         my-k8s/localhost  3.6.4    unsupported  12:35:05+13:00
 Model "test" is empty.
 ```
 
-## Write a charm integration test
+## Deploy a charm
 
-We recommend using [pytest](https://docs.pytest.org/en/stable/) for writing tests. You can define a [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) to create a temporary Juju model for each test. The [](jubilant.temp_model) context manager creates a randomly-named model on entry, and destroys the model on exit.
-
-Here is a module-scoped fixture called `juju`, which you would normally define in [`conftest.py`](https://docs.pytest.org/en/stable/reference/fixtures.html#conftest-py-sharing-fixtures-across-multiple-files):
-
-```python
-@pytest.fixture(scope='module')
-def juju():
-    with jubilant.temp_model() as juju:
-        yield juju
+```
+$ uv run python
+>>> import jubilant
+>>> juju = jubilant.Juju(model='test')
+>>> juju.deploy('snappass-test')
+>>> juju.wait(jubilant.all_active)
+>>> # Or wait for just 'snappass-test' to be active (ignoring other apps):
+>>> juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
+Status(
+  model=ModelStatus(
+    name='test',
+    type='caas',
+    controller='k8s',
+    cloud='my-k8s',
+    version='3.6.4',
+    region='localhost',
+    model_status=StatusInfo(
+        current='available',
+        since='21 Mar 2026 10:02:14+08:00'
+    ),
+  ),
+  machines={},
+  apps={
+    'snappass-test': AppStatus(
+      charm='snappass-test',
+      charm_origin='charmhub',
+      charm_name='snappass-test',
+      charm_rev=9,
+      exposed=False,
+      base=FormattedBase(name='ubuntu', channel='20.04'),
+      charm_channel='latest/stable',
+      scale=1,
+      provider_id='02b75cbe-8e3d-4460-a634-ddca361a9ab2',
+      address='10.152.183.23',
+      app_status=StatusInfo(
+        current='active',
+        message='redis started',
+        since='23 Mar 2026 07:46:25+08:00'
+      ),
+      units={
+        'snappass-test/0': UnitStatus(
+          workload_status=StatusInfo(
+            current='active',
+            message='redis started',
+            since='23 Mar 2026 07:46:25+08:00'
+          ),
+          juju_status=StatusInfo(
+            current='idle',
+            since='23 Mar 2026 07:46:25+08:00',
+            version='3.6.19'
+          ),
+          leader=True,
+          address='10.1.57.216',
+          provider_id='snappass-test-0',
+        ),
+      },
+    ),
+  },
+  controller=ControllerStatus(timestamp='07:46:27+08:00'),
+)
 ```
 
-Integration tests in a test file would use the fixture, operating on the temporary model:
+This code deploys the `snappass-test` charm from Charmhub.
 
-```python
-def test_deploy(juju: jubilant.Juju):
-    juju.deploy('snappass-test')
-    juju.wait(jubilant.all_active)
-
-    # Or wait for just 'snappass-test' to be active (ignoring other apps):
-    juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
-```
-
-This test deploys the `snappass-test` charm from Charmhub. To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see {external+operator:ref}`How to migrate integration tests from pytest-operator | An application fixture <how_to_migrate_an_application_fixture>`.
-
-You may want to adjust the [scope](https://docs.pytest.org/en/stable/how-to/fixtures.html#fixture-scopes) of your `juju` fixture. For example, to create a new model for every test function (pytest's default behavior), omit the scope:
-
-```python
-@pytest.fixture
-def juju():
-    ...
-```
-
-For a more complex fixture that outputs Juju debug logs if tests fail, see {external+operator:ref}`How to migrate integration tests from pytest-operator | A Juju model fixture <a_juju_model_fixture>`.
+To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see {external+operator:ref}`How to migrate integration tests from pytest-operator | An application fixture <how_to_migrate_an_application_fixture>`.
 
 (use_a_custom_wait_condition)=
 ## Use a custom `wait` condition
