@@ -859,16 +859,34 @@ class Juju:
     ) -> None:
         """Offer application endpoints for use in other models.
 
+        By default, this method uses the model and controller from ``self.model``. If
+            ``self.model`` doesn't specify a controller, this method operates on ``self.model`` in
+            the current controller. If ``self.model`` isn't set, this method operates on the
+            current model in the current controller.
+
+        You can override the default behavior by including a dotted model name in *app*, for
+        example ``mymodel.mysql``. This method then operates on the specified model in the current
+        controller (or the controller specified by *controller*).
+
+        You can also override the default behavior by specifying *controller*. This method then
+        operates on the current model (or the model specified by *app*) in the specified
+        controller.
+
         Examples::
 
             juju.offer('mysql', endpoint='db')
+
+            # These all ignore juju.model
+            juju.offer('mymodel.mysql', endpoint='db')
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
+            juju.offer('mysql', controller='ctl', endpoint='db')  # Use current model in ctl
+            juju.offer('mymodel.mysql', controller='ctl', endpoint='db')
 
         Args:
-            app: Application name to offer endpoints for. May include a dotted model name, for
-                example ``mymodel.mysql``.
-            controller: Name of controller to operate in. If not specified, use the current
-                controller.
+            app: Application name to offer endpoints for. If *app* includes a dotted model name,
+                this method ignores ``self.model`` when determining the model and controller.
+            controller: Name of controller to operate in. If *controller* is specified, this method
+                ignores ``self.model`` when determining the model and controller.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
         """
