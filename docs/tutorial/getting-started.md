@@ -18,7 +18,6 @@ $ uv add jubilant
 
 Like the [Ops](https://github.com/canonical/operator) framework used by charms, Jubilant requires Python 3.8 or above.
 
-
 ## Check your setup
 
 To check that Jubilant is working, use it to add a Juju model and check its status:
@@ -58,7 +57,6 @@ test   k8s         my-k8s/localhost  3.6.4    unsupported  12:35:05+13:00
 Model "test" is empty.
 ```
 
-
 ## Write a charm integration test
 
 We recommend using [pytest](https://docs.pytest.org/en/stable/) for writing tests. You can define a [pytest fixture](https://docs.pytest.org/en/stable/explanation/fixtures.html) to create a temporary Juju model for each test. The [](jubilant.temp_model) context manager creates a randomly-named model on entry, and destroys the model on exit.
@@ -94,7 +92,6 @@ def juju():
 ```
 
 For a more complex fixture that outputs Juju debug logs if tests fail, see {external+operator:ref}`How to migrate integration tests from pytest-operator | A Juju model fixture <a_juju_model_fixture>`.
-
 
 (use_a_custom_wait_condition)=
 ## Use a custom `wait` condition
@@ -178,7 +175,6 @@ By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance
 'cda7763e-05fc-4e55-80ab-7b39badaa50d'
 ```
 
-
 ## Use `concierge` in CI
 
 We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up Juju when running your integration tests in CI. It will install Juju with a provider like MicroK8s and bootstrap a controller for you. For example, using GitHub Actions:
@@ -199,7 +195,6 @@ We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up 
       charmcraft pack
       uv run --group integration pytest tests/integration -vv --log-level=INFO
 ```
-
 
 (next_steps)=
 ## Next steps
