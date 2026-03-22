@@ -860,9 +860,9 @@ class Juju:
         """Offer application endpoints for use in other models.
 
         By default, this method uses the model and controller from ``self.model``. If
-            ``self.model`` doesn't specify a controller, this method operates on ``self.model`` in
-            the current controller. If ``self.model`` isn't set, this method operates on the
-            current model in the current controller.
+        ``self.model`` doesn't specify a controller, this method operates on ``self.model`` in the
+        current controller. If ``self.model`` isn't set, this method operates on the current model
+        in the current controller.
 
         You can override the default behavior by including a dotted model name in *app*, for
         example ``mymodel.mysql``. This method then operates on the specified model in the current
