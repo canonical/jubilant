@@ -1324,9 +1324,35 @@ class Juju:
 
         return self.cli(*cli_args)
 
-    def status(self) -> Status:
-        """Fetch the status of the current model, including its applications and units."""
-        stdout = self.cli('status', '--format', 'json')
+    def status(self, *selectors: str) -> Status:
+        """Fetch the status of the current model, including its applications and units.
+
+        Example::
+
+            juju = jubilant.Juju()
+
+            # Get status for all applications and units:
+            print(juju.status())
+
+            # Get status for specific machines, applications, or units:
+            print(juju.status('0'))
+            print(juju.status('myapp'))
+            print(juju.status('myapp/0'))
+            print(juju.status('myapp1', 'myapp2'))
+            print(juju.status('0', 'myapp1', 'myapp2/1'))
+
+            # Get status for specific workload status values:
+            print(juju.status('active'))
+            print(juju.status('blocked', 'error'))
+
+        Args:
+            selectors: Optional status selectors (machines, applications, units, or status
+                values).
+        """
+        args = ['status', '--format', 'json']
+        if selectors:
+            args.extend(selectors)
+        stdout = self.cli(*args)
         result = json.loads(stdout)
         return Status._from_dict(result)
 

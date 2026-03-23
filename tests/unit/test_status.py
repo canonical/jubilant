@@ -4,7 +4,7 @@ import jubilant
 from jubilant import statustypes
 
 from . import mocks
-from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
+from .fake_statuses import DATABASE_WEBAPP_JSON, MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 
 def test_minimal(run: mocks.Run):
@@ -35,6 +35,29 @@ def test_real_status(run: mocks.Run):
     assert status.apps['snappass-test'].is_active
     assert status.apps['snappass-test'].units['snappass-test/0'].is_active
     assert status.apps['snappass-test'].units['snappass-test/0'].leader
+
+
+def test_status_with_single_selector(run: mocks.Run):
+    run.handle(['juju', 'status', '--format', 'json', 'snappass-test'], stdout=SNAPPASS_JSON)
+    juju = jubilant.Juju()
+
+    status = juju.status('snappass-test')
+
+    assert status.model.type == 'caas'
+    assert status.apps['snappass-test'].is_active
+
+
+def test_status_with_multiple_selectors(run: mocks.Run):
+    run.handle(
+        ['juju', 'status', '--format', 'json', 'database', 'webapp/0'],
+        stdout=DATABASE_WEBAPP_JSON,
+    )
+    juju = jubilant.Juju()
+
+    status = juju.status('database', 'webapp/0')
+
+    assert status.apps['database'].is_active
+    assert status.apps['webapp'].is_active
 
 
 def test_status_eq():
