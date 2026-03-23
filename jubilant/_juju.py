@@ -892,7 +892,7 @@ class Juju:
         """
         if not isinstance(endpoint, str):
             endpoint = ','.join(endpoint)
-        if self.model is not None and '.' not in app and controller is not None:
+        if self.model is not None and '.' not in app and controller is None:
             use_controller, _, use_model = self.model.rpartition(':')
             app = f'{use_model}.{app}'
             controller = use_controller or None
