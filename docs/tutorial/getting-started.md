@@ -202,27 +202,6 @@ By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance
 'cda7763e-05fc-4e55-80ab-7b39badaa50d'
 ```
 
-## Use `concierge` in CI
-
-We recommend using [concierge](https://github.com/jnsgruk/concierge/) to set up Juju when running your integration tests in CI. It will install Juju with a provider like MicroK8s and bootstrap a controller for you. For example, using GitHub Actions:
-
-```
-- name: Install concierge
-  run: sudo snap install --classic concierge
-
-- name: Install Juju and bootstrap
-  run: |
-      sudo concierge prepare \
-          --juju-channel=3/stable \
-          --charmcraft-channel=3.x/stable \
-          --preset microk8s
-
-- name: Run integration tests
-  run: |
-      charmcraft pack
-      uv run --group integration pytest tests/integration -vv --log-level=INFO
-```
-
 (next_steps)=
 ## Next steps
 
