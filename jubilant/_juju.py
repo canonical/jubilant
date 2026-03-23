@@ -365,7 +365,7 @@ class Juju:
                 args.extend(['--to', to])
             else:
                 args.extend(['--to', ','.join(to)])
-        if metadata_source:
+        if metadata_source is not None:
             args.extend(['--metadata-source', metadata_source])
 
         _, stderr = self._cli(*args, include_model=False)
