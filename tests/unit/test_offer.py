@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 import jubilant
@@ -29,7 +31,7 @@ def test_insert_controller_and_model(run: mocks.Run):
 
 
 @pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
-def test_dotted_app(self_model: str, run: mocks.Run):
+def test_dotted_app(self_model: str | None, run: mocks.Run):
     # If app is a dotted name, we ignore self.model.
     run.handle(['juju', 'offer', 'inmodel.mysql:db'])
     juju = jubilant.Juju(model=self_model)
@@ -39,7 +41,7 @@ def test_dotted_app(self_model: str, run: mocks.Run):
 
 @pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
 @pytest.mark.parametrize('app', ['mysql', 'inmodel.mysql'])
-def test_controller_arg(self_model: str, app: str, run: mocks.Run):
+def test_controller_arg(self_model: str | None, app: str, run: mocks.Run):
     # If controller is not None, we ignore self.model.
     run.handle(['juju', 'offer', f'{app}:db', '--controller', 'inctl'])
     juju = jubilant.Juju(model=self_model)
