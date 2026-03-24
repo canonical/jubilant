@@ -208,7 +208,6 @@ By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance
 You've now learned the basics of Jubilant! To learn more:
 
 - Look over the [`jubilant` API reference](/reference/jubilant)
-- See [Jubilant's own integration tests](https://github.com/canonical/jubilant/tree/main/tests/integration) for more examples of using `Juju` methods
-- See [Jubilant's `conftest.py`](https://github.com/canonical/jubilant/blob/main/tests/integration/conftest.py) with a `juju` fixture that has a `--keep-models` command-line argument, and prints the `juju debug-log` on test failure
+- For examples of using Jubilant in integration tests, see the [httpbin-demo charm's integration tests](https://github.com/canonical/operator/tree/main/examples/httpbin-demo/tests/integration) or [Jubilant's own integration tests](https://github.com/canonical/jubilant/tree/main/tests/integration)
 
 If you have any problems or want to request new features, please [open an issue](https://github.com/canonical/jubilant/issues/new).
