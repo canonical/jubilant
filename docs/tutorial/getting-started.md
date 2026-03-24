@@ -93,7 +93,7 @@ Status(
 
 This code deploys the `snappass-test` charm from Charmhub.
 
-To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see {external+operator:ref}`How to migrate integration tests from pytest-operator | An application fixture <how_to_migrate_an_application_fixture>`.
+To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see "Write your tests" in {external+operator:ref}`How to write integration tests for a charm <write-integration-tests-for-a-charm-write-your-tests>`.
 
 (use_a_custom_wait_condition)=
 ## Use a custom `wait` condition
