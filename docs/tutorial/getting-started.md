@@ -32,18 +32,19 @@ Status(
   model=ModelStatus(
     name='test',
     type='caas',
-    controller='k8s',
-    cloud='my-k8s',
-    version='3.6.4',
-    region='localhost',
+    controller='concierge-k8s',
+    cloud='k8s',
+    version='3.6.14',
     model_status=StatusInfo(
       current='available',
-      since='22 Mar 2025 12:34:12+13:00',
+      since='24 Mar 2026 13:47:11+08:00'
     ),
   ),
   machines={},
   apps={},
-  controller=ControllerStatus(timestamp='12:34:17+13:00'),
+  controller=ControllerStatus(
+    timestamp='13:47:16+08:00'
+  ),
 )
 ```
 
@@ -51,8 +52,8 @@ Compare the status to what's displayed when using the Juju CLI directly:
 
 ```
 $ juju status --model test
-Model  Controller  Cloud/Region      Version  SLA          Timestamp
-test   k8s         my-k8s/localhost  3.6.4    unsupported  12:35:05+13:00
+Model  Controller     Cloud/Region  Version  SLA          Timestamp
+test   concierge-k8s  k8s           3.6.14   unsupported  13:48:05+08:00
 
 Model "test" is empty.
 ```
@@ -68,56 +69,25 @@ $ uv run python
 >>> # Or wait for just 'snappass-test' to be active (ignoring other apps):
 >>> juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 Status(
-  model=ModelStatus(
-    name='test',
-    type='caas',
-    controller='k8s',
-    cloud='my-k8s',
-    version='3.6.4',
-    region='localhost',
-    model_status=StatusInfo(
-        current='available',
-        since='21 Mar 2026 10:02:14+08:00'
-    ),
-  ),
-  machines={},
   apps={
     'snappass-test': AppStatus(
       charm='snappass-test',
       charm_origin='charmhub',
       charm_name='snappass-test',
-      charm_rev=9,
-      exposed=False,
-      base=FormattedBase(name='ubuntu', channel='20.04'),
-      charm_channel='latest/stable',
-      scale=1,
-      provider_id='02b75cbe-8e3d-4460-a634-ddca361a9ab2',
-      address='10.152.183.23',
-      app_status=StatusInfo(
-        current='active',
-        message='redis started',
-        since='23 Mar 2026 07:46:25+08:00'
-      ),
+      ...
       units={
         'snappass-test/0': UnitStatus(
           workload_status=StatusInfo(
             current='active',
             message='redis started',
-            since='23 Mar 2026 07:46:25+08:00'
+            since='24 Mar 2026 13:50:32+08:00'
           ),
-          juju_status=StatusInfo(
-            current='idle',
-            since='23 Mar 2026 07:46:25+08:00',
-            version='3.6.19'
-          ),
-          leader=True,
-          address='10.1.57.216',
-          provider_id='snappass-test-0',
+          ...
         ),
       },
     ),
   },
-  controller=ControllerStatus(timestamp='07:46:27+08:00'),
+  ...
 )
 ```
 
@@ -198,7 +168,7 @@ By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance
 ```python
 >>> stdout = juju.cli('controllers', '--format=json', include_model=False)
 >>> result = json.loads(stdout)
->>> result['controllers']['k8s']['uuid']
+>>> result['controllers']['concierge-k8s']['uuid']
 'cda7763e-05fc-4e55-80ab-7b39badaa50d'
 ```
 
