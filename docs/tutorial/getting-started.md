@@ -128,16 +128,17 @@ For larger wait functions, you may want to use a named function with type annota
 For example, to wait till `myapp` is active and `yourapp` is blocked (with "waiting" in the blocked message), and to raise an error if any app or unit goes into error state:
 
 ```python
-juju.deploy('myapp')
-juju.deploy('yourapp')
-juju.wait(ready, error=jubilant.any_error)
-
 def ready(status: jubilant.Status) -> bool:
     return (
         status.apps['myapp'].is_active and
         status.apps['yourapp'].is_blocked and
         'waiting' in status.apps['yourapp'].app_status.message
     )
+
+
+juju.deploy('myapp')
+juju.deploy('yourapp')
+juju.wait(ready, error=jubilant.any_error)
 ```
 
 You can even ignore the `Status` object and wait for a completely unrelated condition, such as an endpoint on the workload being ready:
