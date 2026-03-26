@@ -899,9 +899,9 @@ class Juju:
             endpoint = ','.join(endpoint)
         if self.model is not None and '.' not in app:
             if controller is None:
-                use_controller, _, use_model = self.model.rpartition(':')
-                app = f'{use_model}.{app}'
-                controller = use_controller or None
+                controller_ref, _, model_ref = self.model.rpartition(':')
+                app = f'{model_ref}.{app}'
+                controller = controller_ref or None
             else:
                 raise ValueError(
                     'controller is specified but app does not include a dotted model name'
