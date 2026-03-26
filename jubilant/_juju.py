@@ -886,8 +886,7 @@ class Juju:
             controller: Name of controller to operate in. Only specify *controller* if *app*
                 includes a dotted model name. ``juju.offer('mysql', controller='ctl', ...)`` raises
                 an error if ``juju.model`` is set. If ``juju.model`` isn't set, this ``offer()``
-                call does work, but it's more maintainable to specify the model at the same time as
-                the controller.
+                call does work, but it would be more maintainable to specify the model in the call.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
 
