@@ -29,11 +29,12 @@ def test_controller_arg_raises(self_model: str):
         juju.offer('mysql', endpoint='db', controller='inctl')
 
 
-def test_insert_model(run: mocks.Run):
+@pytest.mark.parametrize('self_model', ['origmodel', 'admin/origmodel'])
+def test_insert_model(self_model: str, run: mocks.Run):
     # "juju offer" isn't a model-based command, so we insert self.model
     # (if app isn't a dotted name and controller is None).
-    run.handle(['juju', 'offer', 'origmodel.mysql:db'])
-    juju = jubilant.Juju(model='origmodel')
+    run.handle(['juju', 'offer', f'{self_model}.mysql:db'])
+    juju = jubilant.Juju(model=self_model)
 
     juju.offer('mysql', endpoint='db')
 
@@ -41,6 +42,13 @@ def test_insert_model(run: mocks.Run):
 def test_insert_controller_and_model(run: mocks.Run):
     run.handle(['juju', 'offer', 'origmodel.mysql:db', '--controller', 'origctl'])
     juju = jubilant.Juju(model='origctl:origmodel')
+
+    juju.offer('mysql', endpoint='db')
+
+
+def test_insert_controller_and_model_with_user(run: mocks.Run):
+    run.handle(['juju', 'offer', 'admin/origmodel.mysql:db', '--controller', 'origctl'])
+    juju = jubilant.Juju(model='origctl:admin/origmodel')
 
     juju.offer('mysql', endpoint='db')
 
