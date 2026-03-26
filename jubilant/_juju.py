@@ -296,6 +296,7 @@ class Juju:
         config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
         credential: str | None = None,
+        metadata_source: str | None = None,
         force: bool = False,
         model_defaults: Mapping[str, ConfigValue] | None = None,
         storage_pool: Mapping[str, str] | None = None,
@@ -330,6 +331,7 @@ class Juju:
                 workload machines in the model, exactly as if the constraints were set with
                 ``juju set-model-constraints``.
             credential: Name of cloud credential to use when bootstrapping.
+            metadata_source: Local path to use as agent and/or image metadata source.
             force: If true, allow bypassing of checks such as supported bases.
             model_defaults: Configuration options to set for all models.
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
@@ -363,6 +365,8 @@ class Juju:
                 args.extend(['--to', to])
             else:
                 args.extend(['--to', ','.join(to)])
+        if metadata_source is not None:
+            args.extend(['--metadata-source', metadata_source])
 
         _, stderr = self._cli(*args, include_model=False)
         logger.info('bootstrap output:\n%s', stderr)
