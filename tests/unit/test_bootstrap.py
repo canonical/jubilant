@@ -44,6 +44,8 @@ def test_all_args(run: mocks.Run):
             'type=lxd',
             '--to',
             'lxd:1',
+            '--metadata-source',
+            '/path/to/metadata',
         ]
     )
     juju = jubilant.Juju()
@@ -59,6 +61,7 @@ def test_all_args(run: mocks.Run):
         force=True,
         model_defaults={'foo': 'bar'},
         storage_pool={'name': 'my-pool', 'type': 'lxd'},
+        metadata_source='/path/to/metadata',
         to='lxd:1',
     )
 
