@@ -14,6 +14,21 @@ def test(run: mocks.Run):
     juju.offer('mysql', endpoint='db')
 
 
+def test_controller_arg(run: mocks.Run):
+    run.handle(['juju', 'offer', 'mysql:db', '--controller', 'inctl'])
+    juju = jubilant.Juju()
+
+    juju.offer('mysql', endpoint='db', controller='inctl')
+
+
+@pytest.mark.parametrize('self_model', ['origmodel', 'origctl:origmodel'])
+def test_controller_arg_raises(self_model: str):
+    juju = jubilant.Juju(model=self_model)
+
+    with pytest.raises(ValueError):
+        juju.offer('mysql', endpoint='db', controller='inctl')
+
+
 def test_insert_model(run: mocks.Run):
     # "juju offer" isn't a model-based command, so we insert self.model
     # (if app isn't a dotted name and controller is None).
@@ -40,13 +55,11 @@ def test_dotted_app(self_model: str | None, run: mocks.Run):
 
 
 @pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
-@pytest.mark.parametrize('app', ['mysql', 'inmodel.mysql'])
-def test_controller_arg(self_model: str | None, app: str, run: mocks.Run):
-    # If controller is not None, we ignore self.model.
-    run.handle(['juju', 'offer', f'{app}:db', '--controller', 'inctl'])
+def test_dotted_app_controller_arg(self_model: str | None, run: mocks.Run):
+    run.handle(['juju', 'offer', 'inmodel.mysql:db', '--controller', 'inctl'])
     juju = jubilant.Juju(model=self_model)
 
-    juju.offer(app, endpoint='db', controller='inctl')
+    juju.offer('inmodel.mysql', endpoint='db', controller='inctl')
 
 
 def test_name(run: mocks.Run):
