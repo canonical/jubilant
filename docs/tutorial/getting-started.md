@@ -37,7 +37,7 @@ Status(
     version='3.6.14',
     model_status=StatusInfo(
       current='available',
-      since='24 Mar 2026 13:47:11+08:00'
+      since='24 Mar 2026 13:47:11+08:00',
     ),
   ),
   machines={},
@@ -78,7 +78,7 @@ Status(
           workload_status=StatusInfo(
             current='active',
             message='redis started',
-            since='24 Mar 2026 13:50:32+08:00'
+            since='24 Mar 2026 13:50:32+08:00',
           ),
           ...
         ),
