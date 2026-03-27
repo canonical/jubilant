@@ -869,8 +869,8 @@ class Juju:
         in the current controller.
 
         You can override the default behavior by including a dotted model name in *app*, for
-        example ``mymodel.mysql``. This method then operates on the specified model in the current
-        controller (or the controller specified by *controller*).
+        example ``'mymodel.mysql'``. This method then operates on the specified model in the
+        current controller (or the controller specified by *controller*).
 
         Examples::
 
