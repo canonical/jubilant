@@ -33,7 +33,7 @@ def test_update_secret(juju: jubilant.Juju):
 
 
 def test_get_all_secrets(juju: jubilant.Juju):
-    secrets = juju.secrets()
+    secrets = sorted(juju.secrets(), key=lambda s: s.name)
     assert len(secrets) == 2
 
     assert secrets[0].revision == 1
