@@ -41,8 +41,8 @@ def temp_model(
                 yield juju  # run the test
 
     Args:
-        keep: If true, keep the created model around when the context manager exits. For an example
-            of a ``juju`` fixture that uses *keep*, see
+        keep: If true, keep the created model around when the context manager exits.
+            For an example of a ``juju`` fixture that uses *keep*, see
             `Jubilant's conftest.py <https://github.com/canonical/jubilant/blob/main/tests/integration/conftest.py>`__.
         controller: Name of controller where the temporary model will be added.
         cloud: Name of cloud or region (or cloud/region) to use for the temporary model.
