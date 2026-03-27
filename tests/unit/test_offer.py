@@ -14,12 +14,12 @@ def test(run: mocks.Run):
     juju.offer('mysql', endpoint='db')
 
 
-@pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
+@pytest.mark.parametrize('self_model', [None, 'origmodel', 'ctl:origmodel'])
 def test_controller_arg_raises(self_model: str | None):
     juju = jubilant.Juju(model=self_model)
 
     with pytest.raises(ValueError):
-        juju.offer('mysql', endpoint='db', controller='inctl')
+        juju.offer('mysql', endpoint='db', controller='another')
 
 
 @pytest.mark.parametrize('self_model', ['origmodel', 'admin/origmodel'])
@@ -33,20 +33,20 @@ def test_insert_model(self_model: str, run: mocks.Run):
 
 
 def test_insert_controller_and_model(run: mocks.Run):
-    run.handle(['juju', 'offer', 'origmodel.mysql:db', '--controller', 'origctl'])
-    juju = jubilant.Juju(model='origctl:origmodel')
+    run.handle(['juju', 'offer', 'origmodel.mysql:db', '--controller', 'ctl'])
+    juju = jubilant.Juju(model='ctl:origmodel')
 
     juju.offer('mysql', endpoint='db')
 
 
 def test_insert_controller_and_model_with_user(run: mocks.Run):
-    run.handle(['juju', 'offer', 'admin/origmodel.mysql:db', '--controller', 'origctl'])
-    juju = jubilant.Juju(model='origctl:admin/origmodel')
+    run.handle(['juju', 'offer', 'admin/origmodel.mysql:db', '--controller', 'ctl'])
+    juju = jubilant.Juju(model='ctl:admin/origmodel')
 
     juju.offer('mysql', endpoint='db')
 
 
-@pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
+@pytest.mark.parametrize('self_model', [None, 'origmodel', 'ctl:origmodel'])
 def test_dotted_app(self_model: str | None, run: mocks.Run):
     # If app is a dotted name, we ignore self.model.
     run.handle(['juju', 'offer', 'inmodel.mysql:db'])
@@ -55,12 +55,12 @@ def test_dotted_app(self_model: str | None, run: mocks.Run):
     juju.offer('inmodel.mysql', endpoint='db')
 
 
-@pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
+@pytest.mark.parametrize('self_model', [None, 'origmodel', 'ctl:origmodel'])
 def test_dotted_app_controller_arg(self_model: str | None, run: mocks.Run):
-    run.handle(['juju', 'offer', 'inmodel.mysql:db', '--controller', 'inctl'])
+    run.handle(['juju', 'offer', 'inmodel.mysql:db', '--controller', 'another'])
     juju = jubilant.Juju(model=self_model)
 
-    juju.offer('inmodel.mysql', endpoint='db', controller='inctl')
+    juju.offer('inmodel.mysql', endpoint='db', controller='another')
 
 
 def test_name(run: mocks.Run):
