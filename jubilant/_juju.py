@@ -881,41 +881,34 @@ class Juju:
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
             juju.offer('mymodel.mysql', controller='ctl', endpoint='db')
 
-            # Avoid this - see the description of controller
+            # Not supported (raises an error)
             juju.offer('mysql', controller='ctl', endpoint='db')
 
         Args:
             app: Application name to offer endpoints for. If *app* includes a dotted model name,
                 this method ignores ``self.model`` when determining the model and controller.
             controller: Name of controller to operate in. Only specify *controller* if *app*
-                includes a dotted model name. ``juju.offer('mysql', controller='ctl', ...)`` raises
-                an error if ``juju.model`` is set. If ``juju.model`` isn't set, this ``offer()``
-                call does work, but it would be more maintainable to specify the model in the call.
+                includes a dotted model name.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
 
-
         Raises:
-            ValueError: if you specify *controller* when ``self.model`` is set and *app* doesn't
-                include a dotted model name.
+            ValueError: if you specify *controller* when *app* doesn't include a dotted model name.
         """
         if not isinstance(endpoint, str):
             endpoint = ','.join(endpoint)
-        if self.model is not None and '.' not in app:
-            if controller is None:
+        if '.' not in app:
+            if controller:
+                raise ValueError(
+                    'controller is specified when app does not include a dotted model name'
+                )
+            elif self.model is not None:
                 controller_ref, _, model_ref = self.model.rpartition(':')
                 app = f'{model_ref}.{app}'
                 controller = controller_ref or None
-            else:
-                raise ValueError(
-                    'controller is specified but app does not include a dotted model name'
-                )
-                # This error message implies that we reject this usage regardless of self.model.
-                # That's intentional. If self.model is None, we allow this usage because it maps
-                # directly to the Juju CLI, but we discourage it (see the docstring).
         app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
-        if controller is not None:
+        if controller:
             args.extend(['--controller', controller])
         if name is not None:
             args.append(name)

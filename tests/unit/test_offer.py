@@ -14,15 +14,8 @@ def test(run: mocks.Run):
     juju.offer('mysql', endpoint='db')
 
 
-def test_controller_arg(run: mocks.Run):
-    run.handle(['juju', 'offer', 'mysql:db', '--controller', 'inctl'])
-    juju = jubilant.Juju()
-
-    juju.offer('mysql', endpoint='db', controller='inctl')
-
-
-@pytest.mark.parametrize('self_model', ['origmodel', 'origctl:origmodel'])
-def test_controller_arg_raises(self_model: str):
+@pytest.mark.parametrize('self_model', [None, 'origmodel', 'origctl:origmodel'])
+def test_controller_arg_raises(self_model: str | None):
     juju = jubilant.Juju(model=self_model)
 
     with pytest.raises(ValueError):
