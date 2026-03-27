@@ -42,9 +42,7 @@ Status(
   ),
   machines={},
   apps={},
-  controller=ControllerStatus(
-    timestamp='13:47:16+08:00'
-  ),
+  controller=ControllerStatus(timestamp='13:47:16+08:00'),
 )
 ```
 
