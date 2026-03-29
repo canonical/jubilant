@@ -36,19 +36,19 @@ def test_get_all_secrets(juju: jubilant.Juju):
     secrets = juju.secrets()
     assert len(secrets) == 2
 
-    assert secrets[0].revision == 1
-    assert secrets[0].name == 'sec1'
-    assert secrets[0].owner == '<model>'
-    assert secrets[0].description == 'A description.'
-    assert secrets[0].created.year == datetime.datetime.now().year
+    by_name = {s.name: s for s in secrets}
 
-    assert secrets[1].revision == 2
-    assert secrets[1].name == 'sec2'
-    assert secrets[1].owner == '<model>'
-    assert secrets[1].description == 'A new description.'
-    assert datetime.datetime.now(datetime.timezone.utc) - secrets[1].created < datetime.timedelta(
-        hours=1
-    )
+    assert by_name['sec1'].revision == 1
+    assert by_name['sec1'].owner == '<model>'
+    assert by_name['sec1'].description == 'A description.'
+    assert by_name['sec1'].created.year == datetime.datetime.now().year
+
+    assert by_name['sec2'].revision == 2
+    assert by_name['sec2'].owner == '<model>'
+    assert by_name['sec2'].description == 'A new description.'
+    assert datetime.datetime.now(datetime.timezone.utc) - by_name[
+        'sec2'
+    ].created < datetime.timedelta(hours=1)
 
 
 def test_show_secret(juju: jubilant.Juju):
