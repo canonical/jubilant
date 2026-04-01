@@ -24,7 +24,7 @@ You should switch to Jubilant if your integration tests currently use [pytest-op
 
 ## In this documentation
 
-- [Getting started with Jubilant](tutorial/getting-started)
+- [Tutorial: Getting started with Jubilant](tutorial/getting-started)
 - [Design goals](explanation/design-goals)
 - [API reference](reference/jubilant)
 
