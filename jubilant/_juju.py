@@ -292,9 +292,9 @@ class Juju:
         controller: str,
         *,
         bootstrap_base: str | None = None,
-        bootstrap_constraints: Mapping[str, str] | None = None,
+        bootstrap_constraints: Mapping[str, ConstraintValue] | None = None,
         config: Mapping[str, ConfigValue] | None = None,
-        constraints: Mapping[str, str] | None = None,
+        constraints: Mapping[str, ConstraintValue] | None = None,
         credential: str | None = None,
         metadata_source: str | None = None,
         force: bool = False,
@@ -343,13 +343,13 @@ class Juju:
             args.extend(['--bootstrap-base', bootstrap_base])
         if bootstrap_constraints is not None:
             for k, v in bootstrap_constraints.items():
-                args.extend(['--bootstrap-constraints', f'{k}={v}'])
+                args.extend(['--bootstrap-constraints', _format_config(k, v)])
         if config is not None:
             for k, v in config.items():
                 args.extend(['--config', _format_config(k, v)])
         if constraints is not None:
             for k, v in constraints.items():
-                args.extend(['--constraints', f'{k}={v}'])
+                args.extend(['--constraints', _format_config(k, v)])
         if credential is not None:
             args.extend(['--credential', credential])
         if force:
@@ -533,7 +533,7 @@ class Juju:
         bind: Mapping[str, str] | str | None = None,
         channel: str | None = None,
         config: Mapping[str, ConfigValue] | None = None,
-        constraints: Mapping[str, str] | None = None,
+        constraints: Mapping[str, ConstraintValue] | None = None,
         force: bool = False,
         num_units: int = 1,
         overlays: Iterable[str | pathlib.Path] = (),
@@ -599,7 +599,7 @@ class Juju:
                     args.extend(['--config', _format_config(k, v)])
             if constraints is not None:
                 for k, v in constraints.items():
-                    args.extend(['--constraints', f'{k}={v}'])
+                    args.extend(['--constraints', _format_config(k, v)])
             if force:
                 args.append('--force')
             if num_units != 1:
@@ -926,7 +926,7 @@ class Juju:
         path: str | pathlib.Path | None = None,
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
-        storage: Mapping[str, str] | None = None,
+        storage: Mapping[str, ConstraintValue] | None = None,
         trust: bool = False,
     ):
         """Refresh (upgrade) an application's charm.
@@ -965,7 +965,7 @@ class Juju:
                 args.extend(['--revision', str(revision)])
             if storage is not None:
                 for k, v in storage.items():
-                    args.extend(['--storage', f'{k}={v}'])
+                    args.extend(['--storage', _format_config(k, v)])
             if trust:
                 args.append('--trust')
 
