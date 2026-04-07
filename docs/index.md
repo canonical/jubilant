@@ -32,7 +32,7 @@ The library provides:
 
 ````{grid} 1 1 2 2
 ```{grid-item-card} [Tutorial](tutorial/getting-started)
-**Start here**: a hands-on introduction to Jubilant, including how to write a charm integration test
+**Start here**: a hands-on introduction to Jubilant
 ```
 
 ```{grid-item-card} [Reference](reference/index)

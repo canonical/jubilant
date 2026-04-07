@@ -296,6 +296,7 @@ class Juju:
         config: Mapping[str, ConfigValue] | None = None,
         constraints: Mapping[str, str] | None = None,
         credential: str | None = None,
+        metadata_source: str | None = None,
         force: bool = False,
         model_defaults: Mapping[str, ConfigValue] | None = None,
         storage_pool: Mapping[str, str] | None = None,
@@ -330,6 +331,7 @@ class Juju:
                 workload machines in the model, exactly as if the constraints were set with
                 ``juju set-model-constraints``.
             credential: Name of cloud credential to use when bootstrapping.
+            metadata_source: Local path to use as agent and/or image metadata source.
             force: If true, allow bypassing of checks such as supported bases.
             model_defaults: Configuration options to set for all models.
             storage_pool: Options for an initial storage pool as key-value pairs. ``name``
@@ -363,6 +365,8 @@ class Juju:
                 args.extend(['--to', to])
             else:
                 args.extend(['--to', ','.join(to)])
+        if metadata_source is not None:
+            args.extend(['--metadata-source', metadata_source])
 
         _, stderr = self._cli(*args, include_model=False)
         logger.info('bootstrap output:\n%s', stderr)
@@ -859,21 +863,49 @@ class Juju:
     ) -> None:
         """Offer application endpoints for use in other models.
 
+        By default, this method uses the model and controller from ``self.model``. If
+        ``self.model`` doesn't specify a controller, this method operates on ``self.model`` in the
+        current controller. If ``self.model`` isn't set, this method operates on the current model
+        in the current controller.
+
+        You can override the default behavior by including a dotted model name in *app*, for
+        example ``'mymodel.mysql'``. This method then operates on the specified model in the
+        current controller (or the controller specified by *controller*).
+
         Examples::
 
             juju.offer('mysql', endpoint='db')
+
+            # These all ignore juju.model
+            juju.offer('mymodel.mysql', endpoint='db')
             juju.offer('mymodel.mysql', endpoint=['db', 'log'], name='altname')
+            juju.offer('mymodel.mysql', controller='ctl', endpoint='db')
+
+            # Not supported (raises an error)
+            juju.offer('mysql', controller='ctl', endpoint='db')
 
         Args:
-            app: Application name to offer endpoints for. May include a dotted model name, for
-                example ``mymodel.mysql``.
-            controller: Name of controller to operate in. If not specified, use the current
-                controller.
+            app: Application name to offer endpoints for. If *app* includes a dotted model name,
+                this method ignores ``self.model`` when determining the model and controller.
+            controller: Name of controller to operate in. Only specify *controller* if *app*
+                includes a dotted model name.
             endpoint: Endpoint or endpoints to offer.
             name: Name of the offer. By default, the offer is named after the application.
+
+        Raises:
+            ValueError: if you specify *controller* when *app* doesn't include a dotted model name.
         """
         if not isinstance(endpoint, str):
             endpoint = ','.join(endpoint)
+        if '.' not in app:
+            if controller:
+                raise ValueError(
+                    'controller is specified when app does not include a dotted model name'
+                )
+            elif self.model is not None:
+                controller_ref, _, model_ref = self.model.rpartition(':')
+                app = f'{model_ref}.{app}'
+                controller = controller_ref or None
         app_endpoint = f'{app}:{endpoint}'
         args = ['offer', app_endpoint]
         if controller:
