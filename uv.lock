@@ -502,7 +502,7 @@ requires-dist = [{ name = "pyyaml", specifier = "==6.*" }]
 [package.metadata.requires-dev]
 dev = [
     { name = "cryptography", specifier = ">=43.0.0" },
-    { name = "ops", specifier = "==2.23.1" },
+    { name = "ops", specifier = "==2.23.2" },
     { name = "pyright", specifier = "==1.1.408" },
     { name = "pytest", specifier = "==8.3.5" },
     { name = "pytest-cov", specifier = "==5.0.0" },
@@ -552,7 +552,7 @@ wheels = [
 
 [[package]]
 name = "ops"
-version = "2.23.1"
+version = "2.23.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "importlib-metadata", version = "8.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -562,9 +562,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "websocket-client" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/2d/488896632da371da6af1265c5fc6e39142f14b31d4c78a6c69cf453fcfd9/ops-2.23.1.tar.gz", hash = "sha256:aecacd67ef7ca913f63f397e0330bfa93d70529a3ef71ed2d99e2bc232564ae3", size = 527723, upload-time = "2025-07-30T06:26:55.029Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/93/98/84789a5e15ad76e043301bbd70b4d39cffaa717ae6eecb662fd0dd0cc7af/ops-2.23.2.tar.gz", hash = "sha256:a69b0c5bc65ebd91720fc96459e81b969df851f3a6c9c855ee73de7004205987", size = 528074, upload-time = "2026-02-11T03:58:15.565Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/62/4b7bb8fa879c672d53cd3b58dc4df0f8cd8007e32d8bc73ec21d8bf238c6/ops-2.23.1-py3-none-any.whl", hash = "sha256:fdf58163beafd25180c12a4c7efaf1e76e5f8710508a97840c07055bb78b0c77", size = 188414, upload-time = "2025-07-30T06:26:53.361Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/00/65da7c96d0f9e13c4de3bdd2e3717259fe723ff4bd4e5dc714164f851032/ops-2.23.2-py3-none-any.whl", hash = "sha256:9cab0c6bc46eeff2e96777128200c3ef872b55641b12f07dc4fd6fe3103954be", size = 188415, upload-time = "2026-02-11T03:58:13.693Z" },
 ]
 
 [[package]]
