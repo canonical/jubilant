@@ -38,7 +38,7 @@ jobs:
           pip install flake8 pylint -r requirements.txt --break-system-packages
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@009979693978bfefad2ad15c1020066694968dc7  # v3.4.0
+        uses: tiobe/tics-github-action@a53037a6bb9f71b6a97cdeb0ac41632266804b9e  # v3.8.0
         with:
           mode: qserver
           viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
