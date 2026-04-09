@@ -18,7 +18,5 @@ def test_integrate_and_remove_relation(juju: jubilant.Juju):
 
     juju.remove_relation('testdb', 'testapp')
     juju.wait(
-        lambda status: (
-            not status.apps['testdb'].relations and not status.apps['testapp'].relations
-        )
+        lambda status: not status.apps['testdb'].relations and not status.apps['testapp'].relations
     )
