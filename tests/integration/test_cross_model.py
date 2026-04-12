@@ -5,11 +5,11 @@ import jubilant
 from . import helpers
 
 
-def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju):
+def test_offer_and_consume(juju: jubilant.Juju, model2: jubilant.Juju, empty_tar: str):
     juju.deploy(helpers.find_charm('testdb'))
     juju.offer('testdb', endpoint='db', name='testdbx')
 
-    model2.deploy(helpers.find_charm('testapp'))
+    model2.deploy(helpers.find_charm('testapp'), resources={'test-file': empty_tar})
     model2.consume(f'{juju.model}.testdbx', 'dbalias')
     model2.integrate('dbalias', 'testapp')
 

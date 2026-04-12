@@ -5,9 +5,9 @@ import jubilant
 from . import helpers
 
 
-def test_integrate_and_remove_relation(juju: jubilant.Juju):
+def test_integrate_and_remove_relation(juju: jubilant.Juju, empty_tar: str):
     juju.deploy(helpers.find_charm('testdb'))
-    juju.deploy(helpers.find_charm('testapp'))
+    juju.deploy(helpers.find_charm('testapp'), resources={'test-file': empty_tar})
 
     juju.integrate('testdb', 'testapp')
     status = juju.wait(jubilant.all_active)

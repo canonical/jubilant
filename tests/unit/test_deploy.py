@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
-import tempfile
 from typing import Any
 from unittest import mock
 
@@ -118,7 +117,7 @@ def test_path(run: mocks.Run):
     juju.deploy(pathlib.Path('xyz'))
 
 
-def test_tempdir(monkeypatch: pytest.MonkeyPatch):
+def test_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     num_calls = 0
 
     def mock_run(args: list[str], **_: Any):
@@ -144,17 +143,58 @@ def test_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        (pathlib.Path(temp) / 'my.charm').write_text('CH')
-        (pathlib.Path(temp) / 'r1').write_text('R1')
+    (tmp_path / 'my.charm').write_text('CH')
+    (tmp_path / 'r1').write_text('R1')
 
-        juju = jubilant.Juju()
-        juju.deploy(
-            pathlib.Path(temp) / 'my.charm',
-            resources={
-                'r1': str(pathlib.Path(temp) / 'r1'),
-                'r2': 'R2',
-            },
-        )
+    juju = jubilant.Juju()
+    juju.deploy(
+        tmp_path / 'my.charm',
+        resources={
+            'r1': str(tmp_path / 'r1'),
+            'r2': 'R2',
+        },
+    )
 
     assert num_calls == 1
+
+
+def test_tempdir_preserves_resource_extension(
+    run: mocks.Run, monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+):
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    snap_dir = tmp_path / 'snap'
+    snap_dir.mkdir()
+    monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
+
+    src_dir = tmp_path / 'src'
+    src_dir.mkdir()
+    (src_dir / 'my.charm').write_text('CH')
+    (src_dir / 'archive.tar').write_text('TAR')
+    (src_dir / 'rawfile').write_text('RAW')
+
+    run.handle(
+        [
+            'juju',
+            'deploy',
+            f'{snap_dir}/_temp.charm',
+            '--resource',
+            f'plugin={snap_dir}/plugin.tar',
+            '--resource',
+            f'noext={snap_dir}/noext',
+        ]
+    )
+
+    juju = jubilant.Juju()
+    juju.deploy(
+        src_dir / 'my.charm',
+        resources={
+            'plugin': str(src_dir / 'archive.tar'),
+            'noext': str(src_dir / 'rawfile'),
+        },
+    )
+
+    # Verify files were copied with correct names.
+    assert (snap_dir / '_temp.charm').read_text() == 'CH'
+    assert (snap_dir / 'plugin.tar').read_text() == 'TAR'
+    assert (snap_dir / 'noext').read_text() == 'RAW'

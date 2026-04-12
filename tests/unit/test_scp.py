@@ -1,4 +1,9 @@
+from __future__ import annotations
+
 import pathlib
+import subprocess
+from typing import Any
+from unittest import mock
 
 import pytest
 
@@ -55,41 +60,93 @@ def test_type_error():
         juju.scp('src', 'dst', scp_options='invalid')
 
 
-def test_src_tempdir(
-    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
-):
-    copy_src, copy_dst = '', ''
-
-    def mock_copy(src: str, dst: str):
-        nonlocal copy_src, copy_dst
-        copy_src, copy_dst = src, dst
-
+def test_src_file_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    monkeypatch.setattr('shutil.copy', mock_copy)
-    run.handle(['juju', 'scp', '--', mock_file.name, 'target:/dest'])
+
+    snap_dir = tmp_path / 'snap'
+    snap_dir.mkdir()
+    monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
+
+    src_dir = tmp_path / 'src'
+    src_dir.mkdir()
+    (src_dir / 'myfile.txt').write_text('DATA')
+
+    run.handle(['juju', 'scp', '--', f'{snap_dir}/myfile.txt', 'target:/dest'])
 
     juju = jubilant.Juju()
-    juju.scp('/local/file', 'target:/dest')
+    juju.scp(str(src_dir / 'myfile.txt'), 'target:/dest')
 
-    assert copy_src == '/local/file'
-    assert copy_dst == mock_file.name
+    assert (snap_dir / 'myfile.txt').read_text() == 'DATA'
 
 
-def test_dst_tempdir(
-    run: mocks.Run, mock_file: mocks.NamedTemporaryFile, monkeypatch: pytest.MonkeyPatch
-):
-    copy_src, copy_dst = '', ''
-
-    def mock_copy(src: str, dst: str):
-        nonlocal copy_src, copy_dst
-        copy_src, copy_dst = src, dst
-
+def test_src_dir_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
-    monkeypatch.setattr('shutil.copy', mock_copy)
-    run.handle(['juju', 'scp', '--', 'target:/source', mock_file.name])
+
+    snap_dir = tmp_path / 'snap'
+    snap_dir.mkdir()
+    monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
+
+    src_dir = tmp_path / 'mydir'
+    src_dir.mkdir()
+    (src_dir / 'a.txt').write_text('A')
+    (src_dir / 'b.txt').write_text('B')
+
+    run.handle(['juju', 'scp', '--', '-r', f'{snap_dir}/mydir', 'target:/dest'])
 
     juju = jubilant.Juju()
-    juju.scp('target:/source', '/local/file')
+    juju.scp(str(src_dir), 'target:/dest', scp_options=['-r'])
 
-    assert copy_src == mock_file.name
-    assert copy_dst == '/local/file'
+    assert (snap_dir / 'mydir').is_dir()
+    assert (snap_dir / 'mydir' / 'a.txt').read_text() == 'A'
+    assert (snap_dir / 'mydir' / 'b.txt').read_text() == 'B'
+
+
+def test_dst_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    num_calls = 0
+
+    def mock_run(args: list[str], **_: Any):
+        nonlocal num_calls
+        num_calls += 1
+        assert args == ['juju', 'scp', '--', 'target:/source', mock.ANY]
+        # Simulate juju writing a file to the temp path.
+        pathlib.Path(args[4]).write_text('REMOTE')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    dest = tmp_path / 'local_copy'
+
+    juju = jubilant.Juju()
+    juju.scp('target:/source', str(dest))
+
+    assert dest.read_text() == 'REMOTE'
+
+    assert num_calls == 1
+
+
+def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    num_calls = 0
+
+    def mock_run(args: list[str], **_: Any):
+        nonlocal num_calls
+        num_calls += 1
+        assert args == ['juju', 'scp', '--', '-r', 'target:/source', mock.ANY]
+        # Simulate juju writing a directory to the temp path.
+        temp_path = pathlib.Path(args[5])
+        temp_path.mkdir()
+        (temp_path / 'c.txt').write_text('C')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    dest = tmp_path / 'local_dir'
+
+    juju = jubilant.Juju()
+    juju.scp('target:/source', str(dest), scp_options=['-r'])
+
+    assert dest.is_dir()
+    assert (dest / 'c.txt').read_text() == 'C'
+
+    assert num_calls == 1

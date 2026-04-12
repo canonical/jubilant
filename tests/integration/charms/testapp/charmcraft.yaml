@@ -7,6 +7,12 @@ requires:
   db:
     interface: dbi
 
+resources:
+  test-file:
+    type: file
+    filename: test-file.tar
+    description: A test file resource to verify extensions are preserved.
+
 base: ubuntu@24.04
 platforms:
   amd64:

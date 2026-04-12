@@ -65,6 +65,16 @@ def test_deploy_with_resources(juju: jubilant.Juju):
     juju.wait(lambda status: status.apps['snappass-with-resources'].is_active)
 
 
+def test_deploy_with_local_file_resource(juju: jubilant.Juju, empty_tar: str):
+    juju.deploy(
+        helpers.find_charm('testapp'),
+        resources={'test-file': empty_tar},
+    )
+    juju.wait(
+        lambda status: 'testapp' in status.apps and 'testapp/0' in status.apps['testapp'].units
+    )
+
+
 def test_refresh_path(juju: jubilant.Juju):
     juju.deploy(helpers.find_charm('testdb'))
     juju.wait(

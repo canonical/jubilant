@@ -1271,19 +1271,28 @@ class Juju:
             self.cli(*args)
             return
 
-        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file_temp:
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as td:
+            temp_dir = pathlib.Path(td)
             if ':' not in source:
                 # Local source, remote destination
-                shutil.copy(source, file_temp.name)
-                args.append(file_temp.name)
+                temp = str(temp_dir / pathlib.PurePath(source).name)
+                if pathlib.Path(source).is_dir():
+                    shutil.copytree(source, temp)
+                else:
+                    shutil.copy(source, temp)
+                args.append(temp)
                 args.append(destination)
                 self.cli(*args)
             else:
                 # Remote source, local destination
+                temp = str(temp_dir / '_temp')
                 args.append(source)
-                args.append(file_temp.name)
+                args.append(temp)
                 self.cli(*args)
-                shutil.copy(file_temp.name, destination)
+                if pathlib.Path(temp).is_dir():
+                    shutil.copytree(temp, destination)
+                else:
+                    shutil.copy(temp, destination)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
@@ -1691,19 +1700,21 @@ class Juju:
             yield charm, resources
             return
 
-        with tempfile.TemporaryDirectory(dir=self._temp_dir) as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as td:
+            temp_dir = pathlib.Path(td)
             if charm_needs_temp:
                 assert charm is not None
-                temp = os.path.join(temp_dir, '_temp.charm')
+                temp = temp_dir / '_temp.charm'
                 shutil.copy(charm, temp)
-                charm = temp
+                charm = str(temp)
 
             if resources_needs_temp:
                 assert resources is not None
                 resources = dict(resources)
                 for k, v in resources.items():
                     if v.startswith(('.', '/')):
-                        resources[k] = os.path.join(temp_dir, k)
+                        ext = pathlib.PurePath(v).suffix
+                        resources[k] = str(temp_dir / (k + ext))
                         shutil.copy(v, resources[k])
 
             yield charm, resources
