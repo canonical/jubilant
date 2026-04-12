@@ -1555,9 +1555,9 @@ class Juju:
             temp_dir = pathlib.Path(td)
             if charm_needs_temp:
                 assert charm is not None
-                temp = str(temp_dir / '_temp.charm')
+                temp = temp_dir / '_temp.charm'
                 shutil.copy(charm, temp)
-                charm = temp
+                charm = str(temp)
 
             if resources_needs_temp:
                 assert resources is not None
