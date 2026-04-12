@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import pathlib
 import tarfile
-import tempfile
 from typing import Generator, cast
 
 import pytest
@@ -44,10 +44,9 @@ def model2(request: pytest.FixtureRequest) -> Generator[jubilant.Juju]:
 
 
 @pytest.fixture
-def empty_tar() -> Generator[str]:
+def empty_tar(tmp_path: pathlib.Path) -> Generator[str]:
     """Pytest fixture that creates an empty .tar file and returns its path."""
-    with tempfile.TemporaryDirectory() as temp:
-        path = f'{temp}/empty.tar'
-        with tarfile.open(path, 'w'):
-            pass
-        yield path
+    path = str(tmp_path / 'empty.tar')
+    with tarfile.open(path, 'w'):
+        pass
+    yield path

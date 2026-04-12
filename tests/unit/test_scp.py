@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
-import tempfile
 from typing import Any
 from unittest import mock
 
@@ -61,50 +60,48 @@ def test_type_error():
         juju.scp('src', 'dst', scp_options='invalid')
 
 
-def test_src_file_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_src_file_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        snap_dir = pathlib.Path(temp) / 'snap'
-        snap_dir.mkdir()
-        monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
+    snap_dir = tmp_path / 'snap'
+    snap_dir.mkdir()
+    monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
 
-        src_dir = pathlib.Path(temp) / 'src'
-        src_dir.mkdir()
-        (src_dir / 'myfile.txt').write_text('DATA')
+    src_dir = tmp_path / 'src'
+    src_dir.mkdir()
+    (src_dir / 'myfile.txt').write_text('DATA')
 
-        run.handle(['juju', 'scp', '--', f'{snap_dir}/myfile.txt', 'target:/dest'])
+    run.handle(['juju', 'scp', '--', f'{snap_dir}/myfile.txt', 'target:/dest'])
 
-        juju = jubilant.Juju()
-        juju.scp(str(src_dir / 'myfile.txt'), 'target:/dest')
+    juju = jubilant.Juju()
+    juju.scp(str(src_dir / 'myfile.txt'), 'target:/dest')
 
-        assert (snap_dir / 'myfile.txt').read_text() == 'DATA'
+    assert (snap_dir / 'myfile.txt').read_text() == 'DATA'
 
 
-def test_src_dir_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_src_dir_tempdir(run: mocks.Run, monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        snap_dir = pathlib.Path(temp) / 'snap'
-        snap_dir.mkdir()
-        monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
+    snap_dir = tmp_path / 'snap'
+    snap_dir.mkdir()
+    monkeypatch.setattr('tempfile.TemporaryDirectory', mocks.TemporaryDirectory(str(snap_dir)))
 
-        src_dir = pathlib.Path(temp) / 'mydir'
-        src_dir.mkdir()
-        (src_dir / 'a.txt').write_text('A')
-        (src_dir / 'b.txt').write_text('B')
+    src_dir = tmp_path / 'mydir'
+    src_dir.mkdir()
+    (src_dir / 'a.txt').write_text('A')
+    (src_dir / 'b.txt').write_text('B')
 
-        run.handle(['juju', 'scp', '--', '-r', f'{snap_dir}/mydir', 'target:/dest'])
+    run.handle(['juju', 'scp', '--', '-r', f'{snap_dir}/mydir', 'target:/dest'])
 
-        juju = jubilant.Juju()
-        juju.scp(str(src_dir), 'target:/dest', scp_options=['-r'])
+    juju = jubilant.Juju()
+    juju.scp(str(src_dir), 'target:/dest', scp_options=['-r'])
 
-        assert (snap_dir / 'mydir').is_dir()
-        assert (snap_dir / 'mydir' / 'a.txt').read_text() == 'A'
-        assert (snap_dir / 'mydir' / 'b.txt').read_text() == 'B'
+    assert (snap_dir / 'mydir').is_dir()
+    assert (snap_dir / 'mydir' / 'a.txt').read_text() == 'A'
+    assert (snap_dir / 'mydir' / 'b.txt').read_text() == 'B'
 
 
-def test_dst_file_tempdir(monkeypatch: pytest.MonkeyPatch):
+def test_dst_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     num_calls = 0
 
     def mock_run(args: list[str], **_: Any):
@@ -118,18 +115,17 @@ def test_dst_file_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        dest = pathlib.Path(temp) / 'local_copy'
+    dest = tmp_path / 'local_copy'
 
-        juju = jubilant.Juju()
-        juju.scp('target:/source', str(dest))
+    juju = jubilant.Juju()
+    juju.scp('target:/source', str(dest))
 
-        assert dest.read_text() == 'REMOTE'
+    assert dest.read_text() == 'REMOTE'
 
     assert num_calls == 1
 
 
-def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch):
+def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     num_calls = 0
 
     def mock_run(args: list[str], **_: Any):
@@ -145,13 +141,12 @@ def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        dest = pathlib.Path(temp) / 'local_dir'
+    dest = tmp_path / 'local_dir'
 
-        juju = jubilant.Juju()
-        juju.scp('target:/source', str(dest), scp_options=['-r'])
+    juju = jubilant.Juju()
+    juju.scp('target:/source', str(dest), scp_options=['-r'])
 
-        assert dest.is_dir()
-        assert (dest / 'c.txt').read_text() == 'C'
+    assert dest.is_dir()
+    assert (dest / 'c.txt').read_text() == 'C'
 
     assert num_calls == 1

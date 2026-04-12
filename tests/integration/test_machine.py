@@ -70,30 +70,30 @@ def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps['ubuntu'].units) == 1)
 
 
-def test_scp_directory(juju: jubilant.Juju, private_key_file: str):
-    with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as dst:
-        src_dir = pathlib.Path(src) / 'mydir'
-        src_dir.mkdir()
-        (src_dir / 'a.txt').write_text('A')
-        (src_dir / 'b.txt').write_text('B')
+def test_scp_directory(juju: jubilant.Juju, private_key_file: str, tmp_path: pathlib.Path):
+    src_dir = tmp_path / 'src' / 'mydir'
+    src_dir.mkdir(parents=True)
+    (src_dir / 'a.txt').write_text('A')
+    (src_dir / 'b.txt').write_text('B')
 
-        # Local directory to remote
-        juju.scp(
-            str(src_dir),
-            'ubuntu/0:/tmp/mydir',
-            scp_options=['-r', '-i', private_key_file],
-        )
+    # Local directory to remote
+    juju.scp(
+        str(src_dir),
+        'ubuntu/0:/tmp/mydir',
+        scp_options=['-r', '-i', private_key_file],
+    )
 
-        # Remote directory back to local
-        dst_dir = pathlib.Path(dst) / 'mydir'
-        juju.scp(
-            'ubuntu/0:/tmp/mydir',
-            str(dst_dir),
-            scp_options=['-r', '-i', private_key_file],
-        )
+    # Remote directory back to local
+    dst_dir = tmp_path / 'dst' / 'mydir'
+    dst_dir.parent.mkdir(parents=True)
+    juju.scp(
+        'ubuntu/0:/tmp/mydir',
+        str(dst_dir),
+        scp_options=['-r', '-i', private_key_file],
+    )
 
-        assert (dst_dir / 'a.txt').read_text() == 'A'
-        assert (dst_dir / 'b.txt').read_text() == 'B'
+    assert (dst_dir / 'a.txt').read_text() == 'A'
+    assert (dst_dir / 'b.txt').read_text() == 'B'
 
 
 def test_model_constraints(juju: jubilant.Juju):

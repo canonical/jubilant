@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
-import tempfile
 from typing import Any
 from unittest import mock
 
@@ -80,7 +79,7 @@ def test_path(run: mocks.Run):
     juju.refresh('xyz', path=pathlib.Path('foo'))
 
 
-def test_tempdir(monkeypatch: pytest.MonkeyPatch):
+def test_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     num_calls = 0
 
     def mock_run(args: list[str], **_: Any):
@@ -108,18 +107,17 @@ def test_tempdir(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
-    with tempfile.TemporaryDirectory() as temp:
-        (pathlib.Path(temp) / 'my.charm').write_text('CH')
-        (pathlib.Path(temp) / 'r1').write_text('R1')
+    (tmp_path / 'my.charm').write_text('CH')
+    (tmp_path / 'r1').write_text('R1')
 
-        juju = jubilant.Juju()
-        juju.refresh(
-            'myapp',
-            path=pathlib.Path(temp) / 'my.charm',
-            resources={
-                'r1': str(pathlib.Path(temp) / 'r1'),
-                'r2': 'R2',
-            },
-        )
+    juju = jubilant.Juju()
+    juju.refresh(
+        'myapp',
+        path=tmp_path / 'my.charm',
+        resources={
+            'r1': str(tmp_path / 'r1'),
+            'r2': 'R2',
+        },
+    )
 
     assert num_calls == 1
