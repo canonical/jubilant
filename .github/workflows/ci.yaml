@@ -69,11 +69,6 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - name: Work around https://github.com/canonical/concierge/issues/30
-        run: |
-          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
-          sudo rm -rf /run/containerd
-
       - name: Check out repo
         uses: actions/checkout@v6
         with:
