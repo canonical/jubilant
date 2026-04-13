@@ -106,6 +106,82 @@ class Juju:
     # about where to put each new method.
 
     @overload
+    def add_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: Literal[True],
+        controller: str | None = None,
+        credential: str | None = None,
+        force: bool = False,
+        target_controller: str | None = None,
+    ) -> None: ...
+
+    @overload
+    def add_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: bool = False,
+        controller: str,
+        credential: str | None = None,
+        force: bool = False,
+        target_controller: str | None = None,
+    ) -> None: ...
+
+    def add_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: bool = False,
+        controller: str | None = None,
+        credential: str | None = None,
+        force: bool = False,
+        target_controller: str | None = None,
+    ) -> None:
+        """Add a cloud definition to a controller or to a client (or both).
+
+        Args:
+            cloud: Name for the cloud.
+            definition: A YAML file or a mapping containing the cloud definition.
+            client: If true, save the cloud to the client for use with future controllers.
+                You must specify ``client=True`` or provide *controller* (or both).
+            controller: If specified, save the cloud to the named controller.
+            credential: Credential to use for the new cloud.
+            force: If true, force add cloud to the controller, bypassing checks.
+            target_controller: Name of a JAAS managed controller to add the cloud to.
+        """
+        if not client and controller is None:
+            raise TypeError('"client" must be true or "controller" must be specified (or both)')
+
+        args = ['add-cloud', cloud]
+
+        if client:
+            args.append('--client')
+        if controller is not None:
+            args.extend(['--controller', controller])
+        if credential is not None:
+            args.extend(['--credential', credential])
+        if force:
+            args.append('--force')
+        if target_controller is not None:
+            args.extend(['--target-controller', target_controller])
+
+        if isinstance(definition, (str, pathlib.Path)):
+            with self._path_for_juju(definition) as definition_path:
+                args.extend(['--file', definition_path])
+                self.cli(*args, include_model=False)
+        else:
+            with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as temp_file:
+                _yaml.safe_dump(definition, temp_file)
+                temp_file.flush()
+                args.extend(['--file', temp_file.name])
+                self.cli(*args, include_model=False)
+
+    @overload
     def add_credential(
         self,
         cloud: str,
@@ -1195,19 +1271,28 @@ class Juju:
             self.cli(*args)
             return
 
-        with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as file_temp:
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as td:
+            temp_dir = pathlib.Path(td)
             if ':' not in source:
                 # Local source, remote destination
-                shutil.copy(source, file_temp.name)
-                args.append(file_temp.name)
+                temp = str(temp_dir / pathlib.PurePath(source).name)
+                if pathlib.Path(source).is_dir():
+                    shutil.copytree(source, temp)
+                else:
+                    shutil.copy(source, temp)
+                args.append(temp)
                 args.append(destination)
                 self.cli(*args)
             else:
                 # Remote source, local destination
+                temp = str(temp_dir / '_temp')
                 args.append(source)
-                args.append(file_temp.name)
+                args.append(temp)
                 self.cli(*args)
-                shutil.copy(file_temp.name, destination)
+                if pathlib.Path(temp).is_dir():
+                    shutil.copytree(temp, destination)
+                else:
+                    shutil.copy(temp, destination)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
@@ -1377,6 +1462,66 @@ class Juju:
 
         self.cli(*args)
 
+    @overload
+    def update_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: Literal[True],
+        controller: str | None = None,
+    ) -> None: ...
+
+    @overload
+    def update_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: bool = False,
+        controller: str,
+    ) -> None: ...
+
+    def update_cloud(
+        self,
+        cloud: str,
+        definition: str | pathlib.Path | Mapping[str, Any],
+        *,
+        client: bool = False,
+        controller: str | None = None,
+    ) -> None:
+        """Update cloud information on this client or on a controller (or both).
+
+        Args:
+            cloud: Name of the cloud to update.
+            definition: A YAML file or a mapping containing the cloud definition.
+            client: If true, update the cloud definition on this client. You must specify
+                ``client=True`` or provide *controller* (or both).
+            controller: If specified, update the cloud definition on the named controller.
+        """
+        if not client and controller is None:
+            raise TypeError('"client" must be true or "controller" must be specified (or both)')
+
+        args = ['update-cloud', cloud]
+
+        if client:
+            args.append('--client')
+        if controller is not None:
+            args.extend(['--controller', controller])
+
+        if isinstance(definition, (str, pathlib.Path)):
+            # Use -f instead of --file; juju update-cloud only supports the short form.
+            # See: https://github.com/juju/juju/blob/main/cmd/juju/cloud/updatecloud.go
+            with self._path_for_juju(definition) as definition_path:
+                args.extend(['-f', definition_path])
+                self.cli(*args, include_model=False)
+        else:
+            with tempfile.NamedTemporaryFile('w+', dir=self._temp_dir) as temp_file:
+                _yaml.safe_dump(definition, temp_file)
+                temp_file.flush()
+                args.extend(['-f', temp_file.name])
+                self.cli(*args, include_model=False)
+
     def update_secret(
         self,
         identifier: str | SecretURI,
@@ -1522,6 +1667,19 @@ class Juju:
         else:
             return tempfile.gettempdir()
 
+    @contextlib.contextmanager
+    def _path_for_juju(self, path: str | pathlib.Path) -> Generator[str]:
+        """Yield a path Juju can access, copying into a snap-safe temp dir if needed."""
+        path = str(path)
+        if not self._juju_is_snap:
+            yield path
+            return
+
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as temp_dir:
+            temp = os.path.join(temp_dir, os.path.basename(path))
+            shutil.copy(path, temp)
+            yield temp
+
     # This context manager is for deploy() and refresh(), and automatically copies
     # a local charm file and local resource files into a temporary directory if Juju
     # is running as a snap (in which case /tmp is not accessible).
@@ -1542,19 +1700,21 @@ class Juju:
             yield charm, resources
             return
 
-        with tempfile.TemporaryDirectory(dir=self._temp_dir) as temp_dir:
+        with tempfile.TemporaryDirectory(dir=self._temp_dir) as td:
+            temp_dir = pathlib.Path(td)
             if charm_needs_temp:
                 assert charm is not None
-                temp = os.path.join(temp_dir, '_temp.charm')
+                temp = temp_dir / '_temp.charm'
                 shutil.copy(charm, temp)
-                charm = temp
+                charm = str(temp)
 
             if resources_needs_temp:
                 assert resources is not None
                 resources = dict(resources)
                 for k, v in resources.items():
                     if v.startswith(('.', '/')):
-                        resources[k] = os.path.join(temp_dir, k)
+                        ext = pathlib.PurePath(v).suffix
+                        resources[k] = str(temp_dir / (k + ext))
                         shutil.copy(v, resources[k])
 
             yield charm, resources
