@@ -1002,7 +1002,7 @@ class Juju:
         path: str | pathlib.Path | None = None,
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
-        storage: Mapping[str, ConstraintValue] | None = None,
+        storage: Mapping[str, str] | None = None,
         trust: bool = False,
     ):
         """Refresh (upgrade) an application's charm.
@@ -1041,7 +1041,7 @@ class Juju:
                 args.extend(['--revision', str(revision)])
             if storage is not None:
                 for k, v in storage.items():
-                    args.extend(['--storage', _format_config(k, v)])
+                    args.extend(['--storage', f'{k}={v}'])
             if trust:
                 args.append('--trust')
 
