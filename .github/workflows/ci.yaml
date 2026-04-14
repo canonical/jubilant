@@ -76,11 +76,14 @@ jobs:
     steps:
       - name: Resolve Juju channels
         id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CHANNEL: ${{ github.event.inputs.channel }}
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
             RISK="beta"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            RISK="${{ github.event.inputs.channel }}"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            RISK="$INPUT_CHANNEL"
           else
             RISK="stable"
           fi
