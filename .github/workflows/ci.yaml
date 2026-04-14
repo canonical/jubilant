@@ -67,7 +67,7 @@ jobs:
       - name: Run unit tests
         run: make unit
 
-  init:
+  init-integration:
     runs-on: ubuntu-latest
 
     outputs:
@@ -87,13 +87,13 @@ jobs:
           echo "juju-channels=[\"3/$RISK\", \"4/$RISK\"]" >> "$GITHUB_OUTPUT"
 
   integration-k8s:
-    needs: init
+    needs: init-integration
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        juju-channel: ${{ fromJSON(needs.init.outputs.juju-channels) }}
+        juju-channel: ${{ fromJSON(needs.init-integration.outputs.juju-channels) }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-k8s
@@ -121,13 +121,13 @@ jobs:
         run: make integration-k8s
 
   integration-machine:
-    needs: init
+    needs: init-integration
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        juju-channel: ${{ fromJSON(needs.init.outputs.juju-channels) }}
+        juju-channel: ${{ fromJSON(needs.init-integration.outputs.juju-channels) }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-machine
