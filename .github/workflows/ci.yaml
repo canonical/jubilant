@@ -42,7 +42,7 @@ jobs:
         run: make lint
 
   unit:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
