@@ -30,11 +30,11 @@ Documentation = "https://documentation.ubuntu.com/jubilant/"
 dev = [
     "codespell==2.4.2; python_version >= '3.9'",
     "cryptography>=43.0.0",  # for generating SSH keys in tests
-    "ops==2.23.1",  # for static type checking test charms
-    "pyright==1.1.407",
+    "ops==2.23.2",  # for static type checking test charms
+    "pyright==1.1.408",
     "pytest==8.3.5",
     "pytest-cov==5.0.0",
-    "ruff==0.14.2",
+    "ruff==0.15.8",
     "zizmor==1.23.1; python_version >= '3.10'",
 ]
 

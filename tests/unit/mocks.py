@@ -92,6 +92,27 @@ class Time:
         self._monotonic += seconds
 
 
+class TemporaryDirectory:
+    """Mock for tempfile.TemporaryDirectory.
+
+    When used as a context manager, yields the given *name* directory path.
+    Unlike the real TemporaryDirectory, the directory must already exist
+    and is not cleaned up on exit.
+    """
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def __call__(self, **kwargs: Any):
+        return self
+
+    def __enter__(self) -> str:
+        return self.name
+
+    def __exit__(self, *args: Any):
+        return
+
+
 class NamedTemporaryFile:
     """Mock for tempfile.NamedTemporaryFile.
 

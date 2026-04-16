@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pathlib
+import tarfile
 from typing import Generator, cast
 
 import pytest
@@ -39,3 +41,12 @@ def model2(request: pytest.FixtureRequest) -> Generator[jubilant.Juju]:
     keep_models = cast(bool, request.config.getoption('--keep-models'))
     with jubilant.temp_model(keep=keep_models) as juju:
         yield juju
+
+
+@pytest.fixture
+def empty_tar(tmp_path: pathlib.Path) -> Generator[str]:
+    """Pytest fixture that creates an empty .tar file and returns its path."""
+    path = str(tmp_path / 'empty.tar')
+    with tarfile.open(path, 'w'):
+        pass
+    yield path
