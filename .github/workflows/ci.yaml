@@ -20,7 +20,7 @@ on:
           - edge
   schedule:
     # min (0-59) / hour (0-23) / day (1-31) / month (1-12) / weekday (SUN-SAT)
-    - cron: "0 10 * * MON"
+    - cron: "43 6 * * MON"
       timezone: "Pacific/Auckland"
 
 permissions: {}
