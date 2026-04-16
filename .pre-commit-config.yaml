@@ -62,4 +62,3 @@ repos:
        types: [text]
        args: []
        require_serial: true
-       additional_dependencies: [tomli]
