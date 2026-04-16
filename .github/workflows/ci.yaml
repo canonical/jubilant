@@ -17,7 +17,6 @@ on:
           - stable
           - candidate
           - beta
-          - edge
   schedule:
     # min (0-59) / hour (0-23) / day (1-31) / month (1-12) / weekday (SUN-SAT)
     - cron: "43 6 * * MON"
