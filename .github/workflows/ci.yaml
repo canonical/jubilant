@@ -7,6 +7,20 @@ on:
   pull_request:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      channel:
+        description: "Juju channel risk (scheduled runs use beta, everything else uses stable)"
+        required: true
+        type: choice
+        default: stable
+        options:
+          - stable
+          - candidate
+          - beta
+  schedule:
+    # min (0-59) / hour (0-23) / day (1-31) / month (1-12) / weekday (SUN-SAT)
+    - cron: "43 6 * * MON"
+      timezone: "Pacific/Auckland"
 
 permissions: {}
 
@@ -55,24 +69,42 @@ jobs:
       - name: Run unit tests
         run: make unit
 
+  init-integration:
+    runs-on: ubuntu-latest
+
+    outputs:
+      juju-channels: ${{ steps.resolve.outputs.juju-channels }}
+
+    steps:
+      - name: Resolve Juju channels
+        id: resolve
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CHANNEL: ${{ github.event.inputs.channel }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            RISK="beta"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            RISK="$INPUT_CHANNEL"
+          else
+            RISK="stable"
+          fi
+          echo "juju-channels=[\"3/$RISK\", \"4/$RISK\"]" >> "$GITHUB_OUTPUT"
+
   integration-k8s:
+    needs: init-integration
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        juju-channel: ["3/stable", "4/stable"]
+        juju-channel: ${{ fromJSON(needs.init-integration.outputs.juju-channels) }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-k8s
       cancel-in-progress: true
 
     steps:
-      - name: Work around https://github.com/canonical/concierge/issues/30
-        run: |
-          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
-          sudo rm -rf /run/containerd
-
       - name: Check out repo
         uses: actions/checkout@v6
         with:
@@ -94,12 +126,13 @@ jobs:
         run: make integration-k8s
 
   integration-machine:
+    needs: init-integration
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        juju-channel: ["3/stable", "4/stable"]
+        juju-channel: ${{ fromJSON(needs.init-integration.outputs.juju-channels) }}
 
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.juju-channel }}-machine
@@ -125,3 +158,21 @@ jobs:
 
       - name: Run integration tests
         run: make integration-machine
+
+  open-issue-on-failure-if-scheduled:
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    needs: [integration-k8s, integration-machine]
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+
+    steps:
+      - name: Create issue on failure
+        run: |
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Scheduled tests failed" \
+            --body "Scheduled tests failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
