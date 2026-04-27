@@ -1,6 +1,6 @@
 """Jubilant is a Pythonic wrapper around the Juju CLI."""
 
-from . import modeltypes, secrettypes, statustypes
+from . import modeltypes, secrettypes, statustypes, unittypes
 from ._all_any import (
     all_active,
     all_agents_idle,
@@ -21,6 +21,7 @@ from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
+from .unittypes import UnitInfo
 
 __all__ = [
     'CLIError',
@@ -33,6 +34,7 @@ __all__ = [
     'Status',
     'Task',
     'TaskError',
+    'UnitInfo',
     'Version',
     'WaitError',
     'all_active',
@@ -50,6 +52,7 @@ __all__ = [
     'secrettypes',
     'statustypes',
     'temp_model',
+    'unittypes',
 ]
 
 __version__ = '1.8.0'
