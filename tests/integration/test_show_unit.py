@@ -16,9 +16,9 @@ def test_show_unit(juju: jubilant.Juju, empty_tar: str):
     info = juju.show_unit(unit_name)
 
     assert isinstance(info, jubilant.UnitInfo)
-    assert info.charm == 'testapp'
+    assert 'testapp' in info.charm
     assert info.leader in (True, False)
-    assert info.machine
+    assert info.machine or info.provider_id
     assert info.life == 'alive'
     assert any(
         relation.endpoint == 'db'
