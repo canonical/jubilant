@@ -5,7 +5,7 @@ import jubilant
 from . import helpers
 
 
-def test_show_unit(juju: jubilant.Juju, empty_tar: str):
+def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version, empty_tar: str):
     juju.deploy(helpers.find_charm('testdb'))
     juju.deploy(helpers.find_charm('testapp'), resources={'test-file': empty_tar})
 
@@ -20,9 +20,18 @@ def test_show_unit(juju: jubilant.Juju, empty_tar: str):
     assert info.leader in (True, False)
     assert info.machine or info.provider_id
     assert info.life == 'alive'
-    assert any(
-        relation.endpoint == 'db'
-        and relation.related_endpoint == 'db'
-        and any(unit.startswith('testdb/') for unit in relation.related_units)
-        for relation in info.relation_info
-    )
+
+    if juju_version.major < 4:
+        assert any(
+            relation.endpoint == 'db'
+            and relation.related_endpoint == 'db'
+            and any(unit.startswith('testdb/') for unit in relation.related_units)
+            for relation in info.relation_info
+        )
+    else:
+        assert any(
+            relation.endpoint == 'db'
+            and relation.related_endpoint == 'db'
+            and relation.local_unit.in_scope
+            for relation in info.relation_info
+        )
