@@ -20,6 +20,7 @@ from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
 from .statustypes import Status
+from .unittypes import UnitInfo
 
 logger = logging.getLogger('jubilant')
 logger_wait = logging.getLogger('jubilant.wait')
@@ -1393,6 +1394,17 @@ class Juju:
         if reveal:
             return RevealedSecret._from_dict(secret)
         return Secret._from_dict(secret)
+
+    def show_unit(self, unit: str) -> UnitInfo:
+        """Get information about a unit.
+
+        Args:
+            unit: Unit name, for example ``mysql/0``.
+        """
+        stdout = self.cli('show-unit', unit, '--format', 'json')
+        results = json.loads(stdout)
+        info_dict = next(iter(results.values()))
+        return UnitInfo._from_dict(info_dict)
 
     def ssh(
         self,

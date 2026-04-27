@@ -115,6 +115,10 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
     # Missing docstring in public class
     "D101",
 ]
+"jubilant/unittypes.py" = [
+    # Missing docstring in public class
+    "D101",
+]
 "jubilant/statustypes.py" = [
     # Missing docstring in public class
     "D101",
