@@ -1,4 +1,14 @@
+"""Dataclasses that contain parsed output from ``juju show-unit --format=json``.
+
+These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:unittypes-dataclasses>`_
+the Go structs in the Juju codebase, to ensure they are correct. Class names
+come from the Go struct name, whereas attribute names come from the JSON field
+names. The one exception is that "Application" has been renamed to "App"
+throughout, for brevity (and "application" to "app").
+"""
+
 from __future__ import annotations
+
 import dataclasses
 from typing import Any
 
@@ -25,7 +35,7 @@ class RelationData:
 
     cross_model: bool = False
     local_unit: UnitRelationData | None = None
-    related_units: dict[str, UnitRelationData] = dataclasses.field(default_factory=dict)
+    related_units: dict[str, UnitRelationData] = dataclasses.field(default_factory=dict)  # type: ignore
 
     @classmethod
     def _from_dict(cls, d: dict[str, Any]) -> RelationData:
@@ -37,10 +47,8 @@ class RelationData:
             app_data=d['application-data'],
             local_unit=UnitRelationData._from_dict(d['local-unit']) if 'local-unit' in d else None,
             related_units={
-                k: UnitRelationData._from_dict(v) for k, v in d['related-units'].items()
-            }
-            if 'related-units' in d
-            else {},
+                k: UnitRelationData._from_dict(v) for k, v in d.get('related-units', {}).items()
+            },
         )
 
 
@@ -54,7 +62,7 @@ class UnitInfo:
     machine: str = ''
     public_address: str = ''
     life: str = ''
-    relation_info: list[RelationData] = dataclasses.field(default_factory=list)
+    relation_info: list[RelationData] = dataclasses.field(default_factory=list)  # type: ignore
     provider_id: str = ''
     address: str = ''
 
@@ -68,9 +76,7 @@ class UnitInfo:
             charm=d['charm'],
             leader=d['leader'],
             life=d.get('life') or '',
-            relation_info=[RelationData._from_dict(x) for x in d['relation-info']]
-            if 'relation-info' in d
-            else [],
+            relation_info=[RelationData._from_dict(x) for x in d.get('relation-info', [])],
             provider_id=d.get('provider-id') or '',
             address=d.get('address') or '',
         )
