@@ -18,12 +18,12 @@ def test_full(run: mocks.Run):
         workload_version='8.0.41',
         machine='0',
         relation_info=[
-            jubilant.unittypes.UnitRelationInfo(
+            jubilant.unittypes.RelationData(
                 endpoint='database',
                 relation_id=5,
                 related_endpoint='database',
                 cross_model=False,
-                application_data={'foo': 'bar'},
+                app_data={'foo': 'bar'},
                 local_unit=jubilant.unittypes.UnitRelationData(
                     in_scope=True,
                     data={'ingress-address': '10.0.0.1'},
@@ -55,7 +55,9 @@ def test_minimal(run: mocks.Run):
     info = juju.show_unit('mysql/0')
 
     assert info == jubilant.UnitInfo(
+        opened_ports=[],
         charm='mysql',
+        leader=False,
     )
 
 

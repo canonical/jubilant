@@ -32,6 +32,7 @@ def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version, empty_ta
         assert any(
             relation.endpoint == 'db'
             and relation.related_endpoint == 'db'
+            and relation.local_unit is not None
             and relation.local_unit.in_scope
             for relation in info.relation_info
         )

@@ -28,6 +28,7 @@ FULL_UNITINFO = {
 
 MINIMAL_UNITINFO = {
     'mysql/0': {
+        'opened-ports': [],
         'charm': 'mysql',
         'leader': False,
     }
