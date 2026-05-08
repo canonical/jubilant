@@ -55,7 +55,7 @@ def test_minimal(run: mocks.Run):
     info = juju.show_unit('mysql/0')
 
     assert info == jubilant.UnitInfo(
-        opened_ports=[],
+        opened_ports=['3306/tcp'],
         charm='mysql',
         leader=False,
     )
