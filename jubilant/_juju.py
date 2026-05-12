@@ -1689,8 +1689,8 @@ class Juju:
         charm: str | pathlib.Path | None,
         resources: Mapping[str, str] | None,
     ) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
-        if charm is not None:
-            charm = str(charm)
+        if isinstance(charm, pathlib.Path):
+            charm = str(charm) if charm.is_absolute() else f'./{charm}'
         charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
         resources_needs_temp = resources is not None and any(
             v.startswith(('.', '/')) for v in resources.values()

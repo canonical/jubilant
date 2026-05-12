@@ -111,7 +111,7 @@ def test_overlays_str():
 
 
 def test_path(run: mocks.Run):
-    run.handle(['juju', 'deploy', 'xyz'])
+    run.handle(['juju', 'deploy', './xyz'])
     juju = jubilant.Juju()
 
     juju.deploy(pathlib.Path('xyz'))
