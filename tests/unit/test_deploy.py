@@ -117,6 +117,13 @@ def test_path(run: mocks.Run):
     juju.deploy(pathlib.Path('xyz'))
 
 
+def test_path_absolute(run: mocks.Run):
+    run.handle(['juju', 'deploy', '/xyz'])
+    juju = jubilant.Juju()
+
+    juju.deploy(pathlib.Path('/xyz'))
+
+
 def test_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     num_calls = 0
 
