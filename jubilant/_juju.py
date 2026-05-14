@@ -1690,6 +1690,9 @@ class Juju:
         resources: Mapping[str, str] | None,
     ) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
         if isinstance(charm, pathlib.Path):
+            # We add "./" to any relative pathlib.Path objects in their string form.
+            # pathlib.Path removes the redundant "./", which we need to prevent Juju
+            # from saying the path is ambiguos.
             charm = str(charm) if charm.is_absolute() else f'./{charm}'
         charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
         resources_needs_temp = resources is not None and any(
