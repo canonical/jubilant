@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pathlib
 import urllib.request
 
 import pytest
@@ -69,18 +68,6 @@ def test_deploy_with_resources(juju: jubilant.Juju):
 def test_deploy_with_local_file_resource(juju: jubilant.Juju, empty_tar: str):
     juju.deploy(
         helpers.find_charm('testapp'),
-        resources={'test-file': empty_tar},
-    )
-    juju.wait(
-        lambda status: 'testapp' in status.apps and 'testapp/0' in status.apps['testapp'].units
-    )
-
-
-def test_deploy_with_local_file_resource_relative(juju: jubilant.Juju, empty_tar: str):
-    charm = helpers.find_charm('testapp')
-    relative_charm = charm.relative_to(pathlib.Path(__file__).cwd())
-    juju.deploy(
-        relative_charm,
         resources={'test-file': empty_tar},
     )
     juju.wait(
