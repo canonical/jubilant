@@ -6,7 +6,7 @@
 
 ## Fixes
 
-* Correct behaviour when transparently handling Juju's snap confin… (#275)
+* Correct behaviour when transparently handling Juju's snap confinement (#275)
 
 ## Documentation
 
@@ -355,7 +355,7 @@
 ## Refactoring
 
 * Move error classes to where they're raised (#27)
-* Move types.py to statustypes.py to avoid confusion with stdlib  (#28)
+* Move types.py to statustypes.py to avoid confusion with stdlib (#28)
 
 ## CI
 
