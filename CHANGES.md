@@ -91,7 +91,7 @@
 
 Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release fixes that.
 
-# 1.6.0 - 20 November 2025
+# 1.6.0 - 27 November 2025
 
 ## Features
 
@@ -313,6 +313,8 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 # 0.1.0 - 21 March 2025
 
+First "real" pre-release of Jubilant.
+
 ## Documentation
 
 * Set maximum_signature_line_length to 80 (#60)
@@ -320,12 +322,16 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 # 1.0.0b3 - 20 March 2025
 
+Test beta pre-release.
+
 ## CI
 
 * Fix publish environment (#58)
 * Bump beta version
 
 # 1.0.0b2 - 20 March 2025
+
+Test beta pre-release.
 
 ## Features
 
