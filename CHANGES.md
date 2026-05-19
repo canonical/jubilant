@@ -2,7 +2,7 @@
 
 ## Features
 
-* Implement add_cloud and update_cloud methods (#283)
+* Implement `add_cloud` and `update_cloud` methods (#283)
 
 ## Fixes
 
@@ -23,20 +23,20 @@
 
 ## Breaking Changes
 
-* Respect self.model in offer method (#276)
+* Respect self.model in `offer` method (#276)
 
 ## Features
 
-* Allow metadata_source to be passed down to the CLI via the bootstrap command (#272)
+* Allow `metadata_source` to be passed down to the CLI via the `bootstrap` command (#272)
 
 ## Documentation
 
-* WaitError is raised when error is true, not false. (#256)
+* `WaitError` is raised when error is true, not false. (#256)
 * Consistent markup for "true" and "false" (#254)
 * Include a directive for documentation in AGENTS.md (#268)
 * Replace juju.is links and change link in docs header (#267)
 * Remove pytest-operator migration guide (moved to Ops docs) (#270)
-* Fix docstring of consume() (#269)
+* Fix docstring of `consume()` (#269)
 * Refocus tutorial on standalone usage (#280)
 
 ## Tests
@@ -50,14 +50,14 @@
 ## CI
 
 * Correct copilot-collections permissions so that the job can create a PR if needed (#253)
-* Add Zizmor workflow, fix test_secrets ordering (#274)
+* Add Zizmor workflow, fix `test_secrets` ordering (#274)
 
 # 1.7.0 - 29 January 2026
 
 ## Features
 
 * Treat running an invalid action in Juju 4 the same way as Juju 3 (#245)
-* Add model_constraints method to get/set machine constraints (#236)
+* Add `model_constraints` method to get/set machine constraints (#236)
 * Provide additional arguments for model destruction (#243)
 
 ## Documentation
@@ -66,7 +66,7 @@
 
 ## Refactoring
 
-* Simplify _format_config, implement _format_constraint with it (#250)
+* Simplify `_format_config`, implement `_format_constraint` with it (#250)
 
 ## CI
 
@@ -77,11 +77,11 @@
 
 ## Fixes
 
-* Fix Version.__str__ and strictify parsing (#230)
+* Fix `Version.__str__` and strictify parsing (#230)
 
 ## Refactoring
 
-* Simplify comprehensions in statustypes and modeltypes (#234)
+* Simplify comprehensions in `statustypes` and `modeltypes` (#234)
 
 ## CI
 
@@ -95,23 +95,23 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add SecretURI.__repr__ to make type obvious in error messages (#213)
-* Add version command (#219)
-* Copy files to juju-accessible place for deploy, refresh, scp (#207)
-* Add show-model command (#218)
-* Add add-credential command (#221)
-* Add SSH key management commands (add-ssh-key, remove-ssh-key) (#228)
+* Add `SecretURI.__repr__` to make type obvious in error messages (#213)
+* Add `version` command (#219)
+* Copy files to juju-accessible place for `deploy`, `refresh`, `scp` (#207)
+* Add `show-model` command (#218)
+* Add `add-credential` command (#221)
+* Add SSH key management commands (`add-ssh-key`, `remove-ssh-key`) (#228)
 
 ## Fixes
 
-* Support "app/leader" unit syntax for run and exec (#216)
-* Change machine parameter type to int | str in Juju.exec (#223)
+* Support "app/leader" unit syntax for `run` and `exec` (#216)
+* Change machine parameter type to `int | str` in `Juju.exec` (#223)
 
 ## Documentation
 
 * Use 'integration' group in CI example (#209)
-* Improve docs for wait logging and debug_log (#208)
-* Correct defaults for exec and run "wait" parameters (#210)
+* Improve docs for `wait` logging and `debug_log` (#208)
+* Correct defaults for `exec` and `run` "wait" parameters (#210)
 * Jubilant is not *just* for charm integration tests (#215)
 
 ## CI
@@ -122,24 +122,21 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Fixes
 
-* Add timeout to temp_model destroy-model to fix microk8s issues (#188)
+* Add timeout to `temp_model` `destroy-model` to fix microk8s issues (#188)
 * Allow revealed secrets without checksums (#204)
 
 ## Documentation
 
 * Update tutorial with info about deploying .charm files (#187)
-* Another wait() example, and link to it from ref and how-to (#195)
+* Another `wait()` example, and link to it from ref and how-to (#195)
 * Add docstrings to common status classes and attributes (#196)
-
-## Doc
-
 * Mention 'timeout' argument unit in `wait` method docstring (#190)
 
 # 1.4.0 - 26 August 2025
 
 ## Features
 
-* Add bootstrap command (#180)
+* Add `bootstrap` command (#180)
 
 ## Documentation
 
@@ -153,15 +150,15 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add "overlays" parameter to Juju.deploy (#160)
-* Add consume command (#164)
+* Add "overlays" parameter to `Juju.deploy` (#160)
+* Add `consume` command (#164)
 * Support multiple controllers (#165)
-* Have temp_model forward "cloud" and other args to add_model (#168)
+* Have `temp_model` forward "cloud" and other args to `add_model` (#168)
 * Secret management (#135)
 
 ## Documentation
 
-* Add an example of temp_model, including how to set attributes (#162)
+* Add an example of `temp_model`, including how to set attributes (#162)
 
 ## CI
 
@@ -172,7 +169,7 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add Status.get_units, include subordinates in all_* and any_* (#150)
+* Add `Status.get_units`, include subordinates in `all_*` and `any_*` (#150)
 
 ## CI
 
@@ -194,7 +191,7 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Fixes
 
-* Fix format of --bind argument for deploy (#132)
+* Fix format of `--bind` argument for `deploy` (#132)
 
 # 1.0.0 - 29 April 2025
 
@@ -205,22 +202,22 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add "bind" argument to deploy() (#121)
+* Add "bind" argument to `deploy()` (#121)
 * Deploy a temp model into a specified controller (#124)
-* Add all_agents_idle helper (#127)
+* Add `all_agents_idle` helper (#127)
 
 # 0.5.0 - 24 April 2025
 
 ## Breaking Changes
 
-* Change all_* and any_* to take *apps instead of a list (#116)
+* Change `all_*` and `any_*` to take *apps instead of a list (#116)
 * Return data rather than raising an exception on status-error (#120)
 
 ## Features
 
-* Add scp command (#109)
-* Add model-config command (#115)
-* Add add_secret method (#112)
+* Add `scp` command (#109)
+* Add `model-config` command (#115)
+* Add `add_secret` method (#112)
 
 ## Fixes
 
@@ -239,12 +236,12 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add refresh command (#93)
-* Slightly more helpful TaskError.__str__ (#99)
+* Add `refresh` command (#93)
+* Slightly more helpful `TaskError.__str__` (#99)
 
 ## Documentation
 
-* Fix and->or in all_* docstrings (#96)
+* Fix and->or in `all_*` docstrings (#96)
 * Add "How to migrate from pytest-operator to Jubilant" (#98)
 
 # 0.4.0 - 10 April 2025
@@ -255,30 +252,30 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add remove_application method (#86)
-* Add offer command (#82)
-* Add ssh command (#92)
+* Add `remove_application` method (#86)
+* Add `offer` command (#82)
+* Add `ssh` command (#92)
 
 ## Fixes
 
-* Don't log "juju status" calls in Juju.wait() (#88)
+* Don't log "juju status" calls in `Juju.wait()` (#88)
 
 ## Documentation
 
-* Minor rewording in docstring of remove_unit method (#87)
+* Minor rewording in docstring of `remove_unit` method (#87)
 
 # 0.3.2 - 07 April 2025
 
 ## Features
 
-* Add "stdin" parameter to Juju.cli (#83)
+* Add "stdin" parameter to `Juju.cli` (#83)
 
 # 0.3.1 - 07 April 2025
 
 ## Features
 
-* Condense Juju.wait status logging by using gron-style diff (#79)
-* Add trust command (#81)
+* Condense `Juju.wait` status logging by using gron-style diff (#79)
+* Add `trust` command (#81)
 
 # 0.3.0 - 04 April 2025
 
@@ -290,15 +287,15 @@ Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release f
 
 ## Features
 
-* Add "wait" argument to exec and run (#77)
-* Add remove_relation method (#78)
+* Add "wait" argument to `exec` and `run` (#77)
+* Add `remove_relation` method (#78)
 
 # 0.2.0 - 03 April 2025
 
 ## Breaking Changes
 
-* Rename deploy param resource -> resources (#74)
-* Add exec method (#66)
+* Rename `deploy` param resource -> resources (#74)
+* Add `exec` method (#66)
 
 ## Documentation
 
@@ -317,7 +314,7 @@ First "real" pre-release of Jubilant.
 
 ## Documentation
 
-* Set maximum_signature_line_length to 80 (#60)
+* Set `maximum_signature_line_length` to 80 (#60)
 * Flesh out README.md (#59)
 
 # 1.0.0b3 - 20 March 2025
@@ -339,11 +336,11 @@ Test beta pre-release.
 * Get basic Sphinx docs working locally (#3)
 * Rename wait_status to wait and adjust the API (#2)
 * Add generated status dataclasses (#26)
-* Add config method (#39)
-* Add run method (#42)
-* Add integrate method (#45)
-* Add remove_unit method (#47)
-* Add add_unit method (#46)
+* Add `config` method (#39)
+* Add `run` method (#42)
+* Add `integrate` method (#45)
+* Add `remove_unit` method (#47)
+* Add `add_unit` method (#46)
 * Pretty-print Status dataclass (#37)
 * Add test helpers and run integration tests in CI (#49)
 * Add basic integration tests for most jubilant.Juju methods (#53)
@@ -351,7 +348,7 @@ Test beta pre-release.
 
 ## Fixes
 
-* Add additional params to deploy() (#23)
+* Add additional params to `deploy()` (#23)
 
 ## Documentation
 
