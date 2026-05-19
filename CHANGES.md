@@ -87,6 +87,10 @@
 
 * Fix "ty" type checking issues (#235)
 
+# 1.6.1 - 27 November 2025
+
+Note: v1.6.0 was an invalid release, not published to PyPI. The v1.6.1 release fixes that.
+
 # 1.6.0 - 20 November 2025
 
 ## Features
