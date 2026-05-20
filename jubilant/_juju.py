@@ -246,6 +246,65 @@ class Juju:
                 args.extend(['--file', temp_file.name])
                 self.cli(*args, include_model=False)
 
+    def add_machine(
+        self,
+        to: str | None = None,
+        *,
+        base: str | None = None,
+        constraints: Mapping[str, ConstraintValue] | None = None,
+        disks: str | Iterable[str] | None = None,
+        num_machines: int = 1,
+        private_key: str | pathlib.Path | None = None,
+        public_key: str | pathlib.Path | None = None,
+    ) -> None:
+        """Provision a new machine or assign one to the model.
+
+        Args:
+            to: Machine or container to allocate the new machine on. For example, to
+                allocate a new LXD container on machine 25, use ``lxd:25``. Unavailable
+                in Kubernetes clouds.
+            base: Operating system base to install on the new machine(s), for example,
+                ``'ubuntu@22.04'``.
+            constraints: Machine constraints to overwrite those available from
+                :meth:`model_constraints` and provider's defaults, for example,
+                ``{'mem': '8G', 'cores': 4}``.
+            disks: Storage directives for disks to attach to the machine(s), for
+                example, ``'ebs,1T,2'``.
+            num_machines: Number of machines to add.
+            private_key: Path to the private key to use during the connection.
+            public_key: Path to the public key to add to the remote authorized keys.
+        """
+        args = ['add-machine']
+        if to is not None:
+            args.append(to)
+        if base is not None:
+            args.extend(['--base', base])
+        if constraints is not None:
+            for k, v in constraints.items():
+                args.extend(['--constraints', _format_config(k, v)])
+        if disks is not None:
+            if isinstance(disks, str):
+                args.extend(['--disks', disks])
+            else:
+                args.extend(['--disks', ' '.join(disks)])
+        if num_machines != 1:
+            args.extend(['-n', str(num_machines)])
+
+        private_ctx = (
+            self._path_for_juju(private_key)
+            if private_key is not None
+            else contextlib.nullcontext()
+        )
+        public_ctx = (
+            self._path_for_juju(public_key) if public_key is not None else contextlib.nullcontext()
+        )
+        with private_ctx as private_path, public_ctx as public_path:
+            if private_path is not None:
+                args.extend(['--private-key', private_path])
+            if public_path is not None:
+                args.extend(['--public-key', public_path])
+            self.cli(*args)
+
     def add_model(
         self,
         model: str,
