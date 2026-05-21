@@ -137,6 +137,7 @@ sitemap_show_lastmod = True
 sitemap_excludes = [
     "404/",
     "genindex/",
+    "py-modindex/",
     "search/",
 ]
 
