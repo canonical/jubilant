@@ -194,7 +194,7 @@ linkcheck_ignore = [
 # A regex list of URLs where anchors are ignored by 'make linkcheck'
 linkcheck_anchors_ignore_for_url = [
     r"https://github\.com/.*",
-    r"https://matrix.to/.*",
+    r"https://matrix\.to/.*",
 ]
 
 # How long the link checker will wait for a response for each request
