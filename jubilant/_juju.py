@@ -248,7 +248,7 @@ class Juju:
 
     def add_machine(
         self,
-        to: str | None = None,
+        address_or_to: str | None = None,
         *,
         base: str | None = None,
         constraints: Mapping[str, ConstraintValue] | None = None,
@@ -257,12 +257,14 @@ class Juju:
         private_key: str | pathlib.Path | None = None,
         public_key: str | pathlib.Path | None = None,
     ) -> None:
-        """Provision a new machine or assign one to the model.
+        """Allocate a machine to the model. Unavailable in Kubernetes clouds.
 
         Args:
-            to: Machine or container to allocate the new machine on. For example, to
-                allocate a new LXD container on machine 25, use ``lxd:25``. Unavailable
-                in Kubernetes clouds.
+            address_or_to: Address of a network-accessible computer to allocate as a machine, or a
+                placement directive for a new machine. Examples: ``ssh:user@10.10.0.3`` allocates
+                the specified computer. ``lxd:25`` allocates a new LXD container on machine 25.
+                ``lxd`` allocates a new LXD container on a new machine instance, resulting in two
+                additional machines. If not specified, a new machine instance is allocated.
             base: Operating system base to install on the new machine(s), for example,
                 ``'ubuntu@22.04'``.
             constraints: Machine constraints to overwrite those available from
@@ -275,8 +277,8 @@ class Juju:
             public_key: Path to the public key to add to the remote authorized keys.
         """
         args = ['add-machine']
-        if to is not None:
-            args.append(to)
+        if address_or_to is not None:
+            args.append(address_or_to)
         if base is not None:
             args.extend(['--base', base])
         if constraints is not None:

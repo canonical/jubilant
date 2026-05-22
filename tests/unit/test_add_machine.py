@@ -26,6 +26,13 @@ def test_to_container(run: mocks.Run):
     juju.add_machine('lxd:4')
 
 
+def test_to_container_new_machine(run: mocks.Run):
+    run.handle(['juju', 'add-machine', 'lxd'])
+    juju = jubilant.Juju()
+
+    juju.add_machine('lxd')
+
+
 def test_to_ssh(run: mocks.Run):
     run.handle(['juju', 'add-machine', 'ssh:user@10.10.0.3'])
     juju = jubilant.Juju()
