@@ -102,3 +102,11 @@ def test_model_constraints(juju: jubilant.Juju):
     juju.model_constraints(constraints={'mem': '1G', 'cores': 4})
     new_constraints = juju.model_constraints()
     assert new_constraints == {'mem': 1024, 'cores': 4}
+
+
+def test_add_machine(juju: jubilant.Juju):
+    before = set(juju.status().machines)
+    juju.add_machine()
+    status = juju.wait(lambda s: bool(set(s.machines) - before))
+    added = set(status.machines) - before
+    assert len(added) == 1
