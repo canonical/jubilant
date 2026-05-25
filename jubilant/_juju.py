@@ -248,7 +248,7 @@ class Juju:
 
     def add_machine(
         self,
-        address_or_to: str | None = None,
+        target: str | None = None,
         *,
         base: str | None = None,
         constraints: Mapping[str, ConstraintValue] | None = None,
@@ -260,7 +260,7 @@ class Juju:
         """Allocate a machine to the model. Unavailable in Kubernetes clouds.
 
         Args:
-            address_or_to: Address of a network-accessible computer to allocate as a machine, or a
+            target: Address of a network-accessible computer to allocate as a machine, or a
                 placement directive for a new machine. Examples: ``ssh:user@10.10.0.3`` allocates
                 the specified computer. ``lxd:25`` allocates a new LXD container on machine 25.
                 ``lxd`` allocates a new LXD container on a new machine instance, resulting in two
@@ -277,8 +277,8 @@ class Juju:
             public_key: Path to the public key to add to the remote authorized keys.
         """
         args = ['add-machine']
-        if address_or_to is not None:
-            args.append(address_or_to)
+        if target is not None:
+            args.append(target)
         if base is not None:
             args.extend(['--base', base])
         if constraints is not None:
