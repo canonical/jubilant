@@ -4,7 +4,9 @@ import pathlib
 import sys
 import textwrap
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))  # So that sphinx.ext.autodoc can find code.
+
+# [BEYOND SPHINX STACK] Make sure that sphinx.ext.autodoc can find our Python source files.
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 
 # Configuration for the Sphinx documentation builder.
@@ -291,6 +293,17 @@ html_js_files = [
 #     :class: vale-ignore
 # """
 
+# Configuration for Intersphinx projects
+#
+intersphinx_mapping = {
+    "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
+    "operator": ("https://documentation.ubuntu.com/ops/latest/", None),
+}
+
+
+# [BEYOND SPHINX STACK]
+# The following Ops-specific config goes beyond the provisions of Sphinx Stack.
+
 # Options for sphinx.ext.autodoc
 
 # This value controls how to represents typehints. The setting takes the
@@ -324,10 +337,3 @@ autodoc_default_options = {
 
 # This value stacks args vertically if a signature is too long.
 maximum_signature_line_length = 80
-
-# Configuration for Intersphinx projects
-#
-intersphinx_mapping = {
-    "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
-    "operator": ("https://documentation.ubuntu.com/ops/latest/", None),
-}
