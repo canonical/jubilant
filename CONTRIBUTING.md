@@ -27,10 +27,11 @@ To create a new release of Jubilant:
    1. [Draft a new release](https://github.com/canonical/jubilant/releases/new) on GitHub. The tag should start with a `v`, like `v1.2.3`.
    2. In the release notes, drop the `by @author` credit for anyone in the Charm Tech team (including Copilot and other AI users), and drop dependabot PRs entirely.
    3. Sort the PRs by type: breaking changes first, then feat, fix, docs, chore, ci.
+   4. Add a short summary after the version in the release title, like `v1.2.3: Add foo command, fix bar`.
 2. Create a pre-release PR:
    1. Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version.
    2. Add a changelog entry to [`CHANGES.md`](https://github.com/canonical/jubilant/blob/main/CHANGES.md) for the new version.
-   3. Put the release notes in the PR description for review.
+   3. Put the release summary and notes in the PR description for review. Put the notes in a code block to avoid @-ing people.
    4. Get the PR reviewed and merged.
 3. Publish the release:
    1. Publish the draft release on GitHub. This triggers the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml), which automatically publishes the package to PyPI and runs the SBOM and security scan workflow.
