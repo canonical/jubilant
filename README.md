@@ -84,9 +84,15 @@ To contribute a code change, write your fix or feature, add tests and docs, then
 
 To create a new release of Jubilant:
 
-1. Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version you want to release.
-2. Add a changelog entry to [`CHANGES.md`](https://github.com/canonical/jubilant/blob/main/CHANGES.md) for the new version.
-3. Push up a PR with these changes and get it reviewed and merged.
-4. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `v`, like `v1.2.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI and run the SBOM and security scan workflow.
-5. On the summary page of the Publish workflow run, locate the `secscan-report-upload` artifact. Download it and upload it to the [SSDLC Jubilant folder in Drive](https://drive.google.com/drive/folders/1bLJL4wJwicxaGY2hc5Xz4vSjENUt5Zjw?usp=share_link). Open the report and verify that the security scan has not found any vulnerabilities.
-6. Once the publish workflow has finished, check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant/#history).
+1. Create a pre-release PR:
+   1. Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version.
+   2. Add a changelog entry to [`CHANGES.md`](https://github.com/canonical/jubilant/blob/main/CHANGES.md) for the new version.
+   3. Put the release notes in the PR description for review.
+   4. Get the PR reviewed and merged.
+2. Create the release:
+   1. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub. The tag should start with a `v`, like `v1.2.3`.
+   2. In the release notes, drop the `by @author` credit for anyone in the Charm Tech team (including Copilot and other AI users), and drop dependabot PRs entirely.
+   3. Publishing the release triggers the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml), which automatically publishes the package to PyPI and runs the SBOM and security scan workflow.
+3. Once the Publish workflow finishes:
+   1. On the summary page of the workflow run, locate the `secscan-report-upload` artifact. Download it and upload it to the [SSDLC Jubilant folder in Drive](https://drive.google.com/drive/folders/1bLJL4wJwicxaGY2hc5Xz4vSjENUt5Zjw?usp=share_link). Open the report and verify that the security scan has not found any vulnerabilities.
+   2. Check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant/#history).
