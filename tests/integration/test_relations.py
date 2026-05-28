@@ -29,7 +29,7 @@ def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version):
     info = juju.show_unit('testapp/0')
 
     assert isinstance(info, jubilant.UnitInfo)
-    assert info.charm == 'testapp'
+    assert info.charm == 'local:testapp-0'
     assert isinstance(info.leader, bool)
     assert info.machine or info.provider_id
     assert info.life == 'alive'
