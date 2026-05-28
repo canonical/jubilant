@@ -57,35 +57,3 @@ def test_deploy(juju: jubilant.Juju):        # Use the "juju" fixture
 ```
 
 You don't have to use pytest with Jubilant, but it's what we recommend. Pytest's `assert`-based approach is a straight-forward way to write tests, and its fixtures are helpful for structuring setup and teardown.
-
-
-## Contributing and developing
-
-Anyone can contribute to Jubilant. It's best to start by [opening an issue](https://github.com/canonical/jubilant/issues) with a clear description of the problem or feature request, but you can also [open a pull request](https://github.com/canonical/jubilant/pulls) directly.
-
-Jubilant uses [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies and tools, so you'll need to [install uv](https://docs.astral.sh/uv/#installation) to work on the library. You'll also need `make` to run local development tasks (but you probably have `make` installed already).
-
-After that, clone the Jubilant codebase and use `make all` to run various checks and the unit tests:
-
-```
-$ git clone https://github.com/canonical/jubilant
-Cloning into 'jubilant'...
-...
-$ cd jubilant
-$ make all
-...
-========== 107 passed in 0.26s ==========
-```
-
-To contribute a code change, write your fix or feature, add tests and docs, then run `make all` before you push and create a PR. Once you create a PR, GitHub will also run the integration tests, which takes several minutes.
-
-
-## Doing a release
-
-To create a new release of Jubilant:
-
-1. Update the `__version__` field in [`jubilant/__init__.py`](https://github.com/canonical/jubilant/blob/main/jubilant/__init__.py) to the new version you want to release.
-2. Push up a PR with this change and get it reviewed and merged.
-3. Create a [new release](https://github.com/canonical/jubilant/releases/new) on GitHub with good release notes. The tag should start with a `v`, like `v1.2.3`. Once you've created the release, the [`publish.yaml` workflow](https://github.com/canonical/jubilant/blob/main/.github/workflows/publish.yaml) will automatically publish it to PyPI and run the SBOM and security scan workflow.
-4. On the summary page of the Publish workflow run, locate the `secscan-report-upload` artifact. Download it and upload it to the [SSDLC Jubilant folder in Drive](https://drive.google.com/drive/folders/1bLJL4wJwicxaGY2hc5Xz4vSjENUt5Zjw?usp=share_link). Open the report and verify that the security scan has not found any vulnerabilities.
-5. Once the publish workflow has finished, check that the new version appears in the [PyPI version history](https://pypi.org/project/jubilant/#history).
