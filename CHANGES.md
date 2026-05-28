@@ -1,3 +1,22 @@
+# 1.10.0 - 28 May 2026
+
+## Features
+
+* Add `add_machine` command (#305)
+
+## Fixes
+
+* Add `./` for relative `pathlib.Path` objects in deploy (#317)
+
+## Documentation
+
+* Replace the PGP key with the upstream page in SECURITY.md (#316)
+* Improve support for agents, with Sphinx Stack upgrade (#322)
+
+## CI
+
+* Use sbomber to security scan and generate SBOM on release (#325)
+
 # 1.9.0 - 29 April 2026
 
 ## Features
