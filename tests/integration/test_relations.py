@@ -23,7 +23,6 @@ def test_integrate_and_remove_relation(juju: jubilant.Juju, empty_tar: str):
 
 
 def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version):
-    juju.integrate('testdb', 'testapp')
     juju.wait(jubilant.all_active)
 
     info = juju.show_unit('testapp/0')
