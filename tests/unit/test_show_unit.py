@@ -61,7 +61,7 @@ def test_minimal(run: mocks.Run):
     )
 
 
-def test_model_attribute(run: mocks.Run):
+def test_with_model(run: mocks.Run):
     run.handle(
         ['juju', 'show-unit', '--model', 'ctrl:mdl', 'mysql/0', '--format', 'json'],
         stdout=json.dumps(MINIMAL_UNITINFO),
