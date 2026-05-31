@@ -1,5 +1,7 @@
 import pathlib
 
+import pytest
+
 import jubilant
 
 from . import mocks
@@ -47,7 +49,7 @@ def test_to_provider(run: mocks.Run):
     juju.add_machine('host.internal')
 
 
-def test_all_args(run: mocks.Run):
+def test_all_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(
         [
             'juju',
@@ -69,6 +71,7 @@ def test_all_args(run: mocks.Run):
             '/keys/id_ed25519.pub',
         ]
     )
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.add_machine(
@@ -82,14 +85,15 @@ def test_all_args(run: mocks.Run):
     )
 
 
-def test_disks_single_str(run: mocks.Run):
+def test_disks_single_str(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'add-machine', '--disks', 'ebs,1T,2'])
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.add_machine(disks='ebs,1T,2')
 
 
-def test_keys_pathlib(run: mocks.Run):
+def test_keys_pathlib(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(
         [
             'juju',
@@ -101,6 +105,7 @@ def test_keys_pathlib(run: mocks.Run):
             '/keys/id_ed25519.pub',
         ]
     )
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.add_machine(

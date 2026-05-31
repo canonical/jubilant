@@ -72,15 +72,17 @@ def test_all_args(run: mocks.Run):
     )
 
 
-def test_path(run: mocks.Run):
+def test_path(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'refresh', 'xyz', '--path', './foo'])
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.refresh('xyz', path=pathlib.Path('foo'))
 
 
-def test_path_absolute(run: mocks.Run):
+def test_path_absolute(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'refresh', 'xyz', '--path', '/foo'])
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.refresh('xyz', path=pathlib.Path('/foo'))

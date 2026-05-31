@@ -110,15 +110,17 @@ def test_overlays_str():
         juju.deploy('charm', overlays='bad')
 
 
-def test_path(run: mocks.Run):
+def test_path(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'deploy', './xyz'])
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.deploy(pathlib.Path('xyz'))
 
 
-def test_path_absolute(run: mocks.Run):
+def test_path_absolute(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'deploy', '/xyz'])
+    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.deploy(pathlib.Path('/xyz'))
