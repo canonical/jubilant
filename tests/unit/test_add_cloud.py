@@ -11,7 +11,6 @@ from . import mocks
 
 def test_with_path_str(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'add-cloud', 'mycloud', '--client', '--file', '/path/to/cloud.yaml'])
-
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
@@ -38,7 +37,6 @@ def test_with_controller_default_client(run: mocks.Run, monkeypatch: pytest.Monk
 
 def test_with_path_pathlib(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     run.handle(['juju', 'add-cloud', 'mycloud', '--client', '--file', '/path/to/cloud.yaml'])
-
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
