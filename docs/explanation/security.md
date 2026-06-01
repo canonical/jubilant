@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: Security documentation for Jubilant — product architecture, secure by design, cryptography, hardening, logging, decommissioning, security lifecycle, and vulnerability reporting.
+---
+
 (security)=
 
 # Security
