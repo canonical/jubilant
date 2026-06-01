@@ -13,10 +13,10 @@ test process → jubilant → Juju CLI subprocess → Juju controller
 ```
 
 - The **test process** calls Jubilant's Python API.
-- Jubilant translates each call into one or more **Juju CLI** invocations via `subprocess`. It does not communicate with Juju or any other service directly over a network.
+- Jubilant translates each call into one or more {external+juju:ref}`Juju CLI <juju-cli>` invocations via `subprocess`. It does not communicate with Juju or any other service directly over a network.
 - The **Juju CLI** handles all communication with the Juju controller, including authentication, credential management, and TLS. Jubilant never reads, stores, or forwards Juju credentials.
 
-Jubilant writes no files outside the test runner's working directory (temporary directories created by `scp()` are the only file-system side-effect) and retains no state between test runs.
+Several Jubilant operations pass structured data to the Juju CLI via temporary files (for example, YAML config passed to `add_cloud()`, `add_credential()`, `run_action()`, and `deploy()`). When the Juju CLI is installed as a snap, these files are written to `~/snap/juju/common/` so the snap can access them; otherwise the system temporary directory is used. In both cases the files are removed immediately after the CLI call returns. Jubilant retains no state between test runs.
 
 ## Secure by Design
 
