@@ -22,8 +22,14 @@ class _WriteStream(Protocol[_T_contra]):
     def write(self, data: _T_contra, /) -> object: ...
 
 
+class _SafeLoader(Protocol):
+    def __init__(self, stream: _ReadStream, /) -> None: ...
+    def get_single_data(self) -> Any: ...
+    def dispose(self) -> None: ...
+
+
 # Use C speedups if available.
-_safe_loader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
+_safe_loader: type[_SafeLoader] = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 _safe_dumper = getattr(yaml, 'CSafeDumper', yaml.SafeDumper)
 
 
