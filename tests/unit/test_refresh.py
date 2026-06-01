@@ -73,10 +73,17 @@ def test_all_args(run: mocks.Run):
 
 
 def test_path(run: mocks.Run):
-    run.handle(['juju', 'refresh', 'xyz', '--path', 'foo'])
+    run.handle(['juju', 'refresh', 'xyz', '--path', './foo'])
     juju = jubilant.Juju()
 
     juju.refresh('xyz', path=pathlib.Path('foo'))
+
+
+def test_path_absolute(run: mocks.Run):
+    run.handle(['juju', 'refresh', 'xyz', '--path', '/foo'])
+    juju = jubilant.Juju()
+
+    juju.refresh('xyz', path=pathlib.Path('/foo'))
 
 
 def test_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
