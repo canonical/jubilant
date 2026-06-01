@@ -246,6 +246,67 @@ class Juju:
                 args.extend(['--file', temp_file.name])
                 self.cli(*args, include_model=False)
 
+    def add_machine(
+        self,
+        target: str | None = None,
+        *,
+        base: str | None = None,
+        constraints: Mapping[str, ConstraintValue] | None = None,
+        disks: str | Iterable[str] | None = None,
+        num_machines: int = 1,
+        private_key: str | pathlib.Path | None = None,
+        public_key: str | pathlib.Path | None = None,
+    ) -> None:
+        """Allocate a machine to the model. Unavailable in Kubernetes clouds.
+
+        Args:
+            target: Address of a network-accessible computer to allocate as a machine, or a
+                placement directive for a new machine. Examples: ``ssh:user@10.10.0.3`` allocates
+                the specified computer. ``lxd:25`` allocates a new LXD container on machine 25.
+                ``lxd`` allocates a new LXD container on a new machine instance, resulting in two
+                additional machines. If not specified, a new machine instance is allocated.
+            base: Operating system base to install on the new machine(s), for example,
+                ``'ubuntu@22.04'``.
+            constraints: Machine constraints to overwrite those available from
+                :meth:`model_constraints` and provider's defaults, for example,
+                ``{'mem': '8G', 'cores': 4}``.
+            disks: Storage directives for disks to attach to the machine(s), for
+                example, ``'ebs,1T,2'``.
+            num_machines: Number of machines to add.
+            private_key: Path to the private key to use during the connection.
+            public_key: Path to the public key to add to the remote authorized keys.
+        """
+        args = ['add-machine']
+        if target is not None:
+            args.append(target)
+        if base is not None:
+            args.extend(['--base', base])
+        if constraints is not None:
+            for k, v in constraints.items():
+                args.extend(['--constraints', _format_config(k, v)])
+        if disks is not None:
+            if isinstance(disks, str):
+                args.extend(['--disks', disks])
+            else:
+                args.extend(['--disks', ' '.join(disks)])
+        if num_machines != 1:
+            args.extend(['-n', str(num_machines)])
+
+        private_ctx = (
+            self._path_for_juju(private_key)
+            if private_key is not None
+            else contextlib.nullcontext()
+        )
+        public_ctx = (
+            self._path_for_juju(public_key) if public_key is not None else contextlib.nullcontext()
+        )
+        with private_ctx as private_path, public_ctx as public_path:
+            if private_path is not None:
+                args.extend(['--private-key', private_path])
+            if public_path is not None:
+                args.extend(['--public-key', public_path])
+            self.cli(*args)
+
     def add_model(
         self,
         model: str,
@@ -1689,8 +1750,11 @@ class Juju:
         charm: str | pathlib.Path | None,
         resources: Mapping[str, str] | None,
     ) -> Generator[tuple[str | None, Mapping[str, str] | None]]:
-        if charm is not None:
-            charm = str(charm)
+        if isinstance(charm, pathlib.Path):
+            # We add "./" to any relative pathlib.Path objects in their string form.
+            # pathlib.Path removes the redundant "./", which we need to prevent Juju
+            # from saying the path is ambiguous.
+            charm = str(charm) if charm.is_absolute() else f'./{charm}'
         charm_needs_temp = charm is not None and charm.startswith(('.', '/'))
         resources_needs_temp = resources is not None and any(
             v.startswith(('.', '/')) for v in resources.values()

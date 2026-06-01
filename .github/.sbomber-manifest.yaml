@@ -1,0 +1,25 @@
+clients:
+  sbom:
+    service_url: https://sbom-request.canonical.com
+    department: charm_engineering
+    email: tony.meyer@canonical.com
+    team: charm_tech
+  secscan: {}
+
+artifacts:
+  - name: 'jubilant'
+    type: 'sdist'
+    compression: 'gz'
+    source: 'dist/jubilant-__VERSION__.tar.gz'
+    ssdlc_params:
+      name: 'jubilant'
+      version: ''
+      channel: 'stable'
+
+  - name: 'jubilant'
+    type: 'wheel'
+    source: 'dist/jubilant-__VERSION__-py3-none-any.whl'
+    ssdlc_params:
+      name: 'jubilant'
+      version: ''
+      channel: 'stable'

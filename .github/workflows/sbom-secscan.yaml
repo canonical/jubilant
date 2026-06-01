@@ -1,0 +1,34 @@
+name: SBOM and secscan
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  scan:
+    runs-on: [self-hosted, self-hosted-linux-amd64-jammy-private-endpoint-medium]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Render manifest with built artifact version
+        run: |
+          version=$(ls dist/jubilant-*.tar.gz | sed -E 's|dist/jubilant-(.*)\.tar\.gz|\1|')
+          sed "s/__VERSION__/${version}/g" .github/.sbomber-manifest.yaml > "${RUNNER_TEMP}/sbomber-manifest.yaml"
+          cat "${RUNNER_TEMP}/sbomber-manifest.yaml"
+
+      - name: sbomber
+        uses: canonical/sbomber/.github/actions/run@cf7a76e810497ec932e8285b2c9d6b373d225e79  # main -- the sbomber-ref input below should match
+        with:
+          manifest: ${{ runner.temp }}/sbomber-manifest.yaml
+          artifact-name: secscan-report-upload
+          sbomber-ref: cf7a76e810497ec932e8285b2c9d6b373d225e79  # should match the ref in 'uses' above
