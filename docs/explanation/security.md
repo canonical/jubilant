@@ -48,7 +48,7 @@ No additional steps are required to harden your integration tests when using Jub
 
 Jubilant uses Python's standard `logging` module. No security events are logged by Jubilant itself — authentication, authorisation, and access control events are logged by the Juju CLI and the Juju controller, not by the test library.
 
-To capture Jubilant's own log output (command invocations, return codes, subprocess stderr), configure a handler for the `jubilant` logger in your test suite:
+To capture Jubilant's own log output (command invocations, return codes, and `stderr`), configure a handler for the `jubilant` logger in your test suite:
 
 ```python
 import logging
