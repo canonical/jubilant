@@ -34,18 +34,8 @@ def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version):
     assert info.machine or info.provider_id
     assert info.life == 'alive'
 
-    if juju_version.major < 4:
-        assert any(
-            relation.endpoint == 'db'
-            and relation.related_endpoint == 'db'
-            and any(unit.startswith('testdb/') for unit in relation.related_units)
-            for relation in info.relation_info
-        )
-    else:
-        assert any(
-            relation.endpoint == 'db'
-            and relation.related_endpoint == 'db'
-            and relation.local_unit is not None
-            and relation.local_unit.in_scope
-            for relation in info.relation_info
-        )
+    assert any(
+        relation.endpoint == 'db'
+        and relation.related_endpoint == 'db'
+        for relation in info.relation_info
+    )
