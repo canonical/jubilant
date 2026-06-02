@@ -9,15 +9,14 @@ import jubilant
 from . import mocks
 
 
-def test_with_path_str(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_with_path_str(run: mocks.Run):
     run.handle(['juju', 'update-cloud', 'mycloud', '--client', '-f', '/path/to/cloud.yaml'])
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.update_cloud('mycloud', '/path/to/cloud.yaml', client=True)
 
 
-def test_with_controller_default_client(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_with_controller_default_client(run: mocks.Run):
     run.handle(
         [
             'juju',
@@ -29,15 +28,13 @@ def test_with_controller_default_client(run: mocks.Run, monkeypatch: pytest.Monk
             '/path/to/cloud.yaml',
         ]
     )
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.update_cloud('mycloud', '/path/to/cloud.yaml', controller='mycontroller')
 
 
-def test_with_path_pathlib(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_with_path_pathlib(run: mocks.Run):
     run.handle(['juju', 'update-cloud', 'mycloud', '--client', '-f', '/path/to/cloud.yaml'])
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.update_cloud('mycloud', pathlib.Path('/path/to/cloud.yaml'), client=True)
@@ -54,7 +51,7 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     assert 'type: lxd' in mock_file.writes[0]
 
 
-def test_all_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
+def test_all_args(run: mocks.Run):
     run.handle(
         [
             'juju',
@@ -67,7 +64,6 @@ def test_all_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
             '/path/to/cloud.yaml',
         ]
     )
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
     juju = jubilant.Juju()
 
     juju.update_cloud(
