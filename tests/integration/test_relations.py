@@ -35,7 +35,6 @@ def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version):
     assert info.life == 'alive'
 
     assert any(
-        relation.endpoint == 'db'
-        and relation.related_endpoint == 'db'
+        relation.endpoint == 'db' and relation.related_endpoint == 'db'
         for relation in info.relation_info
     )
