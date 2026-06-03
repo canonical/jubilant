@@ -35,7 +35,7 @@ def mock_file(monkeypatch: pytest.MonkeyPatch) -> Generator[mocks.NamedTemporary
 
 @pytest.fixture(scope='function', autouse=True)
 def juju_non_snap(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Pytest fixture that patches shutil.which to make ``Juju._juju_is_snap()`` returns ``True``.
+    """Pytest fixture that patches shutil.which to make ``Juju._juju_is_snap()`` return ``True``.
 
     Autouse because we want our unit tests to be isolated from the external environment.
     If a test relies on `Juju._juju_is_snap()` returning ``False``, it can override with
@@ -46,4 +46,3 @@ def juju_non_snap(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')
     """
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
-    return
