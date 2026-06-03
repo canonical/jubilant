@@ -48,8 +48,7 @@ def test_method_order():
     assert sorted_by_lines == sorted_by_alpha, 'Please keep Juju methods in alphabetical order'
 
 
-def test_default_tempdir(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
+def test_default_tempdir():
     juju = jubilant.Juju()
 
     assert 'snap' not in juju._temp_dir
