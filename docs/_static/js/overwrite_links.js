@@ -1,5 +1,7 @@
 // Our docs are proxied through to canonical.com/juju/docs/jubilant.
-// This script overwrites any links-to-self that Read the Docs generates.
+// If multiple doc versions are configured, Read the Docs renders a version switcher.
+// The version switcher has the readthedocs-hosted.com URL in links, which we don't want,
+// so this script overwrites those links to use the correct public-facing URL.
 
 // Replace oldDomain with newDomain
 const oldDomain = 'canonical-juju-jubilant.readthedocs-hosted.com';
