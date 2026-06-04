@@ -1,5 +1,8 @@
+// Our docs are proxied through to canonical.com/juju/docs/jubilant.
+// This script overwrites any links-to-self that Read the Docs generates.
+
 // Replace oldDomain with newDomain
-const oldDomain = 'documentation.ubuntu.com/jubilant';
+const oldDomain = 'canonical-juju-jubilant.readthedocs-hosted.com';
 const newDomain = 'canonical.com/juju/docs/jubilant';
 
 // Use a MutationObserver to wait for the RTD flyout element to appear in the DOM
