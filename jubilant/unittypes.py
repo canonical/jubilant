@@ -1,11 +1,8 @@
-"""Dataclasses that contain parsed output from ``juju show-unit --format=json``.
+"""Dataclasses that contain parsed output from ``juju show-unit --format=json``."""
 
-These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:unittypes-dataclasses>`_
-the Go structs in the Juju codebase, to ensure they are correct. Class names
-come from the Go struct name, whereas attribute names come from the JSON field
-names. The one exception is that "Application" has been renamed to "App"
-throughout, for brevity (and "application" to "app").
-"""
+# These dataclasses were originally generated from the Go structs in the Juju codebase.
+# See the comment at the top of statustypes.py for details (but use the
+# "unittypes-dataclasses" branch).
 
 from __future__ import annotations
 
