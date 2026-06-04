@@ -1,11 +1,17 @@
-"""Dataclasses that contain parsed output from ``juju status --format=json``.
+"""Dataclasses that contain parsed output from ``juju status --format=json``."""
 
-These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:status-dataclasses>`_
-the Go structs in the Juju codebase, to ensure they are correct. Class names
-come from the Go struct name, whereas attribute names come from the JSON field
-names. The one exception is that "Application" has been renamed to "App"
-throughout, for brevity (and "application" to "app").
-"""
+# These dataclasses were originally generated from the Go structs in the Juju codebase,
+# to ensure they are correct. Class names come from the Go struct name, whereas
+# attribute names come from the JSON field names. The one exception is that
+# "application" has been renamed to "app" throughout, for brevity.
+#
+# Our intention is that they are generated once, but updated manually. We've already
+# made a few manual updates, for example, simplifying comprehensions (#234).
+#
+# To regenerate from scratch, check out the "status-dataclasses-4.0" branch of the
+# https://github.com/benhoyt/juju fork, and run:
+#
+#     go run ./cmd/getfields
 
 from __future__ import annotations
 
