@@ -36,22 +36,16 @@ def setup(juju: jubilant.Juju, private_key_file: str):
     juju.wait(jubilant.all_active)
 
 
-def test_exec(juju: jubilant.Juju, juju_version: jubilant.Version):
+def test_exec(juju: jubilant.Juju):
     task = juju.exec('echo foo', machine=0)
     assert task.success
     assert task.return_code == 0
-    # Juju 4.0.2 and 4.0.3 strip newlines from exec stdout.
-    expected_foo = 'foo\n'
-    expected_bar_baz = 'bar baz\n'
-    if juju_version.major == 4:
-        expected_foo = expected_foo.rstrip('\n')
-        expected_bar_baz = expected_bar_baz.rstrip('\n')
-    assert task.stdout == expected_foo
+    assert task.stdout == 'foo\n'
     assert task.stderr == ''
 
     task = juju.exec('echo', 'bar', 'baz', machine=0)
     assert task.success
-    assert task.stdout == expected_bar_baz
+    assert task.stdout == 'bar baz\n'
 
 
 def test_ssh(juju: jubilant.Juju, private_key_file: str):
