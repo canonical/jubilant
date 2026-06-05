@@ -20,11 +20,11 @@ test process → jubilant → Juju CLI subprocess → Juju controller
 
 - The **test process** calls Jubilant's Python API.
 - Jubilant translates each call into one or more {external+juju:ref}`Juju CLI <juju-cli>` invocations via `subprocess`. It does not communicate with Juju or any other service directly over a network.
-- The **Juju CLI** handles all communication with the Juju controller, including authentication, credential management, and TLS. Jubilant never reads, stores, or forwards Juju credentials.
+- The **Juju CLI** handles all communication with the Juju controller, including authentication, credential management, and TLS. Jubilant never stores credentials or reads credentials from Juju.
 
-Several Jubilant operations pass structured data to the Juju CLI via temporary files (for example, YAML config passed to `add_cloud()`, `add_credential()`, `run_action()`, and `deploy()`). When the Juju CLI is installed as a snap, these files are written to `~/snap/juju/common/` so the snap can access them; otherwise the system temporary directory is used. In both cases the files are removed immediately after the CLI call returns. Jubilant retains no state between test runs.
+Several Jubilant operations pass structured data to the Juju CLI by writing temporary files. For example, YAML config passed to `add_cloud()`, `add_credential()`, `run()`, and `deploy()`. When the Juju CLI is installed as a snap, these files are written to `~/snap/juju/common/` so the snap can access them; otherwise the system temporary directory is used. In both cases the files are removed immediately after the CLI call returns. Jubilant retains no state between test runs.
 
-## Secure by Design
+## Secure by design
 
 Jubilant was deliberately designed as a thin wrapper over the Juju CLI rather than a reimplementation of Juju's protocol. This design choice is a security property: all authentication, credential handling, and network communication is delegated to the Juju CLI, which is independently maintained and audited. Jubilant adds no new network attack surface.
 
@@ -36,7 +36,7 @@ The library does not introduce any new security risks beyond directly running Ju
 
 Jubilant does not use any cryptographic technology, hashing, or digital signatures. All cryptographic operations (TLS, credential storage, API authentication) are handled by the Juju CLI and the Juju controller.
 
-## Configuring and operating securely
+## Configuring and operating
 
 ### Hardening guidelines
 
@@ -57,17 +57,17 @@ logging.getLogger("jubilant").setLevel(logging.DEBUG)
 
 For security-relevant events (login failures, credential errors, controller access), consult the Juju controller logs and the Juju CLI's own output rather than Jubilant's logs.
 
-## Decommissioning securely
+## Decommissioning
 
-Removing Jubilant from a project requires no special decommissioning steps. Remove `jubilant` from your `pyproject.toml` and re-lock. Jubilant stores no credentials, configuration, or logs of its own. Any Juju environments provisioned during testing should be destroyed using the Juju CLI (`juju destroy-controller`, `juju destroy-model`) independently of removing Jubilant.
+Removing Jubilant from a project requires no special decommissioning steps. Remove `jubilant` from your `pyproject.toml` and re-lock dependencies. Jubilant stores no credentials, configuration, or logs of its own. Any Juju environments provisioned during testing should be destroyed using the Juju CLI (`juju destroy-controller`, `juju destroy-model`) independently of removing Jubilant.
 
 ## Security lifecycle
 
 Jubilant follows [semantic versioning](https://semver.org/). Security updates are released as patch releases on all major versions that have had releases in the last year. See [SECURITY.md](https://github.com/canonical/jubilant/blob/main/SECURITY.md) for the supported-versions policy.
 
-**Receiving security updates.** Restrict the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock. For example, `jubilant~=1.2` allows upgrades to 1.3, 1.4, and so on, while staying on the 1.x line.
+**Receiving security updates.** Restrict the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock dependencies. For example, `jubilant~=1.2` allows upgrades to 1.3, 1.4, and so on, while staying on the 1.x line.
 
-**Detecting available updates.** Configure Dependabot or Renovate in your charm repository so that security updates are surfaced automatically as pull requests. Re-lock when prompted so that the charm tests run with the latest version.
+**Detecting available updates.** Configure Dependabot or Renovate in your charm repository so that security updates are surfaced automatically as pull requests. Re-lock dependencies when prompted so that the charm tests run with the latest version.
 
 **Verifying an update.** Security releases are announced via [GitHub Security Advisories](https://github.com/canonical/jubilant/security/advisories) and as GitHub release notes. Verify that the installed version matches a published release by running `pip show jubilant` or `uv pip show jubilant` in the test environment.
 
