@@ -83,6 +83,7 @@ Known vulnerabilities and past advisories are listed at [github.com/canonical/ju
 
 The [Ubuntu Security disclosure and embargo policy](https://ubuntu.com/security/disclosure-policy) contains more information about what you can expect when you contact us, and what we expect from you.
 
+(good-practices)=
 ## Good practices
 
 * Where charm tests require cloud credentials, these should be saved in an appropriate secret store (such as GitHub secrets), should be used only for the integration tests, and should provide no access to production clouds.
