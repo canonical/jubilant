@@ -22,7 +22,7 @@ test process → jubilant → Juju CLI subprocess → Juju controller
 - Jubilant translates each call into one or more {external+juju:ref}`Juju CLI <juju-cli>` invocations via `subprocess`. It does not communicate with Juju or any other service directly over a network.
 - The **Juju CLI** handles all communication with the Juju controller, including authentication, credential management, and TLS. Jubilant never stores credentials or reads credentials from Juju.
 
-Several Jubilant operations pass structured data to the Juju CLI by writing temporary files. For example, YAML config passed to `add_cloud()`, `add_credential()`, `run()`, and `deploy()`. When the Juju CLI is installed as a snap, these files are written to `~/snap/juju/common/` so the snap can access them; otherwise the system temporary directory is used. In both cases the files are removed immediately after the CLI call returns. Jubilant retains no state between test runs.
+Several Jubilant operations pass structured data to the Juju CLI by writing temporary files. For example, YAML config passed to `add_cloud()`, `add_credential()`, `add_secret()`, `run()`, and `deploy()`. When the Juju CLI is installed as a snap, these files are written to `~/snap/juju/common/` so the snap can access them; otherwise the system temporary directory is used. In both cases the files are removed immediately after the CLI call returns. This means sensitive values such as cloud credentials and secret content are never passed as command-line arguments, so they do not appear in process listings, shell history, or Jubilant's debug logs. Jubilant retains no state between test runs.
 
 ## Secure by design
 
@@ -42,7 +42,7 @@ Jubilant does not use any cryptographic technology, hashing, or digital signatur
 
 No additional steps are required to harden your integration tests when using Jubilant. Follow the same security and hardening practices as you would if calling the Juju CLI directly.
 
-> See also: {external+juju:ref}`Juju | Harden your deployment <harden-your-deployment>`
+> See also: [Good practices](#good-practices), {external+juju:ref}`Juju | Harden your deployment <harden-your-deployment>`
 
 ### Logging and monitoring
 
@@ -56,6 +56,8 @@ logging.getLogger("jubilant").setLevel(logging.DEBUG)
 ```
 
 For security-relevant events (login failures, credential errors, controller access), consult the Juju controller logs and the Juju CLI's own output rather than Jubilant's logs.
+
+Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's stdout and stderr, so any value the Juju CLI itself echoes there would be exposed.
 
 ## Decommissioning
 
@@ -86,6 +88,8 @@ The [Ubuntu Security disclosure and embargo policy](https://ubuntu.com/security/
 * Where charm tests require cloud credentials, these should be saved in an appropriate secret store (such as GitHub secrets), should be used only for the integration tests, and should provide no access to production clouds.
 * Only use `deploy(trust=True)`, `refresh(trust=True)`, and `trust(remove=False)` in tests when required by the relevant charm. Ensure that the cloud credentials that the charm will gain access to are only used for integration tests.
 * When using `scp()` use a secure temporary directory for the local side.
+* Avoid passing secrets or credentials as arguments to `cli()`. Arguments to `cli()` appear in Jubilant's debug log and in process listings — prefer the typed methods (such as `add_secret()` and `add_credential()`) that pass sensitive data via temporary files.
+* Do not pass sensitive data as values to `config()`. Config values are sent to the Juju CLI as arguments, so they may appear in Jubilant's debug log and in process listings. Use a Juju secret instead and reference it from config.
 * Charms should have workflows that statically check for security issues (such as [ruff](https://docs.astral.sh/ruff/linter/) and [zizmor](https://docs.zizmor.sh/)).
 * Charms should follow best practices for writing secure Python tests.
 * Charm tests may be run in local development environments, so charm tests should not install software or make system changes.
