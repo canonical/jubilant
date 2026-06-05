@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: "Juju channel risk (scheduled runs use beta, everything else uses stable)"
+        description: "Juju channel risk (PRs use stable; scheduled runs use stable and edge)"
         required: true
         type: choice
         default: stable
@@ -17,6 +17,7 @@ on:
           - stable
           - candidate
           - beta
+          - edge
   schedule:
     # min (0-59) / hour (0-23) / day (1-31) / month (1-12) / weekday (SUN-SAT)
     - cron: "43 6 * * MON"
@@ -82,14 +83,19 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_CHANNEL: ${{ github.event.inputs.channel }}
         run: |
+          # 4.1/stable does not exist yet, so it is only included for non-stable risks.
           if [ "$EVENT_NAME" = "schedule" ]; then
-            RISK="beta"
+            CHANNELS='["3/stable", "3/edge", "4.0/stable", "4.0/edge", "4.1/edge"]'
           elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            RISK="$INPUT_CHANNEL"
+            if [ "$INPUT_CHANNEL" = "stable" ]; then
+              CHANNELS='["3/stable", "4.0/stable"]'
+            else
+              CHANNELS="[\"3/$INPUT_CHANNEL\", \"4.0/$INPUT_CHANNEL\", \"4.1/$INPUT_CHANNEL\"]"
+            fi
           else
-            RISK="stable"
+            CHANNELS='["3/stable", "4.0/stable"]'
           fi
-          echo "juju-channels=[\"3/$RISK\", \"4/$RISK\"]" >> "$GITHUB_OUTPUT"
+          echo "juju-channels=$CHANNELS" >> "$GITHUB_OUTPUT"
 
   integration-k8s:
     needs: init-integration
@@ -117,7 +123,9 @@ jobs:
         run: sudo snap install --classic concierge
 
       - name: Prepare Juju
-        run: sudo concierge prepare --verbose --juju-channel=${{ matrix.juju-channel }} --charmcraft-channel=3.x/stable -p k8s
+        env:
+          JUJU_CHANNEL: ${{ matrix.juju-channel }}
+        run: sudo concierge prepare --verbose --juju-channel="$JUJU_CHANNEL" --charmcraft-channel=3.x/stable -p k8s
 
       - name: Pack test charms
         run: make pack
@@ -151,7 +159,9 @@ jobs:
         run: sudo snap install --classic concierge
 
       - name: Prepare Juju
-        run: sudo concierge prepare --verbose --juju-channel=${{ matrix.juju-channel }} --charmcraft-channel=3.x/stable -p machine
+        env:
+          JUJU_CHANNEL: ${{ matrix.juju-channel }}
+        run: sudo concierge prepare --verbose --juju-channel="$JUJU_CHANNEL" --charmcraft-channel=3.x/stable -p machine
 
       - name: Pack test charms
         run: make pack
