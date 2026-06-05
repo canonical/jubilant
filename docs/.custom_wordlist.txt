@@ -6,5 +6,6 @@ pytest
 pytest's
 reimplementation
 teardown
+traceback
 websocket
 zizmor

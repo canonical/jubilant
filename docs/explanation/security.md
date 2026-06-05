@@ -57,7 +57,7 @@ logging.getLogger("jubilant").setLevel(logging.DEBUG)
 
 For security-relevant events (login failures, credential errors, controller access), consult the Juju controller logs and the Juju CLI's own output rather than Jubilant's logs.
 
-Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's stdout and stderr, so any value the Juju CLI itself echoes there would be exposed.
+Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's `stdout` and `stderr`, so any value the Juju CLI itself echoes there would be exposed.
 
 ## Decommissioning
 
