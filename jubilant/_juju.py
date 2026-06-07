@@ -1662,7 +1662,7 @@ class Juju:
                 error=jubilant.any_error,
             )
 
-        For more examples, see `Tutorial | Use a custom wait condition <https://documentation.ubuntu.com/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
+        For more examples, see `Tutorial | Use a custom wait condition <https://canonical.com/juju/docs/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
 
         This function logs the status object after the first status call, and after subsequent
         calls if the status object has changed. Logs are sent to the logger named

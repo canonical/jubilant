@@ -24,7 +24,7 @@ dependencies = [
 Homepage = "https://github.com/canonical/jubilant"
 Repository = "https://github.com/canonical/jubilant"
 Issues = "https://github.com/canonical/jubilant/issues"
-Documentation = "https://documentation.ubuntu.com/jubilant/"
+Documentation = "https://canonical.com/juju/docs/jubilant/"
 
 [dependency-groups]
 dev = [
