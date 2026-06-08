@@ -334,7 +334,12 @@ class Juju:
         model, all subsequent operations on this instance will use the new model.
 
         Args:
-            model: Name of model to add.
+            model: Name of model to add. Unlike :attr:`model` and most other
+                methods, this is **not** the ``[<controller>:][<user>/]<model>``
+                form: Juju's ``add-model`` only accepts a bare model name
+                (lowercase letters, digits, and hyphens). To add a model on a
+                different controller, pass *controller*; you cannot add a model
+                owned by another user.
             cloud: Name of cloud or region (or cloud/region) to use for the model.
             controller: Name of controller to operate in. If not specified, use the current
                 controller.
