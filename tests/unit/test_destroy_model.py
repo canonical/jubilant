@@ -22,6 +22,7 @@ def test_destroy_other(run: mocks.Run):
 
 
 def test_destroy_user_qualified(run: mocks.Run):
+    """destroy_model('alice/other') resets self.model when self.model == 'alice/other'."""
     run.handle(['juju', 'destroy-model', 'alice/other', '--no-prompt'])
     juju = jubilant.Juju(model='alice/other')
 
@@ -44,6 +45,36 @@ def test_destroy_unqualified_matches_qualified_self(run: mocks.Run):
     """destroy_model('m') resets self.model when self.model == 'admin/m'."""
     run.handle(['juju', 'destroy-model', 'm', '--no-prompt'])
     juju = jubilant.Juju(model='admin/m')
+
+    juju.destroy_model('m')
+
+    assert juju.model is None
+
+
+def test_destroy_controller_qualified(run: mocks.Run):
+    """destroy_model('c1:m') resets self.model when self.model == 'c1:m'."""
+    run.handle(['juju', 'destroy-model', 'c1:m', '--no-prompt'])
+    juju = jubilant.Juju(model='c1:m')
+
+    juju.destroy_model('c1:m')
+
+    assert juju.model is None
+
+
+def test_destroy_controller_qualified_matches_unqualified_self(run: mocks.Run):
+    """destroy_model('c1:m') resets self.model when self.model == 'm'."""
+    run.handle(['juju', 'destroy-model', 'c1:m', '--no-prompt'])
+    juju = jubilant.Juju(model='m')
+
+    juju.destroy_model('c1:m')
+
+    assert juju.model is None
+
+
+def test_destroy_controller_unqualified_matches_qualified_self(run: mocks.Run):
+    """destroy_model('m') resets self.model when self.model == 'c1:m'."""
+    run.handle(['juju', 'destroy-model', 'm', '--no-prompt'])
+    juju = jubilant.Juju(model='c1:m')
 
     juju.destroy_model('m')
 

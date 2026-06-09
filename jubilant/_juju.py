@@ -63,7 +63,7 @@ class Juju:
     Args:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
             The model name is passed through to the Juju CLI unchanged, so the full
-            ``[<controller>:][<user>/]<model>`` form is accepted: Prefix the name with with
+            ``[<controller>:][<user>/]<model>`` form is accepted: Prefix the name with
             ``<user>/`` to operate on another user's model on the current controller. Prefix the
             name with ``<controller>:`` to operate on a model in another controller. For example,
             ``alice/my-model`` or ``mycontroller:alice/my-model``.
@@ -77,12 +77,12 @@ class Juju:
     """If not None, operate on this Juju model, otherwise use the current Juju model.
 
     The model name is passed through to the Juju CLI unchanged, so the full
-    ``[<controller>:][<user>/]<model>`` form is accepted. Prefix the name with ``<controller>:``
-    to operate on a model in another controller; prefix it with ``<user>/`` to operate on another
-    user's model on the current controller. For example::
+    ``[<controller>:][<user>/]<model>`` form is accepted. Prefix the name with ``<user>/`` to
+    operate on another user's model on the current controller; prefix it with ``<controller>:``
+    to operate on a model in another controller. For example::
 
-        juju = jubilant.Juju(model='mycontroller:my-model')
         juju = jubilant.Juju(model='alice/my-model')
+        juju = jubilant.Juju(model='mycontroller:my-model')
         juju = jubilant.Juju(model='mycontroller:alice/my-model')
     """
 
