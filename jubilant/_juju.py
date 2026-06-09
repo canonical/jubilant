@@ -63,10 +63,10 @@ class Juju:
     Args:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
             The model name is passed through to the Juju CLI unchanged, so the full
-            ``[<controller>:][<user>/]<model>`` form is accepted: prefix the name with
-            ``<controller>:`` to operate on a model in another controller, and prefix it
-            with ``<user>/`` to operate on another user's model on the current controller
-            (for example ``alice/my-model`` or ``mycontroller:alice/my-model``).
+            ``[<controller>:][<user>/]<model>`` form is accepted: Prefix the name with with
+            ``<user>/`` to operate on another user's model on the current controller. Prefix the
+            name with ``<controller>:`` to operate on a model in another controller. For example,
+            ``alice/my-model`` or ``mycontroller:alice/my-model``.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
         cli_binary: Path to the Juju CLI binary. If not specified, uses ``juju`` and assumes it is
