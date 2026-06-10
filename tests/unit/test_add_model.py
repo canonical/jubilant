@@ -13,25 +13,23 @@ def test_defaults(run: mocks.Run):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-model',
-            '--no-switch',
-            'm',
-            'lc',
-            '--controller',
-            'c',
-            '--config',
-            'x=true',
-            '--config',
-            'y=1',
-            '--config',
-            'z=ss',
-            '--credential',
-            'cc',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-model',
+        '--no-switch',
+        'm',
+        'lc',
+        '--controller',
+        'c',
+        '--config',
+        'x=true',
+        '--config',
+        'y=1',
+        '--config',
+        'z=ss',
+        '--credential',
+        'cc',
+    ])
     juju = jubilant.Juju()
 
     juju.add_model(
