@@ -61,18 +61,16 @@ def test_get_with_model(run: mocks.Run):
 
 
 def test_set(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'config',
-            'app2',
-            'booly=true',
-            'inty=42',
-            'floaty=7.5',
-            'stry=A string.',
-            'secrety=secret:foo',
-        ]
-    )
+    run.handle([
+        'juju',
+        'config',
+        'app2',
+        'booly=true',
+        'inty=42',
+        'floaty=7.5',
+        'stry=A string.',
+        'secrety=secret:foo',
+    ])
 
     juju = jubilant.Juju()
     values = {

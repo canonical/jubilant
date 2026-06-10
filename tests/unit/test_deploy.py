@@ -27,46 +27,44 @@ def test_defaults_with_model(run: mocks.Run):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            '/bin/juju',
-            'deploy',
-            'charm',
-            'app',
-            '--attach-storage',
-            'stg',
-            '--base',
-            'ubuntu@22.04',
-            '--bind',
-            'end1=space1 end2=space2',
-            '--channel',
-            'latest/edge',
-            '--config',
-            'x=true',
-            '--config',
-            'y=1',
-            '--config',
-            'z=ss',
-            '--constraints',
-            'mem=8G',
-            '--force',
-            '--num-units',
-            '3',
-            '--overlay',
-            'one.yaml',
-            '--overlay',
-            'dir/two.yaml',
-            '--resource',
-            'bin=/path',
-            '--revision',
-            '42',
-            '--storage',
-            'data=tmpfs,1G',
-            '--to',
-            'lxd:25',
-            '--trust',
-        ]
-    )
+    run.handle([
+        '/bin/juju',
+        'deploy',
+        'charm',
+        'app',
+        '--attach-storage',
+        'stg',
+        '--base',
+        'ubuntu@22.04',
+        '--bind',
+        'end1=space1 end2=space2',
+        '--channel',
+        'latest/edge',
+        '--config',
+        'x=true',
+        '--config',
+        'y=1',
+        '--config',
+        'z=ss',
+        '--constraints',
+        'mem=8G',
+        '--force',
+        '--num-units',
+        '3',
+        '--overlay',
+        'one.yaml',
+        '--overlay',
+        'dir/two.yaml',
+        '--resource',
+        'bin=/path',
+        '--revision',
+        '42',
+        '--storage',
+        'data=tmpfs,1G',
+        '--to',
+        'lxd:25',
+        '--trust',
+    ])
     juju = jubilant.Juju(cli_binary='/bin/juju')
 
     juju.deploy(
@@ -180,17 +178,15 @@ def test_tempdir_preserves_resource_extension(
     (src_dir / 'archive.tar').write_text('TAR')
     (src_dir / 'rawfile').write_text('RAW')
 
-    run.handle(
-        [
-            'juju',
-            'deploy',
-            f'{snap_dir}/_temp.charm',
-            '--resource',
-            f'plugin={snap_dir}/plugin.tar',
-            '--resource',
-            f'noext={snap_dir}/noext',
-        ]
-    )
+    run.handle([
+        'juju',
+        'deploy',
+        f'{snap_dir}/_temp.charm',
+        '--resource',
+        f'plugin={snap_dir}/plugin.tar',
+        '--resource',
+        f'noext={snap_dir}/noext',
+    ])
 
     juju = jubilant.Juju()
     juju.deploy(
