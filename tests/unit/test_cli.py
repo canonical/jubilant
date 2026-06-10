@@ -63,6 +63,24 @@ def test_include_model_with_model(run: mocks.Run):
     assert stdout == 'OUT'
 
 
+def test_include_model_with_user_qualified_model(run: mocks.Run):
+    run.handle(['juju', 'test', '--model', 'alice/mdl'], stdout='OUT')
+    juju = jubilant.Juju(model='alice/mdl')
+
+    stdout = juju.cli('test')
+
+    assert stdout == 'OUT'
+
+
+def test_include_model_with_controller_user_qualified_model(run: mocks.Run):
+    run.handle(['juju', 'test', '--model', 'ctrl:alice/mdl'], stdout='OUT')
+    juju = jubilant.Juju(model='ctrl:alice/mdl')
+
+    stdout = juju.cli('test')
+
+    assert stdout == 'OUT'
+
+
 def test_exclude_model_no_model(run: mocks.Run):
     run.handle(['juju', 'test'], stdout='OUT')
     juju = jubilant.Juju()
