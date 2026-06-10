@@ -51,7 +51,7 @@ def _main() -> None:
             f'PR title does not follow Conventional Commits format.\n'
             f'Expected: <type>[!]: <description>\n'
             f'Got: {title!r}\n'
-            'Read more: https://github.com/canonical/operator/blob/main/CONTRIBUTING.md#pull-requests',
+            'Read more: https://github.com/canonical/jubilant/blob/main/CONTRIBUTING.md#pull-requests',
             file=sys.stderr,
         )
         sys.exit(1)
@@ -61,7 +61,7 @@ def _main() -> None:
         print(
             f'Scopes must not be used in PR titles.\n'
             f'Got: {title!r}\n'
-            'Read more: https://github.com/canonical/operator/blob/main/CONTRIBUTING.md#pull-requests',
+            'Read more: https://github.com/canonical/jubilant/blob/main/CONTRIBUTING.md#pull-requests',
             file=sys.stderr,
         )
         sys.exit(1)
@@ -72,7 +72,7 @@ def _main() -> None:
             f'Invalid type {commit_type!r} in PR title.\n'
             f'Valid types: {", ".join(sorted(_TYPES))}\n'
             f'Got: {title!r}\n'
-            'Read more: https://github.com/canonical/operator/blob/main/CONTRIBUTING.md#pull-requests',
+            'Read more: https://github.com/canonical/jubilant/blob/main/CONTRIBUTING.md#pull-requests',
             file=sys.stderr,
         )
         sys.exit(1)
