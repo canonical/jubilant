@@ -451,7 +451,7 @@ class Juju:
             juju = jubilant.Juju()
             juju.bootstrap('lxd', 'myctrl')
             juju.add_model('mymodel', controller='myctrl')
-            # self.model will be 'myctrl.mymodel' here
+            # self.model will be 'myctrl:mymodel' here
 
         Args:
             cloud: Name of cloud to bootstrap on. Initialization consists of creating a
