@@ -121,7 +121,7 @@ def gron(value: object, prefix: str = '') -> Generator[str]:
 
 
 def diff(seq1: Sequence[str], seq2: Sequence[str]) -> Generator[str]:
-    """Compare seq1 and seq1; yield lines that have been removed, changed, or added.
+    """Compare seq1 and seq2; yield lines that have been removed, changed, or added.
 
     Example::
 
