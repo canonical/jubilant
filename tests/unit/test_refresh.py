@@ -27,35 +27,33 @@ def test_defaults_with_model(run: mocks.Run):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            '/bin/juju',
-            'refresh',
-            'app',
-            '--base',
-            'ubuntu@22.04',
-            '--channel',
-            'latest/edge',
-            '--config',
-            'x=true',
-            '--config',
-            'y=1',
-            '--config',
-            'z=ss',
-            '--force',
-            '--force-base',
-            '--force-units',
-            '--path',
-            '/path/to/app.charm',
-            '--resource',
-            'bin=/path',
-            '--revision',
-            '42',
-            '--storage',
-            'data=tmpfs,1G',
-            '--trust',
-        ]
-    )
+    run.handle([
+        '/bin/juju',
+        'refresh',
+        'app',
+        '--base',
+        'ubuntu@22.04',
+        '--channel',
+        'latest/edge',
+        '--config',
+        'x=true',
+        '--config',
+        'y=1',
+        '--config',
+        'z=ss',
+        '--force',
+        '--force-base',
+        '--force-units',
+        '--path',
+        '/path/to/app.charm',
+        '--resource',
+        'bin=/path',
+        '--revision',
+        '42',
+        '--storage',
+        'data=tmpfs,1G',
+        '--trust',
+    ])
     juju = jubilant.Juju(cli_binary='/bin/juju')
 
     juju.refresh(

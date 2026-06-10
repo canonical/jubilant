@@ -48,27 +48,25 @@ def test_to_provider(run: mocks.Run):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-machine',
-            'ssh:user@10.10.0.3',
-            '--base',
-            'ubuntu@22.04',
-            '--constraints',
-            'cores=4',
-            '--constraints',
-            'mem=16G',
-            '--disks',
-            'ebs,1T,2 ebs-ssd,100G,1',
-            '-n',
-            '2',
-            '--private-key',
-            '/keys/id_ed25519',
-            '--public-key',
-            '/keys/id_ed25519.pub',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-machine',
+        'ssh:user@10.10.0.3',
+        '--base',
+        'ubuntu@22.04',
+        '--constraints',
+        'cores=4',
+        '--constraints',
+        'mem=16G',
+        '--disks',
+        'ebs,1T,2 ebs-ssd,100G,1',
+        '-n',
+        '2',
+        '--private-key',
+        '/keys/id_ed25519',
+        '--public-key',
+        '/keys/id_ed25519.pub',
+    ])
     juju = jubilant.Juju()
 
     juju.add_machine(
@@ -90,17 +88,15 @@ def test_disks_single_str(run: mocks.Run):
 
 
 def test_keys_pathlib(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-machine',
-            'ssh:user@10.10.0.3',
-            '--private-key',
-            '/keys/id_ed25519',
-            '--public-key',
-            '/keys/id_ed25519.pub',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-machine',
+        'ssh:user@10.10.0.3',
+        '--private-key',
+        '/keys/id_ed25519',
+        '--public-key',
+        '/keys/id_ed25519.pub',
+    ])
     juju = jubilant.Juju()
 
     juju.add_machine(

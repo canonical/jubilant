@@ -33,20 +33,18 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-credential',
-            'aws',
-            '--client',
-            '--controller',
-            'mycontroller',
-            '--region',
-            'us-east-1',
-            '--file',
-            '/path/to/creds.yaml',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-credential',
+        'aws',
+        '--client',
+        '--controller',
+        'mycontroller',
+        '--region',
+        'us-east-1',
+        '--file',
+        '/path/to/creds.yaml',
+    ])
     juju = jubilant.Juju()
 
     juju.add_credential(
