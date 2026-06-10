@@ -111,7 +111,7 @@ def any_error(status: Status, *apps: str) -> bool:
         # Use a lambda to wait for any of the apps specified (blog, mysql) to go into error.
         juju.wait(
             jubilant.all_active,
-            error=lambda status: jubilant.any_error(status, 'blog', 'mysql')),
+            error=lambda status: jubilant.any_error(status, 'blog', 'mysql'),
         )
 
     Args:
