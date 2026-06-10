@@ -83,7 +83,8 @@ def any_active(status: Status, *apps: str) -> bool:
 
     Args:
         status: The status object being tested.
-        apps: If provided, only these applications (and their units) are tested.
+        apps: If provided, only these applications (and their units) are tested. If an app is not
+            present in ``status.apps``, the app is ignored.
     """
     return _any_status_is('active', status, apps)
 
@@ -95,7 +96,8 @@ def any_blocked(status: Status, *apps: str) -> bool:
 
     Args:
         status: The status object being tested.
-        apps: If provided, only these applications (and their units) are tested.
+        apps: If provided, only these applications (and their units) are tested. If an app is not
+            present in ``status.apps``, the app is ignored.
     """
     return _any_status_is('blocked', status, apps)
 
@@ -116,7 +118,8 @@ def any_error(status: Status, *apps: str) -> bool:
 
     Args:
         status: The status object being tested.
-        apps: If provided, only these applications (and their units) are tested.
+        apps: If provided, only these applications (and their units) are tested. If an app is not
+            present in ``status.apps``, the app is ignored.
     """
     return _any_status_is('error', status, apps)
 
@@ -128,7 +131,8 @@ def any_maintenance(status: Status, *apps: str) -> bool:
 
     Args:
         status: The status object being tested.
-        apps: If provided, only these applications (and their units) are tested.
+        apps: If provided, only these applications (and their units) are tested. If an app is not
+            present in ``status.apps``, the app is ignored.
     """
     return _any_status_is('maintenance', status, apps)
 
@@ -140,7 +144,8 @@ def any_waiting(status: Status, *apps: str) -> bool:
 
     Args:
         status: The status object being tested.
-        apps: If provided, only these applications (and their units) are tested.
+        apps: If provided, only these applications (and their units) are tested. If an app is not
+            present in ``status.apps``, the app is ignored.
     """
     return _any_status_is('waiting', status, apps)
 
