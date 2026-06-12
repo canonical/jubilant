@@ -17,17 +17,15 @@ def test_with_path_str(run: mocks.Run):
 
 
 def test_with_controller_default_client(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'update-cloud',
-            'mycloud',
-            '--controller',
-            'mycontroller',
-            '-f',
-            '/path/to/cloud.yaml',
-        ]
-    )
+    run.handle([
+        'juju',
+        'update-cloud',
+        'mycloud',
+        '--controller',
+        'mycontroller',
+        '-f',
+        '/path/to/cloud.yaml',
+    ])
     juju = jubilant.Juju()
 
     juju.update_cloud('mycloud', '/path/to/cloud.yaml', controller='mycontroller')
@@ -52,18 +50,16 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'update-cloud',
-            'mycloud',
-            '--client',
-            '--controller',
-            'mycontroller',
-            '-f',
-            '/path/to/cloud.yaml',
-        ]
-    )
+    run.handle([
+        'juju',
+        'update-cloud',
+        'mycloud',
+        '--client',
+        '--controller',
+        'mycontroller',
+        '-f',
+        '/path/to/cloud.yaml',
+    ])
     juju = jubilant.Juju()
 
     juju.update_cloud(

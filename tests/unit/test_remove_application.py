@@ -18,9 +18,14 @@ def test_with_model(run: mocks.Run):
 
 
 def test_force_and_destroy(run: mocks.Run):
-    run.handle(
-        ['juju', 'remove-application', '--no-prompt', 'app1', '--destroy-storage', '--force']
-    )
+    run.handle([
+        'juju',
+        'remove-application',
+        '--no-prompt',
+        'app1',
+        '--destroy-storage',
+        '--force',
+    ])
     juju = jubilant.Juju()
 
     juju.remove_application('app1', destroy_storage=True, force=True)

@@ -1,10 +1,8 @@
-"""Dataclasses that contain parsed output from ``juju show-model --format=json``.
+"""Dataclasses that contain parsed output from ``juju show-model --format=json``."""
 
-These dataclasses were originally `generated from <https://github.com/juju/juju/compare/main...benhoyt:juju:modelinfo-dataclasses-4>`_
-the Go structs in the Juju codebase, to ensure they are correct. Class names
-come from the Go struct name, whereas attribute names come from the JSON field
-names.
-"""
+# These dataclasses were originally generated from the Go structs in the Juju codebase.
+# See the comment at the top of statustypes.py for details (but use the
+# "modelinfo-dataclasses-4" branch).
 
 from __future__ import annotations
 

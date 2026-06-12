@@ -18,19 +18,17 @@ def test_defaults_with_model(run: mocks.Run):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-unit',
-            'app2',
-            '--attach-storage',
-            'stg',
-            '--num-units',
-            '3',
-            '--to',
-            'lxd:25',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-unit',
+        'app2',
+        '--attach-storage',
+        'stg',
+        '--num-units',
+        '3',
+        '--to',
+        'lxd:25',
+    ])
     juju = jubilant.Juju()
 
     juju.add_unit('app2', attach_storage='stg', num_units=3, to='lxd:25')

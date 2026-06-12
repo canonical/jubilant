@@ -20,3 +20,21 @@ def test_integrate_and_remove_relation(juju: jubilant.Juju, empty_tar: str):
     juju.wait(
         lambda status: not status.apps['testdb'].relations and not status.apps['testapp'].relations
     )
+
+
+def test_show_unit(juju: jubilant.Juju, juju_version: jubilant.Version):
+    juju.integrate('testdb', 'testapp')
+    juju.wait(jubilant.all_active)
+
+    info = juju.show_unit('testapp/0')
+
+    assert isinstance(info, jubilant.UnitInfo)
+    assert info.charm == 'local:testapp-0'
+    assert isinstance(info.leader, bool)
+    assert info.machine or info.provider_id
+    assert info.life == 'alive'
+
+    assert any(
+        relation.endpoint == 'db' and relation.related_endpoint == 'db'
+        for relation in info.relation_info
+    )
