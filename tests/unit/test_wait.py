@@ -22,7 +22,7 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time):
 def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant.wait')
+    caplog.set_level(logging.DEBUG, logger='jubilant.wait.verbose')
 
     juju.wait(lambda _: True)
 

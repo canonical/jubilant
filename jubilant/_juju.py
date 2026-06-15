@@ -14,16 +14,19 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, Generator, Literal, Union, overload
 
+from jubilant._all_any import any_error
+
 from . import _pretty, _yaml
 from ._task import Task
 from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
-from .statustypes import Status
+from .statustypes import AppStatus, Status
 from .unittypes import UnitInfo
 
 logger = logging.getLogger('jubilant')
-logger_wait = logging.getLogger('jubilant.wait')
+logger_wait_default = logging.getLogger('jubilant.wait')
+logger_wait_verbose = logging.getLogger('jubilant.wait.verbose')
 
 
 class CLIError(subprocess.CalledProcessError):
@@ -1722,9 +1725,19 @@ class Juju:
             status = Status._from_dict(result)
 
             if status != prev_status:
+                for name, app_status in status.apps.items():
+                    prev_app_status = prev_status.apps.get(name) if prev_status else None
+
+                    # Transition to error
+                    if app_diff := _app_status_diff(prev_app_status, app_status):
+                        if any_error(status, name):
+                            logger_wait_default.error('%s: %s', name, app_diff)
+                        else:
+                            logger_wait_default.info('%s: %s', name, app_diff)
+
                 diff = _status_diff(prev_status, status)
                 if diff:
-                    logger_wait.info('wait: status changed:\n%s', diff)
+                    logger_wait_verbose.debug('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 name = getattr(error, '__qualname__', repr(error))
@@ -1849,6 +1862,53 @@ def _same_model(a: str | None, b: str | None) -> bool:
     if ua and ub and ua != ub:
         return False
     return True
+
+
+def _app_status_diff(old: AppStatus | None, new: AppStatus) -> str | None:
+    mesg = None
+    if old is None:
+        mesg = f'unknown -> {new.app_status.current}'
+        if new.app_status.message:
+            mesg += f': {new.app_status.message}'
+
+        return mesg
+    else:
+        if (
+            new.app_status.current != old.app_status.current
+            or new.app_status.message != old.app_status.message
+        ):
+            mesg = (
+                f'{old.app_status.current} -> {new.app_status.current}'
+                + f': {new.app_status.message}'
+                if new.app_status.message
+                else ''
+            ).strip()
+
+    return mesg
+
+
+# def _app_status_diff(old: APStatus | None, new: Status) -> str:
+#     lines: list[str] = []
+
+#     if old is None:
+#         for name, app in new.apps.items():
+#             mesg = f'{name}: unknown -> {app.app_status.current}'
+#             if app.app_status.message:
+#                 mesg += f': {app.app_status.message}'
+#             lines.append(mesg)
+#     else:
+#         for name, old_app in old.apps.items():
+#             new_app = new.apps.get(name)
+#             if new_app and (
+#                     new_app.app_status.current != old_app.app_status.current
+#                     or new_app.app_status.message != old_app.app_status.message
+#             ):
+#                 mesg = (
+#                     f'{name}: {old_app.app_status.current} -> {new_app.app_status.current}'
+#                     + f': {new_app.app_status.message}' if new_app.app_status.message else ''
+#                 )
+#                 lines.append(mesg.strip())
+#     return "\n".join(lines)
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
