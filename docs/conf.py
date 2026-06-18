@@ -123,7 +123,7 @@ slug = "juju/docs/jubilant"
 # Sitemap configuration: https://sphinx-sitemap.readthedocs.io/
 #######################
 
-# Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
+# Used for the canonical URL of each page
 html_baseurl = "https://canonical.com/juju/docs/jubilant/"
 
 # sphinx-sitemap uses html_baseurl to generate the full URL for each page:
