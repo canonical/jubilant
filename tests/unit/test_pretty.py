@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 import jubilant
 
 from .fake_statuses import DATABASE_WEBAPP_JSON, MINIMAL_STATUS, SNAPPASS_JSON
@@ -152,7 +154,118 @@ Status(
     assert eval(status_repr, jubilant.statustypes.__dict__) == status
 
 
-def test_diff():
+@pytest.mark.parametrize(
+    (
+        'old_current',
+        'old_mesg',
+        'new_current',
+        'new_mesg',
+        'expect',
+    ),
+    [
+        pytest.param(
+            'unknown',
+            '',
+            'active',
+            'app started',
+            'unknown -> active: app started',
+            id='unknown_to_active',
+        ),
+        pytest.param(
+            'active',
+            'app started',
+            'error',
+            'something bad happened',
+            'active -> error: something bad happened',
+            id='active_to_error',
+        ),
+        pytest.param(
+            'active',
+            'app stage 1',
+            'active',
+            'app stage 2',
+            'active -> active: app stage 2',
+            id='message_change',
+        ),
+        pytest.param(
+            'active',
+            'app stage 1',
+            'active',
+            '',
+            'active -> active',
+            id='to_empty_mesg',
+        ),
+    ],
+)
+def test_app_status_diff(
+    old_current: str,
+    old_mesg: str,
+    new_current: str,
+    new_mesg: str,
+    expect: str,
+):
+    old_json = json.loads(SNAPPASS_JSON)
+    old_json['applications']['snappass-test']['application-status']['current'] = old_current
+    old_json['applications']['snappass-test']['application-status']['message'] = old_mesg
+
+    new_json = json.loads(SNAPPASS_JSON)
+    new_json['applications']['snappass-test']['application-status']['current'] = new_current
+    new_json['applications']['snappass-test']['application-status']['message'] = new_mesg
+
+    old_status = jubilant.Status._from_dict(old_json)
+    new_status = jubilant.Status._from_dict(new_json)
+
+    assert (
+        jubilant._juju._app_status_diff(
+            old_status.apps['snappass-test'],
+            new_status.apps['snappass-test'],
+        )
+        == expect
+    )
+
+
+@pytest.mark.parametrize(
+    (
+        'new_current',
+        'new_mesg',
+        'expect',
+    ),
+    [
+        pytest.param(
+            'active',
+            'app started',
+            'unknown -> active: app started',
+            id='unknown_to_active',
+        ),
+        pytest.param(
+            'active',
+            '',
+            'unknown -> active',
+            id='unknown_to_active_no_mesg',
+        ),
+    ],
+)
+def test_app_status_from_none(
+    new_current: str,
+    new_mesg: str,
+    expect: str,
+):
+    # Test cases where old_status is None.
+    new_json = json.loads(SNAPPASS_JSON)
+    new_json['applications']['snappass-test']['application-status']['current'] = new_current
+    new_json['applications']['snappass-test']['application-status']['message'] = new_mesg
+    new_status = jubilant.Status._from_dict(new_json)
+
+    assert (
+        jubilant._juju._app_status_diff(
+            None,
+            new_status.apps['snappass-test'],
+        )
+        == expect
+    )
+
+
+def test_status_diff():
     # It's simplest to test _status_diff directly, even though it's not public.
     old_json = json.loads(DATABASE_WEBAPP_JSON)
     new_json = json.loads(DATABASE_WEBAPP_JSON)
