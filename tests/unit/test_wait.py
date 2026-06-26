@@ -20,20 +20,6 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time):
     assert status == MINIMAL_STATUS
 
 
-def test_logging_wait_info(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
-    run.handle(['juju', 'status', '--format', 'json'], stdout=SNAPPASS_JSON)
-    juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant.wait')
-
-    juju.wait(lambda _: True)
-
-    assert len(caplog.records) == 1  # only logs on first call or when status changes
-    record = caplog.records[0]
-    assert record.levelname == 'INFO'
-    message = record.getMessage()
-    assert message == 'snappass-test: unknown -> active: snappass started'
-
-
 def test_logging_wait_debug(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
@@ -54,6 +40,20 @@ def test_logging_wait_debug(run: mocks.Run, time: mocks.Time, caplog: pytest.Log
 + .model.cloud = 'aws'
 + .model.version = '3.0.0'"""
     )
+
+
+def test_logging_wait_info(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=SNAPPASS_JSON)
+    juju = jubilant.Juju()
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: True)
+
+    assert len(caplog.records) == 1  # only logs on first call or when status changes
+    record = caplog.records[0]
+    assert record.levelname == 'INFO'
+    message = record.getMessage()
+    assert message == 'snappass-test: unknown -> active: snappass started'
 
 
 def test_logging_wait_info_multiples(
