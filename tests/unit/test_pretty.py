@@ -157,9 +157,9 @@ Status(
 @pytest.mark.parametrize(
     (
         'old_current',
-        'old_mesg',
+        'old_message',
         'new_current',
-        'new_mesg',
+        'new_message',
         'expect',
     ),
     [
@@ -199,18 +199,19 @@ Status(
 )
 def test_app_status_diff(
     old_current: str,
-    old_mesg: str,
+    old_message: str,
     new_current: str,
-    new_mesg: str,
+    new_message: str,
     expect: str,
 ):
+    # It's simplest to test _app_status_diff directly, even though it's not public.
     old_json = json.loads(SNAPPASS_JSON)
     old_json['applications']['snappass-test']['application-status']['current'] = old_current
-    old_json['applications']['snappass-test']['application-status']['message'] = old_mesg
+    old_json['applications']['snappass-test']['application-status']['message'] = old_message
 
     new_json = json.loads(SNAPPASS_JSON)
     new_json['applications']['snappass-test']['application-status']['current'] = new_current
-    new_json['applications']['snappass-test']['application-status']['message'] = new_mesg
+    new_json['applications']['snappass-test']['application-status']['message'] = new_message
 
     old_status = jubilant.Status._from_dict(old_json)
     new_status = jubilant.Status._from_dict(new_json)
@@ -227,7 +228,7 @@ def test_app_status_diff(
 @pytest.mark.parametrize(
     (
         'new_current',
-        'new_mesg',
+        'new_message',
         'expect',
     ),
     [
@@ -241,19 +242,19 @@ def test_app_status_diff(
             'active',
             '',
             'unknown -> active',
-            id='unknown_to_active_no_mesg',
+            id='unknown_to_active_no_message',
         ),
     ],
 )
 def test_app_status_from_none(
     new_current: str,
-    new_mesg: str,
+    new_message: str,
     expect: str,
 ):
-    # Test cases where old_status is None.
+    # It's simplest to test _app_status_diff directly, even though it's not public.
     new_json = json.loads(SNAPPASS_JSON)
     new_json['applications']['snappass-test']['application-status']['current'] = new_current
-    new_json['applications']['snappass-test']['application-status']['message'] = new_mesg
+    new_json['applications']['snappass-test']['application-status']['message'] = new_message
     new_status = jubilant.Status._from_dict(new_json)
 
     assert (

@@ -1724,16 +1724,18 @@ class Juju:
             status = Status._from_dict(result)
 
             if status != prev_status:
+                # Each app status is logged separately.
                 for name, app_status in status.apps.items():
                     prev_app_status = prev_status.apps.get(name) if prev_status else None
 
                     if app_diff := _app_status_diff(prev_app_status, app_status):
-                        # Transition to error
+                        # We treat apps transitioning to error state as an ERROR level log.
                         if any_error(status, name):
                             logger_wait.error('%s: %s', name, app_diff)
                         else:
                             logger_wait.info('%s: %s', name, app_diff)
 
+                # The verbose gron diff lines are always logged at DEBUG level.
                 diff = _status_diff(prev_status, status)
                 if diff:
                     logger_wait.debug('wait: status changed:\n%s', diff)
@@ -1865,21 +1867,22 @@ def _same_model(a: str | None, b: str | None) -> bool:
 
 def _app_status_diff(old: AppStatus | None, new: AppStatus) -> str | None:
     if old is None:
-        mesg = f'unknown -> {new.app_status.current}'
+        diff_line = f'unknown -> {new.app_status.current}'
         if new.app_status.message:
-            mesg += f': {new.app_status.message}'
+            diff_line += f': {new.app_status.message}'
 
-        return mesg
+        return diff_line
 
-    mesg = None
+    diff_line = None
     if (
         new.app_status.current != old.app_status.current
         or new.app_status.message != old.app_status.message
     ):
-        app_status_mesg = f': {new.app_status.message}' if new.app_status.message else ''
-        mesg = (f'{old.app_status.current} -> {new.app_status.current}' + app_status_mesg).strip()
+        diff_line = f'{old.app_status.current} -> {new.app_status.current}'
+        if new.app_status.message:
+            diff_line += f': {new.app_status.message}'
 
-    return mesg
+    return diff_line
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
