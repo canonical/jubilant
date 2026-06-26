@@ -14,8 +14,6 @@ import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, Generator, Literal, Union, overload
 
-from jubilant._all_any import any_error
-
 from . import _pretty, _yaml
 from ._task import Task
 from ._version import Version
@@ -1725,12 +1723,12 @@ class Juju:
 
             if status != prev_status:
                 # Each app status is logged separately.
-                for name, app_status in status.apps.items():
+                for name, new_app_status in status.apps.items():
                     prev_app_status = prev_status.apps.get(name) if prev_status else None
 
-                    if app_diff := _app_status_diff(prev_app_status, app_status):
+                    if app_diff := _app_status_diff(prev_app_status, new_app_status):
                         # We treat apps transitioning to error state as an ERROR level log.
-                        if any_error(status, name):
+                        if new_app_status.app_status.current == 'error':
                             logger_wait.error('%s: %s', name, app_diff)
                         else:
                             logger_wait.info('%s: %s', name, app_diff)
@@ -1866,21 +1864,17 @@ def _same_model(a: str | None, b: str | None) -> bool:
 
 
 def _app_status_diff(old: AppStatus | None, new: AppStatus) -> str | None:
-    if old is None:
-        diff_line = f'unknown -> {new.app_status.current}'
-        if new.app_status.message:
-            diff_line += f': {new.app_status.message}'
-
-        return diff_line
+    old_current, old_message = (
+        (old.app_status.current, old.app_status.message) if old is not None else ('', '')
+    )
+    new_current, new_message = (new.app_status.current, new.app_status.message)
 
     diff_line = None
-    if (
-        new.app_status.current != old.app_status.current
-        or new.app_status.message != old.app_status.message
-    ):
-        diff_line = f'{old.app_status.current} -> {new.app_status.current}'
-        if new.app_status.message:
-            diff_line += f': {new.app_status.message}'
+    if new_current != old_current or new_message != old_message:
+        diff_line = f'{old_current} -> ' if old_current else ''
+        diff_line += new_current
+        if new_message:
+            diff_line += f': {new_message}'
 
     return diff_line
 
