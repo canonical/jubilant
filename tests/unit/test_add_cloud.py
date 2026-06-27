@@ -17,17 +17,15 @@ def test_with_path_str(run: mocks.Run):
 
 
 def test_with_controller_default_client(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-cloud',
-            'mycloud',
-            '--controller',
-            'mycontroller',
-            '--file',
-            '/path/to/cloud.yaml',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-cloud',
+        'mycloud',
+        '--controller',
+        'mycontroller',
+        '--file',
+        '/path/to/cloud.yaml',
+    ])
     juju = jubilant.Juju()
 
     juju.add_cloud('mycloud', '/path/to/cloud.yaml', controller='mycontroller')
@@ -52,23 +50,21 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
 
 
 def test_all_args(run: mocks.Run):
-    run.handle(
-        [
-            'juju',
-            'add-cloud',
-            'mycloud',
-            '--client',
-            '--controller',
-            'mycontroller',
-            '--credential',
-            'mycred',
-            '--force',
-            '--target-controller',
-            'target-ctrl',
-            '--file',
-            '/path/to/cloud.yaml',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-cloud',
+        'mycloud',
+        '--client',
+        '--controller',
+        'mycontroller',
+        '--credential',
+        'mycred',
+        '--force',
+        '--target-controller',
+        'target-ctrl',
+        '--file',
+        '/path/to/cloud.yaml',
+    ])
     juju = jubilant.Juju()
 
     juju.add_cloud(

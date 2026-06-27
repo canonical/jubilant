@@ -18,16 +18,14 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
     run.handle(['juju', 'add-model', '--no-switch', 'jubilant-abcd1234'])
     run.handle(['juju', 'deploy', '--model', 'jubilant-abcd1234', 'app1'])
-    run.handle(
-        [
-            'juju',
-            'destroy-model',
-            'jubilant-abcd1234',
-            '--no-prompt',
-            '--destroy-storage',
-            '--force',
-        ]
-    )
+    run.handle([
+        'juju',
+        'destroy-model',
+        'jubilant-abcd1234',
+        '--no-prompt',
+        '--destroy-storage',
+        '--force',
+    ])
 
     with jubilant.temp_model() as juju:
         assert juju.model == 'jubilant-abcd1234'
@@ -46,36 +44,32 @@ def test_defaults(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
 def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
-    run.handle(
-        [
-            'juju',
-            'add-model',
-            '--no-switch',
-            'jubilant-abcd1234',
-            'localhost',
-            '--controller',
-            'ctl',
-            '--config',
-            'x=true',
-            '--config',
-            'y=1',
-            '--config',
-            'z=ss',
-            '--credential',
-            'cc',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-model',
+        '--no-switch',
+        'jubilant-abcd1234',
+        'localhost',
+        '--controller',
+        'ctl',
+        '--config',
+        'x=true',
+        '--config',
+        'y=1',
+        '--config',
+        'z=ss',
+        '--credential',
+        'cc',
+    ])
     run.handle(['juju', 'deploy', '--model', 'ctl:jubilant-abcd1234', 'app1'])
-    run.handle(
-        [
-            'juju',
-            'destroy-model',
-            'ctl:jubilant-abcd1234',
-            '--no-prompt',
-            '--destroy-storage',
-            '--force',
-        ]
-    )
+    run.handle([
+        'juju',
+        'destroy-model',
+        'ctl:jubilant-abcd1234',
+        '--no-prompt',
+        '--destroy-storage',
+        '--force',
+    ])
 
     with jubilant.temp_model(
         controller='ctl',
@@ -100,25 +94,23 @@ def test_other_args(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
 
 def test_other_args_keep(run: mocks.Run, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr('secrets.token_hex', mock_token_hex)
-    run.handle(
-        [
-            'juju',
-            'add-model',
-            '--no-switch',
-            'jubilant-abcd1234',
-            'localhost',
-            '--controller',
-            'ctl',
-            '--config',
-            'x=true',
-            '--config',
-            'y=1',
-            '--config',
-            'z=ss',
-            '--credential',
-            'cc',
-        ]
-    )
+    run.handle([
+        'juju',
+        'add-model',
+        '--no-switch',
+        'jubilant-abcd1234',
+        'localhost',
+        '--controller',
+        'ctl',
+        '--config',
+        'x=true',
+        '--config',
+        'y=1',
+        '--config',
+        'z=ss',
+        '--credential',
+        'cc',
+    ])
     run.handle(['juju', 'deploy', '--model', 'ctl:jubilant-abcd1234', 'app1'])
 
     with jubilant.temp_model(

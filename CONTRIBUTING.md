@@ -19,6 +19,35 @@ $ make all
 To contribute a code change, write your fix or feature, add tests and docs, then run `make all` before you push and create a PR. Once you create a PR, GitHub will also run the integration tests, which takes several minutes.
 
 
+## Pull requests
+
+Changes are proposed as [pull requests on GitHub](https://github.com/canonical/jubilant/pulls).
+
+Pull requests should have a short title that follows the [conventional commit style](https://www.conventionalcommits.org/en/) using one of these types:
+
+- chore
+- ci
+- docs
+- feat
+- fix
+- perf
+- refactor
+- revert
+- test
+
+Some examples:
+
+- feat: add support for a new `juju status` field
+- fix!: correct the handling of apps with no units in `Juju.wait`
+- docs: clarify how to run the integration tests
+
+We consider Jubilant too small a project to use scopes, so we don't use them.
+
+Note that the commit messages to the PR's branch do not need to follow the conventional commit format, as these will be squashed into a single commit to `main` using the PR title as the commit message.
+
+To help us review your changes, please rebase your pull request onto the `main` branch before you request a review. If you need to bring in the latest changes from `main` after the review has started, please use a merge commit.
+
+
 ## Doing a release
 
 To create a new release of Jubilant:

@@ -62,7 +62,11 @@ class Juju:
 
     Args:
         model: If specified, operate on this Juju model, otherwise use the current Juju model.
-            If the model is in another controller, prefix the model name with ``<controller>:``.
+            The model name is passed through to the Juju CLI unchanged, so the full
+            ``[<controller>:][<user>/]<model>`` form is accepted: Prefix the name with
+            ``<user>/`` to operate on another user's model on the current controller. Prefix the
+            name with ``<controller>:`` to operate on a model in another controller. For example,
+            ``alice/my-model`` or ``mycontroller:alice/my-model``.
         wait_timeout: The default timeout for :meth:`wait` (in seconds) if that method's *timeout*
             parameter is not specified.
         cli_binary: Path to the Juju CLI binary. If not specified, uses ``juju`` and assumes it is
@@ -72,8 +76,14 @@ class Juju:
     model: str | None
     """If not None, operate on this Juju model, otherwise use the current Juju model.
 
-    If the model is in another controller, prefix the model name with ``<controller>:``; for
-    example, ``juju = jubilant.Juju(model='mycontroller:my-model')``.
+    The model name is passed through to the Juju CLI unchanged, so the full
+    ``[<controller>:][<user>/]<model>`` form is accepted. Prefix the name with ``<user>/`` to
+    operate on another user's model on the current controller; prefix it with ``<controller>:``
+    to operate on a model in another controller. For example::
+
+        juju = jubilant.Juju(model='alice/my-model')
+        juju = jubilant.Juju(model='mycontroller:my-model')
+        juju = jubilant.Juju(model='mycontroller:alice/my-model')
     """
 
     wait_timeout: float
@@ -324,7 +334,12 @@ class Juju:
         model, all subsequent operations on this instance will use the new model.
 
         Args:
-            model: Name of model to add.
+            model: Name of model to add. Unlike :attr:`model` and most other
+                methods, this is **not** the ``[<controller>:][<user>/]<model>``
+                form: Juju's ``add-model`` only accepts a bare model name
+                (lowercase letters, digits, and hyphens). To add a model on a
+                different controller, pass *controller*; you cannot add a model
+                owned by another user.
             cloud: Name of cloud or region (or cloud/region) to use for the model.
             controller: Name of controller to operate in. If not specified, use the current
                 controller.
@@ -451,7 +466,7 @@ class Juju:
             juju = jubilant.Juju()
             juju.bootstrap('lxd', 'myctrl')
             juju.add_model('mymodel', controller='myctrl')
-            # self.model will be 'myctrl.mymodel' here
+            # self.model will be 'myctrl:mymodel' here
 
         Args:
             cloud: Name of cloud to bootstrap on. Initialization consists of creating a
@@ -778,7 +793,9 @@ class Juju:
         :attr:`model` to None.
 
         Args:
-            model: Name of model to destroy.
+            model: Name of model to destroy. Accepts the full
+                ``[<controller>:][<user>/]<model>`` form, for example ``alice/my-model`` or
+                ``mycontroller:alice/my-model``.
             destroy_storage: If true, destroy all storage instances in the model.
             force: If true, force model destruction and ignore any errors.
             no_wait: If true, rush through model destruction without waiting for each step
@@ -800,7 +817,7 @@ class Juju:
         if timeout is not None:
             args.extend(['--timeout', f'{timeout}s'])
         self.cli(*args, include_model=False)
-        if model == self.model:
+        if _same_model(model, self.model):
             self.model = None
 
     @overload
@@ -1379,7 +1396,8 @@ class Juju:
         """Get information about the current model (or another model).
 
         Args:
-            model: Name of the model or ``controller:model``. If omitted,
+            model: Name of the model. Accepts the full ``[<controller>:][<user>/]<model>`` form,
+                for example ``alice/my-model`` or ``mycontroller:alice/my-model``. If omitted,
                 return details about the current model.
         """
         args = ['show-model', '--format', 'json']
@@ -1662,7 +1680,7 @@ class Juju:
                 error=jubilant.any_error,
             )
 
-        For more examples, see `Tutorial | Use a custom wait condition <https://documentation.ubuntu.com/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
+        For more examples, see `Tutorial | Use a custom wait condition <https://canonical.com/juju/docs/jubilant/tutorial/getting-started/#use-a-custom-wait-condition>`_.
 
         This function logs the status object after the first status call, and after subsequent
         calls if the status object has changed. Logs are sent to the logger named
@@ -1800,6 +1818,37 @@ def _format_config(k: str, v: ConfigValue) -> str:
     if isinstance(v, bool):
         v = 'true' if v else 'false'
     return f'{k}={v}'
+
+
+def _parse_model_ref(s: str) -> tuple[str | None, str | None, str]:
+    controller: str | None = None
+    user: str | None = None
+    if ':' in s:
+        controller, s = s.split(':', 1)
+    if '/' in s:
+        user, s = s.split('/', 1)
+    return controller, user, s
+
+
+def _same_model(a: str | None, b: str | None) -> bool:
+    """Whether two ``[<controller>:][<user>/]<model>`` references identify the same model.
+
+    An unset controller or user on either side is treated as "the default" and
+    matches a set value on the other side; a set value on both sides must match.
+    """
+    if a is None or b is None:
+        return a is b
+    if a == b:
+        return True
+    ca, ua, ma = _parse_model_ref(a)
+    cb, ub, mb = _parse_model_ref(b)
+    if ma != mb:
+        return False
+    if ca and cb and ca != cb:
+        return False
+    if ua and ub and ua != ub:
+        return False
+    return True
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
