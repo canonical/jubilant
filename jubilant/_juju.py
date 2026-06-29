@@ -1723,7 +1723,8 @@ class Juju:
 
             if status != prev_status:
                 # Each app status is logged separately.
-                for name, new_app_status in status.apps.items():
+                # Sort according to app name to keep the output consistent.
+                for name, new_app_status in sorted(status.apps.items()):
                     prev_app_status = prev_status.apps.get(name) if prev_status else None
 
                     if app_diff := _app_status_diff(prev_app_status, new_app_status):
