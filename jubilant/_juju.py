@@ -1730,9 +1730,9 @@ class Juju:
                     if app_diff := _app_status_diff(prev_app_status, new_app_status):
                         # We treat apps transitioning to error state as an ERROR level log.
                         if new_app_status.app_status.current == 'error':
-                            logger_wait.error('%s: %s', name, app_diff)
+                            logger_wait.error('app status changed %s: %s', name, app_diff)
                         else:
-                            logger_wait.info('%s: %s', name, app_diff)
+                            logger_wait.info('app status changed %s: %s', name, app_diff)
 
                 # The verbose gron diff lines are always logged at DEBUG level.
                 diff = _status_diff(prev_status, status)
