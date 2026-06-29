@@ -2,26 +2,26 @@
 
 ## Features
 
-* add `show_unit` method (#308)
+* Add `show_unit` method (#308)
 
 ## Documentation
 
-* move dataclass codegen note from docs to comment; consolidate (#336)
-* expand the security page to include more sections (#332)
-* clarify behaviour when providing a user in the model value (#340)
-* clarify behaviour of `any_*` methods and fix various small issues (#344)
-* move docs to canonical.com/juju/docs/jubilant (#337)
+* Move dataclass codegen note from docs to comment; consolidate (#336)
+* Expand the security page to include more sections (#332)
+* Clarify behaviour when providing a user in the model value (#340)
+* Clarify behaviour of `any_*` methods and fix various small issues (#344)
+* Move docs to canonical.com/juju/docs/jubilant (#337)
 
 ## Refactoring
 
-* avoid `yaml.load()` call in `safe_load` to silence scanner false positive (#331)
+* Avoid `yaml.load()` call in `safe_load` to silence scanner false positive (#331)
 
 ## CI
 
-* split Juju 4 channel into 4.0 and 4.1, add edge to scheduled runs (#338)
-* enforce Conventional Commits on PR titles (#341)
-* attest build provenance for released artifacts (#352)
-* add dependency-review-action on PRs (#353)
+* Split Juju 4 channel into 4.0 and 4.1, add edge to scheduled runs (#338)
+* Enforce Conventional Commits on PR titles (#341)
+* Attest build provenance for released artifacts (#352)
+* Add dependency-review-action on PRs (#353)
 
 # 1.10.0 - 28 May 2026
 
