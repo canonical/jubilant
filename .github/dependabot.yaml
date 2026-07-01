@@ -43,7 +43,6 @@ updates:
           - "ops"
           - "ops-scenario"
           - "ops-tracing"
-          - "jubilant"
           - "pytest-jubilant"
       # Linters / type-checkers / formatters / dev tooling. Majors ride along;
       # we do not pin these and a major bump is low-risk to review in a batch.
