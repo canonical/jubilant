@@ -49,11 +49,16 @@ def test_logging_wait_info(run: mocks.Run, time: mocks.Time, caplog: pytest.LogC
 
     juju.wait(lambda _: True)
 
-    assert len(caplog.records) == 1  # only logs on first call or when status changes
+    assert len(caplog.records) == 2  # app line + unit line
     record = caplog.records[0]
     assert record.levelname == 'INFO'
     message = record.getMessage()
-    assert message == 'app status changed snappass-test: active: snappass started'
+    assert message == '[snappass-test] status changed: active (snappass started)'
+    unit_record = caplog.records[1]
+    assert unit_record.levelname == 'INFO'
+    assert (
+        unit_record.getMessage() == '[snappass-test/0] status changed: active (snappass started)'
+    )
 
 
 def test_logging_wait_info_multiples(
@@ -66,9 +71,8 @@ def test_logging_wait_info_multiples(
 
     juju.wait(lambda _: True)
 
-    # We only logs on first call or when status changes.
-    # The number of records matches the number of applications.
-    assert len(caplog.records) == 2
+    # Two apps, each with app line + unit line = 4 records
+    assert len(caplog.records) == 4
     for record in caplog.records:
         assert record.levelname == 'INFO'
 
@@ -83,15 +87,20 @@ def test_logging_wait_error(run: mocks.Run, time: mocks.Time, caplog: pytest.Log
     run.handle(['juju', 'status', '--format', 'json'], stdout=json.dumps(error_snappass_json))
     juju = jubilant.Juju()
 
-    caplog.set_level(logging.ERROR, logger='jubilant.wait')
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
 
     juju.wait(lambda _: True)
 
-    assert len(caplog.records) == 1  # only logs on first call or when status changes
+    assert len(caplog.records) == 2  # app error line + unit line
     record = caplog.records[0]
     assert record.levelname == 'ERROR'
     message = record.getMessage()
-    assert message == 'app status changed snappass-test: error: something bad happened'
+    assert message == '[snappass-test] status changed: error (something bad happened)'
+    unit_record = caplog.records[1]
+    assert unit_record.levelname == 'INFO'
+    assert (
+        unit_record.getMessage() == '[snappass-test/0] status changed: active (snappass started)'
+    )
 
 
 def test_with_model(run: mocks.Run, time: mocks.Time):
