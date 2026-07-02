@@ -1,0 +1,71 @@
+# Routine version-update sweeps only. CVE patches are raised by the
+# repo-level "Dependabot security updates" toggle (managed in
+# canonical-repo-automation: features.dependabot_security_updates = true),
+# which is event-driven and does not honour the schedule below.
+version: 2
+
+updates:
+  # ===================================================================
+  # GitHub Actions: routine lane (monthly, single grouped PR)
+  # ===================================================================
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+    open-pull-requests-limit: 100
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # ===================================================================
+  # Python (uv): routine lane (monthly, grouped along three seams)
+  # ===================================================================
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+    open-pull-requests-limit: 100
+    cooldown:
+      default-days: 7
+      semver-major-days: 14
+    groups:
+      # Charm Tech's own releases (lockstep-versioned; we trust the release).
+      charm-tech:
+        patterns:
+          - "ops"
+          - "ops-scenario"
+          - "ops-tracing"
+          - "pytest-jubilant"
+      # Linters / type-checkers / formatters / dev tooling. Majors ride along;
+      # we do not pin these and a major bump is low-risk to review in a batch.
+      dev-tooling:
+        patterns:
+          - "ruff"
+          - "pyright"
+          - "ty"
+          - "codespell"
+          - "coverage"
+          - "pre-commit"
+          - "types-*"
+          - "zizmor"
+      # Test runner + other shared test deps.
+      test-deps:
+        patterns:
+          - "pytest"
+          - "pytest-*"
+      # Everything else, minor + patch only. A runtime MAJOR falls through
+      # to its own ungrouped PR so it never silently rides a patch bundle.
+      runtime:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
