@@ -132,6 +132,32 @@ def test_logging_wait_error_unit(
     )
 
 
+def test_logging_wait_no_change(
+    run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture
+):
+    snappass_json = json.loads(SNAPPASS_JSON)
+
+    run.handle(['juju', 'status', '--format', 'json'], stdout=json.dumps(snappass_json))
+    juju = jubilant.Juju()
+
+    count = 0
+
+    def helper() -> bool:
+        # Return False 2 times, then return True.
+        nonlocal count
+        if count < 1:
+            count += 1
+            return False
+
+        return True
+
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: helper())
+
+    assert len(caplog.records) == 2  # only log 1 unit + 1 app the first time.
+
+
 def test_with_model(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--model', 'mdl', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju(model='mdl')

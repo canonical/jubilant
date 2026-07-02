@@ -283,22 +283,6 @@ def test_entity_status_diff_from_none(
     )
 
 
-def test_entity_status_diff_no_change():
-    # It's simplest to test _entity_status_diff directly, even though it's not public.
-    snappass_json = json.loads(SNAPPASS_JSON)
-
-    old_status = jubilant.Status._from_dict(snappass_json)
-    new_status = jubilant.Status._from_dict(snappass_json)
-
-    assert (
-        jubilant._juju._entity_status_diff(
-            old_status.apps['snappass-test'].app_status,
-            new_status.apps['snappass-test'].app_status,
-        )
-        is None
-    )
-
-
 def test_diff_and_log_no_change(caplog: pytest.LogCaptureFixture):
     # It's simplest to test _diff_and_log_entity_status, even though it's not public.
     snappass_json = json.loads(SNAPPASS_JSON)
