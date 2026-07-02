@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytest
 
@@ -280,6 +281,47 @@ def test_entity_status_diff_from_none(
         )
         == expect
     )
+
+
+def test_entity_status_diff_no_change():
+    # It's simplest to test _entity_status_diff directly, even though it's not public.
+    snappass_json = json.loads(SNAPPASS_JSON)
+
+    old_status = jubilant.Status._from_dict(snappass_json)
+    new_status = jubilant.Status._from_dict(snappass_json)
+
+    assert (
+        jubilant._juju._entity_status_diff(
+            old_status.apps['snappass-test'].app_status,
+            new_status.apps['snappass-test'].app_status,
+        )
+        is None
+    )
+
+
+def test_diff_and_log_no_change(caplog: pytest.LogCaptureFixture):
+    # It's simplest to test _diff_and_log_entity_status, even though it's not public.
+    snappass_json = json.loads(SNAPPASS_JSON)
+
+    old_status = jubilant.Status._from_dict(snappass_json)
+    new_status = jubilant.Status._from_dict(snappass_json)
+
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    jubilant._juju._diff_and_log_entity_status(
+        'snappass-test',
+        old_status.apps['snappass-test'].app_status,
+        new_status.apps['snappass-test'].app_status,
+    )
+
+    unit_name = 'snappass-test/0'
+    jubilant._juju._diff_and_log_entity_status(
+        unit_name,
+        old_status.apps['snappass-test'].units[unit_name].workload_status,
+        new_status.apps['snappass-test'].units[unit_name].workload_status,
+    )
+
+    assert len(caplog.records) == 0
 
 
 def test_status_diff():
