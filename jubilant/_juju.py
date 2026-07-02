@@ -19,7 +19,7 @@ from ._task import Task
 from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
-from .statustypes import Status
+from .statustypes import Status, StatusInfo
 from .unittypes import UnitInfo
 
 logger = logging.getLogger('jubilant')
@@ -1722,9 +1722,29 @@ class Juju:
             status = Status._from_dict(result)
 
             if status != prev_status:
+                # Emit app status diff lines. For each app, also emit unit status diff lines.
+                # Sort according to app/unit names to keep the output consistent.
+                prev_apps = prev_status.apps if prev_status else {}
+                for app_name, new_app_status in sorted(status.apps.items()):
+                    prev_app_status = prev_apps.get(app_name)
+                    _diff_and_log_entity_status(
+                        app_name,
+                        prev_app_status.app_status if prev_app_status else None,
+                        new_app_status.app_status,
+                    )
+                    prev_units = prev_app_status.units if prev_app_status else {}
+                    for unit_name, new_unit_status in sorted(new_app_status.units.items()):
+                        prev_unit = prev_units.get(unit_name)
+                        _diff_and_log_entity_status(
+                            unit_name,
+                            prev_unit.workload_status if prev_unit else None,
+                            new_unit_status.workload_status,
+                        )
+
+                # The verbose gron diff lines are always logged at DEBUG level.
                 diff = _status_diff(prev_status, status)
                 if diff:
-                    logger_wait.info('wait: status changed:\n%s', diff)
+                    logger_wait.debug('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 name = getattr(error, '__qualname__', repr(error))
@@ -1849,6 +1869,26 @@ def _same_model(a: str | None, b: str | None) -> bool:
     if ua and ub and ua != ub:
         return False
     return True
+
+
+def _diff_and_log_entity_status(name: str, old: StatusInfo | None, new: StatusInfo) -> None:
+    diff = _entity_status_diff(old, new)
+    if not diff:
+        return
+    level = logging.ERROR if new.current == 'error' else logging.INFO
+    logger_wait.log(level, '[%s] status changed: %s', name, diff)
+
+
+def _entity_status_diff(old: StatusInfo | None, new: StatusInfo) -> str | None:
+    old_current, old_message = (old.current, old.message) if old is not None else ('', '')
+    new_current, new_message = new.current, new.message
+
+    if new_current == old_current and new_message == old_message:
+        return None
+
+    diff_line = f'{old_current} ({old_message}) -> ' if old_current else ''
+    diff_line += f'{new_current} ({new_message})'
+    return diff_line
 
 
 def _status_diff(old: Status | None, new: Status) -> str:
