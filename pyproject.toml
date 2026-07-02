@@ -52,6 +52,7 @@ license-files = []
 
 [tool.uv]
 exclude-newer = "7 days"
+no-build = true
 
 # Linting tools configuration
 [tool.ruff]
