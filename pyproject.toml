@@ -50,6 +50,9 @@ version = {attr = "jubilant.__version__"}
 [tool.setuptools]
 license-files = []
 
+[tool.uv]
+exclude-newer = "7 days"
+
 # Linting tools configuration
 [tool.ruff]
 line-length = 99
