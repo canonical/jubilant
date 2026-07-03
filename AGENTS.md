@@ -23,7 +23,7 @@ make help                   # Run to see all available commands
 - **Docstrings**: Google style
 - **Type hints**: Strict pyright mode; `from __future__ import annotations` in every file
 - **Imports**: Import modules, not other objects, unless they are only used for type annotations
-- **Target Python**: 3.8+
+- **Target Python**: 3.10+
 - **Comments**: Explain *why*, not *what*; if necessary for 'what', consider rewriting so that they are not
 
 Ensure that `pre-commit` is installed (with the user's permission) so that style is enforced with every commit. If the user does not permit using `pre-commit`, *always* ensure that `make all` shows no issues before committing.
