@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -46,3 +47,11 @@ def juju_non_snap(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')
     """
     monkeypatch.setattr('shutil.which', lambda _: '/bin/juju')  # type: ignore
+
+
+@pytest.fixture
+def mock_wait(monkeypatch: pytest.MonkeyPatch) -> Generator[MagicMock]:
+    """Pytest fixture that patches jubilant.Juju.wait with a MagicMock."""
+    mock = MagicMock()
+    monkeypatch.setattr('jubilant.Juju.wait', mock)
+    yield mock

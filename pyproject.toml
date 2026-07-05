@@ -42,6 +42,9 @@ dev = [
 requires = ["setuptools>=60"]
 build-backend = "setuptools.build_meta"
 
+[project.scripts]
+jubilant = "jubilant.__main__:main"
+
 [tool.setuptools.dynamic]
 version = {attr = "jubilant.__version__"}
 
