@@ -11,8 +11,8 @@ import shutil
 import subprocess
 import tempfile
 import time
-from collections.abc import Callable, Iterable, Mapping
-from typing import Any, Generator, Literal, Union, overload
+from collections.abc import Callable, Generator, Iterable, Mapping
+from typing import Any, Literal, overload
 
 from . import _pretty, _yaml
 from ._task import Task
@@ -42,10 +42,10 @@ class WaitError(Exception):
     """Raised when :meth:`Juju.wait`'s *error* callable returns ``True``."""
 
 
-ConfigValue = Union[bool, int, float, str, SecretURI]
+ConfigValue = bool | int | float | str | SecretURI
 """The possible types a charm config value can be."""
 
-ConstraintValue = Union[bool, int, float, str]
+ConstraintValue = bool | int | float | str
 """The possible types a constraint value can be (model, bootstrap or deployment constraint)."""
 
 

@@ -16,7 +16,7 @@ $ pip install jubilant
 $ uv add jubilant
 ```
 
-Like the [Ops](https://github.com/canonical/operator) framework used by charms, Jubilant requires Python 3.8 or above.
+Like the [Ops](https://github.com/canonical/operator) framework used by charms, Jubilant requires Python 3.10 or above.
 
 ## Check your setup
 

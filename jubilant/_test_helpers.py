@@ -4,8 +4,7 @@ import contextlib
 import logging
 import secrets
 import subprocess
-from collections.abc import Mapping
-from typing import Generator
+from collections.abc import Generator, Mapping
 
 from ._juju import ConfigValue, Juju
 

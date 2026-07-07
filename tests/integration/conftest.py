@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import pathlib
 import tarfile
-from typing import Generator, cast
+from collections.abc import Generator
+from typing import cast
 
 import pytest
 
