@@ -1870,23 +1870,14 @@ def _same_model(a: str | None, b: str | None) -> bool:
 
 
 def _log_short_status_if_needed(name: str, old: StatusInfo | None, new: StatusInfo) -> None:
-    diff = _entity_status_diff(old, new)
-    if not diff:
-        return
     level = logging.ERROR if new.current == 'error' else logging.INFO
-    logger_wait.log(level, '[%s] status changed: %s', name, diff)
-
-
-def _entity_status_diff(old: StatusInfo | None, new: StatusInfo) -> str | None:
-    old_current, old_message = (old.current, old.message) if old is not None else ('', '')
-    new_current, new_message = new.current, new.message
-
-    if new_current == old_current and new_message == old_message:
-        return None
-
-    diff_line = f'{old_current} ({old_message}) -> ' if old_current else ''
-    diff_line += f'{new_current} ({new_message})'
-    return diff_line
+    if old is None:
+        logger_wait.log(level, '[%s] status: %s (%s)', name, new.current, new.message)
+        return
+    if (old.current, old.message) == (new.current, new.message):
+        return
+    template = '[%s] status changed: %s (%s) -> %s (%s)'
+    logger_wait.log(level, template, name, old.current, old.message, new.current, new.message)
 
 
 def _status_diff(old: Status | None, new: Status) -> str:

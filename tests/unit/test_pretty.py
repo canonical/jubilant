@@ -161,7 +161,8 @@ Status(
         'old_message',
         'new_current',
         'new_message',
-        'expect',
+        'expect_log_level',
+        'expect_message',
     ),
     [
         pytest.param(
@@ -169,15 +170,17 @@ Status(
             '',
             'active',
             'started',
-            'unknown () -> active (started)',
-            id='old_status_no_message',
+            'INFO',
+            '[snappass-test] status changed: unknown () -> active (started)',
+            id='old_status_empty_message',
         ),
         pytest.param(
             'active',
             'started',
             'error',
             'something bad happened',
-            'active (started) -> error (something bad happened)',
+            'ERROR',
+            '[snappass-test] status changed: active (started) -> error (something bad happened)',
             id='transition_to_error',
         ),
         pytest.param(
@@ -185,7 +188,8 @@ Status(
             'something bad happened',
             'active',
             'active again',
-            'error (something bad happened) -> active (active again)',
+            'INFO',
+            '[snappass-test] status changed: error (something bad happened) -> active (active again)',
             id='transition_from_error',
         ),
         pytest.param(
@@ -193,7 +197,8 @@ Status(
             'installing software foo',
             'waiting',
             'installing software bah',
-            'waiting (installing software foo) -> waiting (installing software bah)',
+            'INFO',
+            '[snappass-test] status changed: waiting (installing software foo) -> waiting (installing software bah)',
             id='same_status_different_message',
         ),
         pytest.param(
@@ -201,27 +206,49 @@ Status(
             'stage 1',
             'error',
             'stage 1',
-            'active (stage 1) -> error (stage 1)',
+            'ERROR',
+            '[snappass-test] status changed: active (stage 1) -> error (stage 1)',
             id='different_status_same_message',
+        ),
+        pytest.param(
+            'active',
+            'stage 1',
+            'error',
+            '',
+            'ERROR',
+            '[snappass-test] status changed: active (stage 1) -> error ()',
+            id='new_error_status_empty_message',
         ),
         pytest.param(
             'active',
             'stage 1',
             'active',
             '',
-            'active (stage 1) -> active ()',
+            'INFO',
+            '[snappass-test] status changed: active (stage 1) -> active ()',
             id='new_status_empty_message',
+        ),
+        pytest.param(
+            'active',
+            '',
+            'maintenance',
+            '',
+            'INFO',
+            '[snappass-test] status changed: active () -> maintenance ()',
+            id='both_status_empty_message',
         ),
     ],
 )
-def test_entity_status_diff(
+def test_log_short_status(
     old_current: str,
     old_message: str,
     new_current: str,
     new_message: str,
-    expect: str,
+    expect_log_level: str,
+    expect_message: str,
+    caplog: pytest.LogCaptureFixture,
 ):
-    # It's simplest to test _entity_status_diff directly, even though it's not public.
+    # It's simplest to test _log_short_status_if_needed directly, even though it's not public.
     old_json = json.loads(SNAPPASS_JSON)
     old_json['applications']['snappass-test']['application-status']['current'] = old_current
     old_json['applications']['snappass-test']['application-status']['message'] = old_message
@@ -233,58 +260,86 @@ def test_entity_status_diff(
     old_status = jubilant.Status._from_dict(old_json)
     new_status = jubilant.Status._from_dict(new_json)
 
-    assert (
-        jubilant._juju._entity_status_diff(
-            old_status.apps['snappass-test'].app_status,
-            new_status.apps['snappass-test'].app_status,
-        )
-        == expect
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    app_name = 'snappass-test'
+
+    jubilant._juju._log_short_status_if_needed(
+        app_name,
+        old_status.apps[app_name].app_status,
+        new_status.apps[app_name].app_status,
     )
+
+    assert len(caplog.records) == 1  # only 1 log emitted for each status comparison.
+
+    record = caplog.records[0]
+    assert record.levelname == expect_log_level
+    assert record.message == expect_message
 
 
 @pytest.mark.parametrize(
     (
         'new_current',
         'new_message',
+        'expect_log_level',
         'expect',
     ),
     [
         pytest.param(
             'active',
             'started',
-            'active (started)',
+            'INFO',
+            '[snappass-test] status: active (started)',
             id='to_active',
         ),
         pytest.param(
             'active',
             '',
-            'active ()',
+            'INFO',
+            '[snappass-test] status: active ()',
             id='to_active_no_message',
+        ),
+        pytest.param(
+            'error',
+            'bad',
+            'ERROR',
+            '[snappass-test] status: error (bad)',
+            id='to_error_with_message',
         ),
     ],
 )
-def test_entity_status_diff_from_none(
+def test_log_short_status_from_none(
     new_current: str,
     new_message: str,
+    expect_log_level: str,
     expect: str,
+    caplog: pytest.LogCaptureFixture,
 ):
-    # It's simplest to test _entity_status_diff directly, even though it's not public.
+    # It's simplest to test _log_short_status_if_needed directly, even though it's not public.
     new_json = json.loads(SNAPPASS_JSON)
     new_json['applications']['snappass-test']['application-status']['current'] = new_current
     new_json['applications']['snappass-test']['application-status']['message'] = new_message
     new_status = jubilant.Status._from_dict(new_json)
 
-    assert (
-        jubilant._juju._entity_status_diff(
-            None,
-            new_status.apps['snappass-test'].app_status,
-        )
-        == expect
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    app_name = 'snappass-test'
+
+    jubilant._juju._log_short_status_if_needed(
+        app_name,
+        None,
+        new_status.apps[app_name].app_status,
     )
 
+    assert len(caplog.records) == 1  # only 1 log emitted for each status comparison.
 
-def test_diff_and_log_no_change(caplog: pytest.LogCaptureFixture):
-    # It's simplest to test _diff_and_log_entity_status, even though it's not public.
+    record = caplog.records[0]
+    assert record.levelname == expect_log_level
+    assert record.message == expect
+
+
+def test_log_short_status_no_change(caplog: pytest.LogCaptureFixture):
+    # It's simplest to test _log_short_status_if_needed, even though it's not public.
     snappass_json = json.loads(SNAPPASS_JSON)
 
     old_status = jubilant.Status._from_dict(snappass_json)
