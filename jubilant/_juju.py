@@ -19,7 +19,7 @@ from ._task import Task
 from ._version import Version
 from .modeltypes import ModelInfo
 from .secrettypes import RevealedSecret, Secret, SecretURI
-from .statustypes import Status
+from .statustypes import Status, StatusInfo
 from .unittypes import UnitInfo
 
 logger = logging.getLogger('jubilant')
@@ -1722,9 +1722,27 @@ class Juju:
             status = Status._from_dict(result)
 
             if status != prev_status:
+                # Emit app status diff lines. For each app, also emit unit status diff lines.
+                # Sort according to app/unit names to keep the output consistent.
+                prev_apps = prev_status.apps if prev_status else {}
+                for app_name, new_app in sorted(status.apps.items()):
+                    prev_app = prev_apps.get(app_name)
+                    prev_app_status = prev_app.app_status if prev_app else None
+                    items = [(app_name, prev_app_status, new_app.app_status)]
+
+                    prev_units = prev_app.units if prev_app else {}
+                    for unit_name, new_unit in sorted(new_app.units.items()):
+                        prev_unit = prev_units.get(unit_name)
+                        prev_unit_status = prev_unit.workload_status if prev_unit else None
+                        items.append((unit_name, prev_unit_status, new_unit.workload_status))
+
+                    for name, prev, new in items:
+                        _log_short_status_if_needed(name, prev, new)
+
+                # The verbose gron diff lines are always logged at DEBUG level.
                 diff = _status_diff(prev_status, status)
                 if diff:
-                    logger_wait.info('wait: status changed:\n%s', diff)
+                    logger_wait.debug('wait: status changed:\n%s', diff)
 
             if error is not None and error(status):
                 name = getattr(error, '__qualname__', repr(error))
@@ -1849,6 +1867,17 @@ def _same_model(a: str | None, b: str | None) -> bool:
     if ua and ub and ua != ub:
         return False
     return True
+
+
+def _log_short_status_if_needed(name: str, old: StatusInfo | None, new: StatusInfo) -> None:
+    level = logging.ERROR if new.current == 'error' else logging.INFO
+    if old is None:
+        logger_wait.log(level, '[%s] status: %s (%s)', name, new.current, new.message)
+        return
+    if (old.current, old.message) == (new.current, new.message):
+        return
+    template = '[%s] status changed: %s (%s) -> %s (%s)'
+    logger_wait.log(level, template, name, old.current, old.message, new.current, new.message)
 
 
 def _status_diff(old: Status | None, new: Status) -> str:

@@ -1,3 +1,4 @@
+import json
 import logging
 
 import pytest
@@ -5,7 +6,7 @@ import pytest
 import jubilant
 
 from . import mocks
-from .fake_statuses import MINIMAL_JSON, MINIMAL_STATUS
+from .fake_statuses import DATABASE_WEBAPP_JSON, MINIMAL_JSON, MINIMAL_STATUS, SNAPPASS_JSON
 
 
 def test_ready_normal(run: mocks.Run, time: mocks.Time):
@@ -19,15 +20,17 @@ def test_ready_normal(run: mocks.Run, time: mocks.Time):
     assert status == MINIMAL_STATUS
 
 
-def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+def test_logging_wait_debug(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant.wait')
+    caplog.set_level(logging.DEBUG, logger='jubilant.wait')
 
     juju.wait(lambda _: True)
 
     assert len(caplog.records) == 1  # only logs on first call or when status changes
-    message = caplog.records[0].getMessage()
+    record = caplog.records[0]
+    assert record.levelname == 'DEBUG'
+    message = record.getMessage()
     assert (
         message
         == """wait: status changed:
@@ -37,6 +40,115 @@ def test_logging(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixt
 + .model.cloud = 'aws'
 + .model.version = '3.0.0'"""
     )
+
+
+def test_logging_wait_info(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=SNAPPASS_JSON)
+    juju = jubilant.Juju()
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: True)
+
+    assert len(caplog.records) == 2  # 1 app line + 1 unit line
+    record = caplog.records[0]
+    assert record.levelname == 'INFO'
+    message = record.getMessage()
+    assert message == '[snappass-test] status: active (snappass started)'
+    unit_record = caplog.records[1]
+    assert unit_record.levelname == 'INFO'
+    assert unit_record.getMessage() == '[snappass-test/0] status: active (snappass started)'
+
+
+def test_logging_wait_info_multiples(
+    run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture
+):
+    # Test that we log each app status change individually.
+    run.handle(['juju', 'status', '--format', 'json'], stdout=DATABASE_WEBAPP_JSON)
+    juju = jubilant.Juju()
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: True)
+
+    assert len(caplog.records) == 4  # 2 apps, each app has 2 units
+    for record in caplog.records:
+        assert record.levelname == 'INFO'
+
+
+def test_logging_wait_app_error(
+    run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture
+):
+    error_snappass_json = json.loads(SNAPPASS_JSON)
+    error_snappass_json['applications']['snappass-test']['application-status']['current'] = 'error'
+    error_snappass_json['applications']['snappass-test']['application-status']['message'] = (
+        'something bad happened'
+    )
+
+    run.handle(['juju', 'status', '--format', 'json'], stdout=json.dumps(error_snappass_json))
+    juju = jubilant.Juju()
+
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: True)
+
+    assert len(caplog.records) == 2  # 1 app error line + 1 unit line
+    record = caplog.records[0]
+    assert record.levelname == 'ERROR'
+    message = record.getMessage()
+    assert message == '[snappass-test] status: error (something bad happened)'
+    unit_record = caplog.records[1]
+    assert unit_record.levelname == 'INFO'
+    assert unit_record.getMessage() == '[snappass-test/0] status: active (snappass started)'
+
+
+def test_logging_wait_error_unit(
+    run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture
+):
+    error_snappass_json = json.loads(SNAPPASS_JSON)
+    unit_json = error_snappass_json['applications']['snappass-test']['units']['snappass-test/0']
+    unit_json['workload-status']['current'] = 'error'
+    unit_json['workload-status']['message'] = 'something bad happened'
+
+    run.handle(['juju', 'status', '--format', 'json'], stdout=json.dumps(error_snappass_json))
+    juju = jubilant.Juju()
+
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: True)
+
+    assert len(caplog.records) == 2  # 1 app line + 1 unit error line
+    record = caplog.records[0]
+    assert record.levelname == 'INFO'
+    message = record.getMessage()
+    assert message == '[snappass-test] status: active (snappass started)'
+    unit_record = caplog.records[1]
+    assert unit_record.levelname == 'ERROR'
+    assert unit_record.getMessage() == '[snappass-test/0] status: error (something bad happened)'
+
+
+def test_logging_wait_no_change(
+    run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture
+):
+    snappass_json = json.loads(SNAPPASS_JSON)
+
+    run.handle(['juju', 'status', '--format', 'json'], stdout=json.dumps(snappass_json))
+    juju = jubilant.Juju()
+
+    count = 0
+
+    def helper() -> bool:
+        # Return False 2 times, then return True.
+        nonlocal count
+        if count < 1:
+            count += 1
+            return False
+
+        return True
+
+    caplog.set_level(logging.INFO, logger='jubilant.wait')
+
+    juju.wait(lambda _: helper())
+
+    assert len(caplog.records) == 2  # only log 1 unit + 1 app the first time.
 
 
 def test_with_model(run: mocks.Run, time: mocks.Time):
