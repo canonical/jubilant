@@ -292,14 +292,14 @@ def test_diff_and_log_no_change(caplog: pytest.LogCaptureFixture):
 
     caplog.set_level(logging.INFO, logger='jubilant.wait')
 
-    jubilant._juju._diff_and_log_entity_status(
+    jubilant._juju._log_short_status_if_needed(
         'snappass-test',
         old_status.apps['snappass-test'].app_status,
         new_status.apps['snappass-test'].app_status,
     )
 
     unit_name = 'snappass-test/0'
-    jubilant._juju._diff_and_log_entity_status(
+    jubilant._juju._log_short_status_if_needed(
         unit_name,
         old_status.apps['snappass-test'].units[unit_name].workload_status,
         new_status.apps['snappass-test'].units[unit_name].workload_status,

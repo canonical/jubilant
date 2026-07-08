@@ -1727,7 +1727,7 @@ class Juju:
                 prev_apps = prev_status.apps if prev_status else {}
                 for app_name, new_app_status in sorted(status.apps.items()):
                     prev_app_status = prev_apps.get(app_name)
-                    _diff_and_log_entity_status(
+                    _log_short_status_if_needed(
                         app_name,
                         prev_app_status.app_status if prev_app_status else None,
                         new_app_status.app_status,
@@ -1735,7 +1735,7 @@ class Juju:
                     prev_units = prev_app_status.units if prev_app_status else {}
                     for unit_name, new_unit_status in sorted(new_app_status.units.items()):
                         prev_unit = prev_units.get(unit_name)
-                        _diff_and_log_entity_status(
+                        _log_short_status_if_needed(
                             unit_name,
                             prev_unit.workload_status if prev_unit else None,
                             new_unit_status.workload_status,
@@ -1871,7 +1871,7 @@ def _same_model(a: str | None, b: str | None) -> bool:
     return True
 
 
-def _diff_and_log_entity_status(name: str, old: StatusInfo | None, new: StatusInfo) -> None:
+def _log_short_status_if_needed(name: str, old: StatusInfo | None, new: StatusInfo) -> None:
     diff = _entity_status_diff(old, new)
     if not diff:
         return
