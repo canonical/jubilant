@@ -1725,21 +1725,19 @@ class Juju:
                 # Emit app status diff lines. For each app, also emit unit status diff lines.
                 # Sort according to app/unit names to keep the output consistent.
                 prev_apps = prev_status.apps if prev_status else {}
-                for app_name, new_app_status in sorted(status.apps.items()):
-                    prev_app_status = prev_apps.get(app_name)
-                    _log_short_status_if_needed(
-                        app_name,
-                        prev_app_status.app_status if prev_app_status else None,
-                        new_app_status.app_status,
-                    )
-                    prev_units = prev_app_status.units if prev_app_status else {}
-                    for unit_name, new_unit_status in sorted(new_app_status.units.items()):
+                for app_name, new_app in sorted(status.apps.items()):
+                    prev_app = prev_apps.get(app_name)
+                    prev_app_status = prev_app.app_status if prev_app else None
+                    items = [(app_name, prev_app_status, new_app.app_status)]
+
+                    prev_units = prev_app.units if prev_app else {}
+                    for unit_name, new_unit in sorted(new_app.units.items()):
                         prev_unit = prev_units.get(unit_name)
-                        _log_short_status_if_needed(
-                            unit_name,
-                            prev_unit.workload_status if prev_unit else None,
-                            new_unit_status.workload_status,
-                        )
+                        prev_unit_status = prev_unit.workload_status if prev_unit else None
+                        items.append((unit_name, prev_unit_status, new_unit.workload_status))
+
+                    for name, prev, new in items:
+                        _log_short_status_if_needed(name, prev, new)
 
                 # The verbose gron diff lines are always logged at DEBUG level.
                 diff = _status_diff(prev_status, status)
