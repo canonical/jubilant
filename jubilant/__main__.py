@@ -172,7 +172,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         logger.debug('', exc_info=True)
         return 1
 
-    logger.info("Status condition %s is ready.", args.ready)
+    logger.info('Status condition %s is ready.', args.ready)
     return 0
 
 
