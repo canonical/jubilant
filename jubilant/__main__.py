@@ -58,7 +58,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     arg_parser.add_argument(
         '--verbose',
         action='store_true',
-        help='Increaes verbosity.',
+        help='Increase verbosity.',
     )
 
     arg_parser.add_argument(
@@ -162,17 +162,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         juju.wait(**wait_kwargs)
     except jubilant.WaitError:
-        logger.error('The --error expression "%s" evaluates to True', args.error)
+        logger.error('Error expression evaluated to true (%s)', args.error)
         return 1
     except TimeoutError:
         logger.error('Wait timed out after %s seconds', args.timeout)
         return 1
     except Exception as error:
-        logger.error('Exception raised while evaluating the input expression: %s', str(error))
-        logger.debug('', exc_info=True)
+        logger.error(
+            'Exception evaluating "ready" or "error": %s: %s',
+            type(error).__name__,
+            str(error),
+        )
         return 1
 
-    logger.info('Status condition %s is ready.', args.ready)
+    logger.info('Ready condition succeeded %d times (%s)', args.successes, args.ready)
     return 0
 
 
