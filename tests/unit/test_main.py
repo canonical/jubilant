@@ -22,6 +22,7 @@ from .fake_statuses import MINIMAL_JSON, SNAPPASS_JSON
         'wait status.model.name=="mdl" --error status.apps["snappass-test"].app_status.current=="error"',
         'wait True --error False --timeout 10.0 --successes 3 --delay 2.0',
         '--verbose wait status.model.name=="mdl"',
+        '--quiet wait status.model.name=="mdl"',
     ],
 )
 def test_parse_wait_okay(argv_str: str, mock_wait: MagicMock) -> None:
