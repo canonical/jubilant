@@ -144,8 +144,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     juju = jubilant.Juju(cli_binary=args.juju_cli_bin)
 
     def _helper(expression: str) -> Callable[[jubilant.Status], bool]:
-        return lambda status, val=expression: eval(  # noqa: S307
-            val,
+        return lambda status: eval(  # noqa: S307
+            expression,
             {'jubilant': jubilant, 'juju': juju, 'status': status},
         )
 
