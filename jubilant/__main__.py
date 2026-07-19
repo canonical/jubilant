@@ -8,7 +8,6 @@ import sys
 import textwrap
 import time
 from collections.abc import Callable, Sequence
-from typing import Any
 
 import jubilant
 
@@ -150,17 +149,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             {'jubilant': jubilant, 'juju': juju, 'status': status},
         )
 
-    wait_kwargs: dict[str, Any] = {
-        'ready': _helper(args.ready),
-        'delay': args.delay,
-        'timeout': args.timeout,
-        'successes': args.successes,
-    }
-    if args.error is not None:
-        wait_kwargs['error'] = _helper(args.error)
-
     try:
-        juju.wait(**wait_kwargs)
+        juju.wait(
+            ready=_helper(args.ready),
+            error=_helper(args.error) if args.error else None,
+            delay=args.delay,
+            timeout=args.timeout,
+            successes=args.successes,
+        )
     except jubilant.WaitError:
         logger.error('Error expression evaluated to true (%s)', args.error)
         return 1

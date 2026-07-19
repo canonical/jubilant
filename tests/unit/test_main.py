@@ -79,10 +79,11 @@ def test_defaults_no_error_expression(mock_wait: MagicMock) -> None:
             'ready',
             'delay',
             'timeout',
+            'error',
             'successes',
         ]
     )
-    assert 'error' not in kwargs
+    assert kwargs['error'] is None
 
 
 def test_defaults_with_error_expression(mock_wait: MagicMock) -> None:
