@@ -104,14 +104,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     wait_parser.add_argument(
-        '-e',
         '--error',
         default=None,
         help='The Python expression for the error condition.',
     )
 
     wait_parser.add_argument(
-        '-d',
         '--delay',
         type=float,
         default=1.0,
@@ -119,7 +117,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     wait_parser.add_argument(
-        '-t',
         '--timeout',
         type=float,
         default=180.0,
@@ -127,7 +124,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     wait_parser.add_argument(
-        '-s',
         '--successes',
         type=int,
         default=3,
