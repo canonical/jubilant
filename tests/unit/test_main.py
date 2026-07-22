@@ -34,6 +34,15 @@ def test_parse_wait_okay(argv_str: str, mock_wait: MagicMock) -> None:
     assert mock_wait.call_count == 1
 
 
+def test_parse_version(mock_wait: MagicMock) -> None:
+    """Test parsing the version command."""
+
+    exit_code = main(['version'])
+
+    assert exit_code == 0
+    assert mock_wait.call_count == 0  # Print version and exit.
+
+
 @pytest.mark.parametrize(
     'argv_str',
     [

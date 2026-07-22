@@ -146,8 +146,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = arg_parser.parse_args(argv)
 
     if args.command == 'version':
-        print(f'jubilant {jubilant.__version__}')
+        print(f'jubilant {jubilant.__version__}', file=sys.stderr)
         return 0
+    elif args.command != 'wait':
+        arg_parser.print_usage(file=sys.stderr)
+        return 1
 
     if args.quiet:
         configure_logging(logging.WARNING)
@@ -155,10 +158,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         configure_logging(logging.DEBUG)
     else:
         configure_logging(logging.INFO)
-
-    if args.command != 'wait':
-        arg_parser.print_usage()
-        return 1
 
     juju = jubilant.Juju(cli_binary=args.juju_cli_bin)
 
