@@ -93,31 +93,6 @@ This code deploys the `snappass-test` charm from Charmhub.
 
 To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju.deploy('/path/to/mycharm.charm')`. For an example, see "Write your tests" in {external+operator:ref}`How to write integration tests for a charm <write-integration-tests-for-a-charm-write-your-tests>`.
 
-## Fall back to `Juju.cli` if needed
-
-Many common Juju commands are already defined on the `Juju` class, such as [`deploy`](jubilant.Juju.deploy) and [`integrate`](jubilant.Juju.integrate).
-
-However, if you want to run a Juju command that's not yet defined in Jubilant, you can fall back to calling the [`Juju.cli`](jubilant.Juju.cli) method. For example, to fetch a model configuration value using `juju model-config`:
-
-```python
->>> import json
->>> import jubilant
->>> juju = jubilant.Juju(model='test')
->>> stdout = juju.cli('model-config', '--format=json')
->>> result = json.loads(stdout)
->>> result['automatically-retry-hooks']['Value']
-True
-```
-
-By default, `Juju.cli` adds a `--model=<model>` parameter if the `Juju` instance has a model set. To prevent this for commands not specific to a model, specify `include_model=False`:
-
-```python
->>> stdout = juju.cli('controllers', '--format=json', include_model=False)
->>> result = json.loads(stdout)
->>> result['controllers']['concierge-k8s']['uuid']
-'cda7763e-05fc-4e55-80ab-7b39badaa50d'
-```
-
 (next_steps)=
 ## Next steps
 
