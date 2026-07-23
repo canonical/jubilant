@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Run arbitrary Juju CLI commands with Juju.cli when a Jubilant method isn't available yet.
+    description: Run arbitrary Juju CLI commands when they are not yet defined in Jubilant.
 ---
 
 (fall_back_to_cli)=

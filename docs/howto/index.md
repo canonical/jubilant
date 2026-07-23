@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Task-oriented how-to guides for using Jubilant in integration tests and scripts.
+    description: How-to guides for using Jubilant.
 ---
 
 (how-to-guides)=

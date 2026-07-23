@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Define custom wait conditions for Juju.wait using lambdas, named functions, and status helpers.
+    description: Define custom wait conditions for Juju.wait using lambdas, and status helpers.
 ---
 
 (use_a_custom_wait_condition)=

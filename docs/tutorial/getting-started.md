@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Install Jubilant, check your setup, deploy a charm, and learn where to go next.
+    description: Jubilant tutorial, installing and basic usages.
 ---
 
 # Getting started with Jubilant
