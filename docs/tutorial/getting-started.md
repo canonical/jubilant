@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: Install Jubilant, check your setup, deploy a charm, and learn where to go next.
+---
+
 # Getting started with Jubilant
 
 In this tutorial, we'll learn how to install Jubilant and use it to run Juju commands.
