@@ -6,20 +6,11 @@ import argparse
 import logging
 import sys
 import textwrap
-import time
 from collections.abc import Callable, Sequence
 
 import jubilant
 
 logger = logging.getLogger('jubilant.cli')
-
-# ISO 8601.
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-
-# ISO 8601 requires UTC.
-class _UTCFormatter(logging.Formatter):
-    converter = time.gmtime
 
 
 def configure_logging(level: int) -> None:
@@ -32,14 +23,12 @@ def configure_logging(level: int) -> None:
     handler = logging.StreamHandler(sys.stderr)
 
     if level <= logging.DEBUG:
-        formatter = _UTCFormatter(
+        formatter = logging.Formatter(
             fmt='%(asctime)s %(levelname)s %(name)s %(message)s',
-            datefmt=DATE_FORMAT,
         )
     else:
-        formatter = _UTCFormatter(
+        formatter = logging.Formatter(
             fmt='%(asctime)s %(message)s',
-            datefmt=DATE_FORMAT,
         )
 
     handler.setFormatter(formatter)
@@ -49,7 +38,9 @@ def configure_logging(level: int) -> None:
 
 def main(argv: Sequence[str] | None = None) -> int:
     """The main entrypoint."""
-    arg_parser = argparse.ArgumentParser('jubilant')
+    arg_parser = argparse.ArgumentParser(
+        'jubilant',
+    )
 
     group = arg_parser.add_mutually_exclusive_group()
 
@@ -81,18 +72,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     wait_description: str = """
     The wait command queries Juju status and checks that the ready condition succeeds
-    three times in a row.
+    a number of times in a row (default 3).
 
     Use --error to terminate the command early with a condition.
 
     Both ready and --error accept Python expressions. Those expressions have accesses to
-    the jubilant module, the jubilant.Juju instance, and the jubilant.Status object.
-
-    Set a timeout in seconds for this command with --timeout.
-
-    Set the delay in seconds between each Juju status query with --delay.
-
-    Set the number of consecutive successes the ready condition must have with --successes.
+    three variables: "jubilant" (the jubilant module), "juju" (the jubilant.Juju instance),
+    and "status" (the jubilant.Status object).
 
     Examples:
         juju.wait(jubilant.all_active)
@@ -103,7 +89,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     can be run from the CLI as:
         jubilant wait jubilant.all_active
-        jubilant wait "jubilant.all_active(status, 'snappass-test')"
+        jubilant wait 'jubilant.all_active(status, "snappass-test")'
     """
     wait_parser = sub_parser.add_parser(
         name='wait',
@@ -117,36 +103,39 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     wait_parser.add_argument(
-        '--error',
-        default=None,
-        help='The Python expression for the error condition.',
-    )
-
-    wait_parser.add_argument(
         '--delay',
         type=float,
         default=1.0,
-        help='Delay in seconds between status calls. Default: 1.0',
+        help='Delay in seconds between status calls. (default: %(default)s)',
+    )
+
+    wait_parser.add_argument(
+        '--error',
+        default=None,
+        help='The Python expression for the error condition. (default: %(default)s)',
     )
 
     wait_parser.add_argument(
         '--timeout',
         type=float,
         default=180.0,
-        help='Overall timeout in seconds. Default: 180.0',
+        help='Overall timeout in seconds. (default: %(default)s)',
     )
 
     wait_parser.add_argument(
         '--successes',
         type=int,
         default=3,
-        help='Number of times `ready` must evaluate to True for the wait to succeed. Default: 3',
+        help=(
+            'Number of times `ready` must evaluate to True for the wait to succeed. '
+            '(default: %(default)s)'
+        ),
     )
 
     args = arg_parser.parse_args(argv)
 
     if args.command == 'version':
-        print(f'jubilant {jubilant.__version__}', file=sys.stderr)
+        print(jubilant.__version__)
         return 0
     elif args.command != 'wait':
         arg_parser.print_usage(file=sys.stderr)
