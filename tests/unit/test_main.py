@@ -51,7 +51,7 @@ def test_parse_version(mock_wait: MagicMock) -> None:
             id='missing_ready',
         ),
         pytest.param(
-            'wait --uknown-argument',
+            'wait --unknown-argument',
             id='unknown_argument',
         ),
         pytest.param(

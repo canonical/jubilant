@@ -64,8 +64,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     sub_parser = arg_parser.add_subparsers(dest='command')
 
-    # version subcommand
-    _ = sub_parser.add_parser(
+    sub_parser.add_parser(
         name='version',
         description='Show the version.',
     )
@@ -76,20 +75,16 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Use --error to terminate the command early with a condition.
 
-    Both ready and --error accept Python expressions. Those expressions have accesses to
+    Both ready and --error accept Python expressions. Those expressions have access to
     three variables: "jubilant" (the jubilant module), "juju" (the jubilant.Juju instance),
     and "status" (the jubilant.Status object).
 
     Examples:
-        juju.wait(jubilant.all_active)
+        juju.wait(jubilant.all_active)  # CLI: jubilant wait jubilant.all_active
         juju.wait(
             lambda status: jubilant.all_active(status, 'snappass-test'),
             error=jubilant.any_error,
-        )
-
-    can be run from the CLI as:
-        jubilant wait jubilant.all_active
-        jubilant wait 'jubilant.all_active(status, "snappass-test")'
+        )  # CLI: jubilant wait 'jubilant.all_active(status, "snappass-test")'
     """
     wait_parser = sub_parser.add_parser(
         name='wait',
@@ -99,7 +94,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     wait_parser.add_argument(
         'ready',
-        help='The Python expression for the ready condition.',
+        help='Python expression for the ready condition.',
     )
 
     wait_parser.add_argument(
@@ -112,7 +107,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     wait_parser.add_argument(
         '--error',
         default=None,
-        help='The Python expression for the error condition. (default: %(default)s)',
+        help='Python expression for the error condition. (default: %(default)s)',
     )
 
     wait_parser.add_argument(
@@ -127,7 +122,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=int,
         default=3,
         help=(
-            'Number of times `ready` must evaluate to True for the wait to succeed. '
+            'Number of times `ready` must evaluate to true for the wait to succeed. '
             '(default: %(default)s)'
         ),
     )
@@ -169,7 +164,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
     except TimeoutError:
         logger.error('Wait timed out after %s seconds', args.timeout)
-        return 1
+        return 124
     except Exception as error:
         logger.error(
             'Exception evaluating "ready" or "error": %s: %s',
@@ -182,5 +177,5 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     raise SystemExit(main())
