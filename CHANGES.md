@@ -3,6 +3,7 @@
 ## Features
 
 * Improve Jubilant logging mechanism (#351)
+* Bump minimum python version to 3.10 (#370)
 
 ## Chores
 
@@ -15,7 +16,6 @@
 
 * Adopt new dependabot conventions (#365)
 * Hash-pin actions and drop zizmor config (#366)
-* Bump minimum python version to 3.10 (#370)
 * Correct hash-pin version comment for upload-sarif action (#376)
 * Pin action version comments to exact tags (#378)
 
