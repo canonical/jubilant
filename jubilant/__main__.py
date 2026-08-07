@@ -44,10 +44,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     group = arg_parser.add_mutually_exclusive_group()
 
-    group.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Increase verbosity.',
+    arg_parser.add_argument(
+        '--model',
+        help='The Juju model to operate on, otherwise use the current Juju model.',
+    )
+
+    arg_parser.add_argument(
+        '--juju-cli-bin',
+        help='Path to the Juju CLI binary.',
     )
 
     group.add_argument(
@@ -56,10 +60,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         help='Suppress all output except errors.',
     )
 
-    arg_parser.add_argument(
-        '--juju-cli-bin',
-        default='juju',
-        help='Path to the Juju CLI binary. Default: juju',
+    group.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Increase verbosity.',
     )
 
     sub_parser = arg_parser.add_subparsers(dest='command')
@@ -143,7 +147,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         configure_logging(logging.INFO)
 
-    juju = jubilant.Juju(cli_binary=args.juju_cli_bin)
+    juju = jubilant.Juju(cli_binary=args.juju_cli_bin, model=args.model)
 
     def _helper(expression: str) -> Callable[[jubilant.Status], bool]:
         return lambda status: eval(  # noqa: S307

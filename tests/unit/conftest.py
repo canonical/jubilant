@@ -55,3 +55,11 @@ def mock_wait(monkeypatch: pytest.MonkeyPatch) -> Generator[MagicMock]:
     mock = MagicMock()
     monkeypatch.setattr('jubilant.Juju.wait', mock)
     yield mock
+
+
+@pytest.fixture
+def mock_juju(monkeypatch: pytest.MonkeyPatch) -> Generator[MagicMock]:
+    """Pytest fixture that patches jubilant.Juju with a MagicMock."""
+    mock = MagicMock()
+    monkeypatch.setattr('jubilant.Juju', mock)
+    yield mock

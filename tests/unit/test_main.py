@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -20,7 +21,7 @@ from .fake_statuses import MINIMAL_JSON, SNAPPASS_JSON
     [
         'wait status.model.name=="mdl"',
         'wait status.model.name=="mdl" --error status.apps["snappass-test"].app_status.current=="error"',
-        'wait True --error False --timeout 10.0 --successes 3 --delay 2.0',
+        '--model mycontroller:alice/my-model --juju-cli-bin foo wait True --error False --timeout 10.0 --successes 3 --delay 2.0',
         '--verbose wait status.model.name=="mdl"',
         '--quiet wait status.model.name=="mdl"',
     ],
@@ -34,13 +35,18 @@ def test_parse_wait_okay(argv_str: str, mock_wait: MagicMock) -> None:
     assert mock_wait.call_count == 1
 
 
-def test_parse_version(mock_wait: MagicMock) -> None:
+def test_parse_version(capsys: pytest.CaptureFixture[str], mock_wait: MagicMock) -> None:
     """Test parsing the version command."""
 
     exit_code = main(['version'])
 
     assert exit_code == 0
     assert mock_wait.call_count == 0  # Print version and exit.
+    captured = capsys.readouterr()
+
+    # Assert only the version string exists in stdout.
+    version_pattern = r'^\d+\.\d+\.\d+$'
+    assert re.match(version_pattern, captured.out.strip())  # strip the newline from print
 
 
 @pytest.mark.parametrize(
@@ -186,7 +192,7 @@ def test_timeout_error_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr('jubilant.Juju.wait', raise_timeout_error)
 
     exit_code = main(['wait', 'True'])
-    assert exit_code == 1
+    assert exit_code == 124
 
 
 @pytest.mark.parametrize(
@@ -198,14 +204,15 @@ def test_timeout_error_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
 )
 def test_exception_from_ready_expression(
     expression: str,
-    mock_wait: MagicMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def _helper(*args: Any, **kwargs: Any) -> None:
-        kwargs['ready'](MagicMock())
+    def raise_ready_error(*args: Any, **kwargs: Any) -> None:
+        eval(expression)
 
-    mock_wait.side_effect = _helper
+    monkeypatch.setattr('jubilant.Juju.wait', raise_ready_error)
 
-    assert main(['wait', expression]) != 0
+    exit_code = main(['wait', 'True'])
+    assert exit_code != 0
 
 
 def test_juju_cli_bin(mock_wait: MagicMock) -> None:
@@ -234,3 +241,27 @@ def test_juju_cli_bin_default(mock_wait: MagicMock) -> None:
     status = Status._from_dict(json.loads(MINIMAL_JSON))
 
     assert wait_kwargs['ready'](status)
+
+
+def test_model(mock_juju: MagicMock) -> None:
+    exit_code = main([
+        '--model',
+        'mycontroller:alice/my-model',
+        'wait',
+        'True',
+    ])
+    assert exit_code == 0
+
+    wait_kwargs = mock_juju.call_args.kwargs
+    assert wait_kwargs['model'] == 'mycontroller:alice/my-model'
+
+
+def test_model_none(mock_juju: MagicMock) -> None:
+    exit_code = main([
+        'wait',
+        'True',
+    ])
+    assert exit_code == 0
+
+    wait_kwargs = mock_juju.call_args.kwargs
+    assert wait_kwargs['model'] is None
