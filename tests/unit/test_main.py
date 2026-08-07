@@ -11,7 +11,7 @@ import pytest
 
 import jubilant
 from jubilant import Status
-from jubilant.__main__ import main
+from jubilant._main import main
 
 from .fake_statuses import MINIMAL_JSON, SNAPPASS_JSON
 
