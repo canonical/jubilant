@@ -45,8 +45,8 @@ def juju():
 
 
 # test_deploy.py
-def test_deploy(juju: jubilant.Juju):        # Use the "juju" fixture
-    juju.deploy('snappass-test')             # Deploy the charm
+def test_deploy(juju: jubilant.Juju):  # Use the "juju" fixture
+    juju.deploy('snappass-test')  # Deploy the charm
     status = juju.wait(jubilant.all_active)  # Wait till the app and unit are 'active'
 
     # Hit the Snappass HTTP endpoint to ensure it's up and running.
