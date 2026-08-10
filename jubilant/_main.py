@@ -77,8 +77,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     The wait command queries Juju status and checks that the ready condition succeeds
     a number of times in a row (default 3).
 
-    Use --error to terminate the command early with a condition.
-
     Both ready and --error accept Python expressions. Those expressions have access to
     three variables: "jubilant" (the jubilant module), "juju" (the jubilant.Juju instance),
     and "status" (the jubilant.Status object).
@@ -115,13 +113,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     wait_parser.add_argument(
-        '--timeout',
-        type=float,
-        default=180.0,
-        help='Overall timeout in seconds. (default: %(default)s)',
-    )
-
-    wait_parser.add_argument(
         '--successes',
         type=int,
         default=3,
@@ -129,6 +120,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             'Number of times `ready` must evaluate to true for the wait to succeed. '
             '(default: %(default)s)'
         ),
+    )
+
+    wait_parser.add_argument(
+        '--timeout',
+        type=float,
+        default=180.0,
+        help='Overall timeout in seconds. (default: %(default)s)',
     )
 
     args = arg_parser.parse_args(argv)
