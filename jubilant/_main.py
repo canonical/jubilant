@@ -147,6 +147,16 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     juju = jubilant.Juju(cli_binary=args.juju_cli_bin, model=args.model)
 
+    # The global namespace passed into eval is meant to communicate with users
+    # about what they can depend on, rather than security concerns.
+    # We expect users not to rely on other built-in modules (e.g. os).
+    #
+    # We could go further and plug the `__builtins__` hole, to avoid:
+    #   eval("__builtins__['__import__']('os').system('ls')", {}, {})
+    #
+    # However, we agreed that this is not an issue.
+    #     - Python is very hard to sandbox
+    #     - Users are unlikely to go with this approach.
     def _helper(expression: str) -> Callable[[jubilant.Status], bool]:
         return lambda status: eval(  # noqa: S307
             expression,
