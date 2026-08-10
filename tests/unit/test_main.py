@@ -206,13 +206,12 @@ def test_exception_from_ready_expression(
     expression: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    def raise_ready_error(*args: Any, **kwargs: Any) -> None:
-        eval(expression)
+    def _helper(*args: Any, **kwargs: Any) -> None:
+        kwargs['ready'](MagicMock())
 
-    monkeypatch.setattr('jubilant.Juju.wait', raise_ready_error)
+    monkeypatch.setattr('jubilant.Juju.wait', _helper)
 
-    exit_code = main(['wait', 'True'])
-    assert exit_code != 0
+    assert main(['wait', expression]) != 0
 
 
 def test_juju_cli_bin(mock_wait: MagicMock) -> None:
