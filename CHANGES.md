@@ -1,3 +1,24 @@
+# 1.12.0 - 30 Jul 2026
+
+## Features
+
+* Improve Jubilant logging mechanism (#351)
+* Bump minimum python version to 3.10 (#370)
+
+## Chores
+
+* Rolling uv exclude-newer supply-chain quarantine (#368)
+* Set dependabot commit-message prefix to "chore" (no scope) (#367)
+* Add Code of Conduct linking to Ubuntu CoC (#356)
+* Run uv lock after adding exclude-newer duration (#372)
+
+## CI
+
+* Adopt new dependabot conventions (#365)
+* Hash-pin actions and drop zizmor config (#366)
+* Correct hash-pin version comment for upload-sarif action (#376)
+* Pin action version comments to exact tags (#378)
+
 # 1.11.0 - 29 Jun 2026
 
 ## Features

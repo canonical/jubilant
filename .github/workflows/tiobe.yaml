@@ -11,15 +11,15 @@ jobs:
   TICS:
     runs-on: [self-hosted, reactive, amd64, tiobe, noble]
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39  # v8.2.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
 
         # We could store the coverage report from the regular run, but this is cheap to do
         # and keeps this isolated.
@@ -38,7 +38,7 @@ jobs:
           pip install flake8 pylint -r requirements.txt --break-system-packages
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@016a4d79f3027fe7b4a2901619a58c745ab7cadf  # v3.10.0
+        uses: tiobe/tics-github-action@333078bc527399e5916a166bd1a3a788be5a01a9  # v3.12.0
         with:
           mode: qserver
           viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
