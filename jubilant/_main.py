@@ -82,11 +82,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     and "status" (the jubilant.Status object).
 
     Examples:
-        juju.wait(jubilant.all_active)  # CLI: jubilant wait jubilant.all_active
+
+        jubilant wait 'jubilant.all_active(status)'
+
+        jubilant wait 'jubilant.all_active(status, "app")' --error 'jubilant.any_error(status)'
+
+    These are equivalent to the following Python calls:
+
+        juju.wait(jubilant.all_active)
+
         juju.wait(
-            lambda status: jubilant.all_active(status, 'snappass-test'),
+            lambda status: jubilant.all_active(status, 'app'),
             error=jubilant.any_error,
-        )  # CLI: jubilant wait 'jubilant.all_active(status, "snappass-test")'
+        )
     """
     wait_parser = sub_parser.add_parser(
         name='wait',
