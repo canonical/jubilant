@@ -46,31 +46,31 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     arg_parser.add_argument(
         '--model',
-        help='The Juju model to operate on, otherwise use the current Juju model.',
+        help='the Juju model to operate on, otherwise use the current Juju model',
     )
 
     arg_parser.add_argument(
         '--juju-cli-bin',
-        help='Path to the Juju CLI binary.',
+        help='path to the Juju CLI binary',
     )
 
     group.add_argument(
         '--quiet',
         action='store_true',
-        help='Suppress all output except errors.',
+        help='suppress all output except errors',
     )
 
     group.add_argument(
         '--verbose',
         action='store_true',
-        help='Increase verbosity.',
+        help='increase verbosity',
     )
 
     sub_parser = arg_parser.add_subparsers(dest='command')
 
     sub_parser.add_parser(
         name='version',
-        description='Show the version.',
+        description='show the version and exit',
     )
 
     wait_description: str = """
@@ -96,20 +96,20 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     wait_parser.add_argument(
         'ready',
-        help='Python expression for the ready condition.',
+        help='Python expression for the ready condition',
     )
 
     wait_parser.add_argument(
         '--delay',
         type=float,
         default=1.0,
-        help='Delay in seconds between status calls. (default: %(default)s)',
+        help='delay in seconds between status calls (default: %(default)s)',
     )
 
     wait_parser.add_argument(
         '--error',
         default=None,
-        help='Python expression for the error condition. (default: %(default)s)',
+        help='Python expression for the error condition (default: %(default)s)',
     )
 
     wait_parser.add_argument(
@@ -117,7 +117,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=int,
         default=3,
         help=(
-            'Number of times `ready` must evaluate to true for the wait to succeed. '
+            'number of times `ready` must evaluate to true for the wait to succeed '
             '(default: %(default)s)'
         ),
     )
@@ -126,7 +126,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--timeout',
         type=float,
         default=180.0,
-        help='Overall timeout in seconds. (default: %(default)s)',
+        help='overall timeout in seconds (default: %(default)s)',
     )
 
     args = arg_parser.parse_args(argv)
