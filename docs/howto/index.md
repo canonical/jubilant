@@ -16,7 +16,7 @@ Define your own conditions for `Juju.wait`.
 ```{toctree}
 :maxdepth: 1
 
-Use a custom wait condition <wait-on-custom-condition>
+Use a custom wait condition <use-a-custom-wait-condition>
 ```
 
 ## Running Juju commands
