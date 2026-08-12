@@ -5,7 +5,7 @@
 :hidden: true
 
 Tutorial <tutorial/getting-started>
-howto/index
+how-to/index
 reference/index
 explanation/index
 ```
@@ -26,7 +26,7 @@ You should switch to Jubilant if your integration tests currently use [pytest-op
 ## In this documentation
 
 - [Tutorial: Getting started with Jubilant](tutorial/getting-started)
-- [How-to guides](howto/index)
+- [How-to guides](how-to/index)
 - [Design goals](explanation/design-goals)
 - [API reference](reference/jubilant)
 
