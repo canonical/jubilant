@@ -105,7 +105,7 @@ To deploy a charm from a `.charm` file (created by `charmcraft pack`), use `juju
 You've now learned the basics of Jubilant! To learn more:
 
 - Look over the [`jubilant` API reference](/reference/jubilant)
-- See the [How-to guides](/howto/index) for more Jubilant features.
+- See the [How-to guides](/how-to/index) for more Jubilant features.
 - For examples of using Jubilant in integration tests, see the [httpbin-demo charm's integration tests](https://github.com/canonical/operator/tree/main/examples/httpbin-demo/tests/integration) or [Jubilant's own integration tests](https://github.com/canonical/jubilant/tree/main/tests/integration)
 
 If you have any problems or want to request new features, please [open an issue](https://github.com/canonical/jubilant/issues/new).
