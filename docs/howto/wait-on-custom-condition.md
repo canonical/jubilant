@@ -1,11 +1,11 @@
 ---
 myst:
   html_meta:
-    description: Define custom wait conditions for Juju.wait using lambdas, and status helpers.
+    description: Define custom conditions for Juju.wait, using lambdas and status helpers.
 ---
 
 (use_a_custom_wait_condition)=
-# How to wait on a custom condition
+# How to use a custom wait condition
 
 When waiting on a condition with [`Juju.wait`](jubilant.Juju.wait), you can use pre-defined helpers including [](jubilant.all_active) and [](jubilant.any_error). You can also define custom conditions for the *ready* and *error* parameters. This is typically done with inline `lambda` functions.
 

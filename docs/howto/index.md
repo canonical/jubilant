@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: How-to guides for using Jubilant.
+    description: Learn how to use individual features of Jubilant.
 ---
 
 (how-to-guides)=
@@ -11,6 +11,8 @@ These guides walk you through using Jubilant in your integration tests.
 
 ## Writing wait conditions
 
+Define your own conditions for `Juju.wait`.
+
 ```{toctree}
 :maxdepth: 1
 
@@ -18,6 +20,8 @@ Use a custom wait condition <wait-on-custom-condition>
 ```
 
 ## Running Juju commands
+
+Run Juju commands that aren't yet defined in Jubilant.
 
 ```{toctree}
 :maxdepth: 1

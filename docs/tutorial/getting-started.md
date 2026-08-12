@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Jubilant tutorial, installing and basic usages.
+    description: Learn how to install Jubilant and use Jubilant to deploy a charm in a Juju model.
 ---
 
 # Getting started with Jubilant
