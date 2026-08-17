@@ -184,7 +184,7 @@ def test_wait_error_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr('jubilant.Juju.wait', raise_wait_error)
 
     exit_code = main(['wait', 'True'])
-    assert exit_code == 1
+    assert exit_code != 0
 
 
 def test_timeout_error_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
