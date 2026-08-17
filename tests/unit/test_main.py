@@ -78,8 +78,10 @@ def test_parse_error(argv_str: str) -> None:
 def test_parse_empty() -> None:
     """Test running the CLI without any arguments."""
 
-    exit_code = main([])
-    assert exit_code != 0
+    with pytest.raises(SystemExit) as exc_info:
+        main([])
+
+    assert exc_info.value.code != 0
 
 
 def test_defaults_no_error_expression(mock_wait: MagicMock) -> None:
@@ -193,6 +195,16 @@ def test_timeout_error_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
 
     exit_code = main(['wait', 'True'])
     assert exit_code == 124
+
+
+def test_keyboard_interrupt_while_waiting_exits_nonzero(monkeypatch: pytest.MonkeyPatch) -> None:
+    def raise_keyboard_interrupt(*args: Any, **kwargs: Any) -> None:
+        raise KeyboardInterrupt()
+
+    monkeypatch.setattr('jubilant.Juju.wait', raise_keyboard_interrupt)
+
+    exit_code = main(['wait', 'True'])
+    assert exit_code == 130
 
 
 @pytest.mark.parametrize(
