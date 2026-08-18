@@ -22,8 +22,10 @@ from .fake_statuses import MINIMAL_JSON, SNAPPASS_JSON
         'wait status.model.name=="mdl"',
         'wait status.model.name=="mdl" --error status.apps["snappass-test"].app_status.current=="error"',
         '--model mycontroller:alice/my-model --juju-cli-bin foo wait True --error False --timeout 10.0 --successes 3 --delay 2.0',
-        '--verbose wait status.model.name=="mdl"',
-        '--quiet wait status.model.name=="mdl"',
+        'wait status.model.name=="mdl" --verbose',
+        'wait status.model.name=="mdl" --quiet',
+        'wait --verbose status.model.name=="mdl"',
+        'wait --quiet status.model.name=="mdl"',
     ],
 )
 def test_parse_wait_okay(argv_str: str, mock_wait: MagicMock) -> None:
@@ -67,6 +69,10 @@ def test_parse_version(capsys: pytest.CaptureFixture[str], mock_wait: MagicMock)
         pytest.param(
             'unknown-command --some-argument',
             id='unknown_command',
+        ),
+        pytest.param(
+            'wait True --verbose --quiet',
+            id='one_verbosity_argument_only',
         ),
     ],
 )

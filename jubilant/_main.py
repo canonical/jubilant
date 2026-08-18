@@ -36,6 +36,20 @@ def configure_logging(level: int) -> None:
     root_logger.setLevel(level)
 
 
+def _add_verbosity_args(subparser: argparse.ArgumentParser) -> None:
+    verbosity_group = subparser.add_mutually_exclusive_group()
+    verbosity_group.add_argument(
+        '--quiet',
+        action='store_true',
+        help='suppress all output except errors',
+    )
+    verbosity_group.add_argument(
+        '--verbose',
+        action='store_true',
+        help='increase verbosity',
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """The main entrypoint."""
     arg_parser = argparse.ArgumentParser(
@@ -48,18 +62,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     arg_parser.add_argument(
         '--juju-cli-bin',
         help='path to the Juju CLI binary',
-    )
-
-    verbosity_group = arg_parser.add_mutually_exclusive_group()
-    verbosity_group.add_argument(
-        '--quiet',
-        action='store_true',
-        help='suppress all output except errors',
-    )
-    verbosity_group.add_argument(
-        '--verbose',
-        action='store_true',
-        help='increase verbosity',
     )
 
     cmd_subparsers = arg_parser.add_subparsers(dest='command', required=True)
@@ -125,6 +127,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=180.0,
         help='overall timeout in seconds (default: %(default)s)',
     )
+    _add_verbosity_args(wait_parser)
 
     args = arg_parser.parse_args(argv)
 
