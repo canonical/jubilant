@@ -50,18 +50,21 @@ def _add_verbosity_args(subparser: argparse.ArgumentParser) -> None:
     )
 
 
+def _add_juju_args(subparser: argparse.ArgumentParser) -> None:
+    subparser.add_argument(
+        '--juju-cli-bin',
+        help='path to the Juju CLI binary',
+    )
+    subparser.add_argument(
+        '--model',
+        help='the Juju model to operate on, otherwise use the current Juju model',
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """The main entrypoint."""
     arg_parser = argparse.ArgumentParser(
         'jubilant',
-    )
-    arg_parser.add_argument(
-        '--model',
-        help='the Juju model to operate on, otherwise use the current Juju model',
-    )
-    arg_parser.add_argument(
-        '--juju-cli-bin',
-        help='path to the Juju CLI binary',
     )
 
     cmd_subparsers = arg_parser.add_subparsers(dest='command', required=True)
@@ -127,6 +130,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=180.0,
         help='overall timeout in seconds (default: %(default)s)',
     )
+    _add_juju_args(wait_parser)
     _add_verbosity_args(wait_parser)
 
     args = arg_parser.parse_args(argv)

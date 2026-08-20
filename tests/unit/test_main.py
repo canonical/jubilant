@@ -21,7 +21,7 @@ from .fake_statuses import MINIMAL_JSON, SNAPPASS_JSON
     [
         'wait status.model.name=="mdl"',
         'wait status.model.name=="mdl" --error status.apps["snappass-test"].app_status.current=="error"',
-        '--model mycontroller:alice/my-model --juju-cli-bin foo wait True --error False --timeout 10.0 --successes 3 --delay 2.0',
+        'wait --model mycontroller:alice/my-model --juju-cli-bin foo True --error False --timeout 10.0 --successes 3 --delay 2.0',
         'wait status.model.name=="mdl" --verbose',
         'wait status.model.name=="mdl" --quiet',
         'wait --verbose status.model.name=="mdl"',
@@ -234,9 +234,9 @@ def test_exception_from_ready_expression(
 
 def test_juju_cli_bin(mock_wait: MagicMock) -> None:
     exit_code = main([
+        'wait',
         '--juju-cli-bin',
         '/snap/juju',
-        'wait',
         'juju.cli_binary=="/snap/juju"',
     ])
     assert exit_code == 0
@@ -262,9 +262,9 @@ def test_juju_cli_bin_default(mock_wait: MagicMock) -> None:
 
 def test_model(mock_juju: MagicMock) -> None:
     exit_code = main([
+        'wait',
         '--model',
         'mycontroller:alice/my-model',
-        'wait',
         'True',
     ])
     assert exit_code == 0
