@@ -36,6 +36,8 @@ The library does not introduce any new security risks beyond directly running Ju
 
 Jubilant does not use any cryptographic technology, hashing, or digital signatures. All cryptographic operations (TLS, credential storage, API authentication) are handled by the Juju CLI and the Juju controller.
 
+There is correspondingly nothing to configure for data in transit or at rest. Jubilant opens no network connections, so the TLS protecting a controller connection is the CLI's to enable and configure. It stores nothing persistently either; the one thing it writes to disk is a temporary file used to pass a secret to the CLI without exposing it in the process arguments, deleted when the call returns. That file goes in the system temporary directory, or in `~/snap/juju/common` when the Juju CLI is a snap, since a confined snap cannot read `/tmp`.
+
 ## Configuring and operating
 
 ### Hardening guidelines
@@ -59,6 +61,8 @@ For security-relevant events (login failures, credential errors, controller acce
 
 Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's `stdout` and `stderr`, so any value the Juju CLI itself echoes there would be exposed.
 
+Everything Jubilant emits goes through the `jubilant` logger, so that handler is the only control point: raise its level to capture less, or configure no handler at all to opt out entirely. There are no alerts to configure and no masking beyond the temporary files above, so a test is responsible for keeping secrets out of its own log messages, and for not printing a `CLIError` traceback somewhere the output is kept.
+
 ## Decommissioning
 
 Removing Jubilant from a project requires no special decommissioning steps. Remove `jubilant` from your `pyproject.toml` and re-lock dependencies. Jubilant stores no credentials, configuration, or logs of its own. Any Juju environments provisioned during testing should be destroyed using the Juju CLI (`juju destroy-controller`, `juju destroy-model`) independently of removing Jubilant.
@@ -70,6 +74,8 @@ Jubilant follows [semantic versioning](https://semver.org/). Security updates ar
 **Receiving security updates.** Restrict the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock dependencies. For example, `jubilant~=1.2` allows upgrades to 1.3, 1.4, and so on, while staying on the 1.x line.
 
 **Detecting available updates.** Configure Dependabot or Renovate in your charm repository so that security updates are surfaced automatically as pull requests. Re-lock dependencies when prompted so that the charm tests run with the latest version.
+
+**Scheduling and postponing updates.** An update reaches you when you re-lock, so re-lock on a cadence rather than when someone happens to notice. Pinning to an exact version, or turning off the automated proposals above, postpones updates indefinitely: a published fix will not reach you until the pin is lifted. Jubilant runs with the credentials of whoever runs the tests, and against real controllers, so a machine or CI runner on a known-vulnerable version stays exposed for the whole of that delay.
 
 **Verifying an update.** Security releases are announced via [GitHub Security Advisories](https://github.com/canonical/jubilant/security/advisories) and as GitHub release notes. Verify that the installed version matches a published release by running `pip show jubilant` or `uv pip show jubilant` in the test environment.
 
