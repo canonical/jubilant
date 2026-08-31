@@ -2,20 +2,12 @@
 
 ## Features
 
-* Expose wait to CLI in (#374)
+* Expose wait to CLI (#374)
 
 ## Documentation
 
-* Extract howto guides from the tutorial in (#383)
-* Update `juju.wait` doc string; update title of `run-juju-cli-command` how-to page; update `juju.cli` example in (#396)
-
-## Chores
-
-* Bump cryptography from 48.0.1 to 49.0.0 in (#390)
-* Bump cryptography from 49.0.0 to 50.0.0 in (#394)
-* Bump the actions group with 6 updates in (#391)
-* Bump the test-deps group with 2 updates in (#387)
-* Bump the dev-tooling group across 1 directory with 4 updates in (#388)
+* Extract howto guides from the tutorial (#383)
+* Update `juju.wait` doc string; update title of `run-juju-cli-command` how-to page; update `juju.cli` example (#396)
 
 # 1.12.0 - 30 Jul 2026
 
