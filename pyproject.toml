@@ -34,8 +34,8 @@ dev = [
     "pyright==1.1.411",
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
-    "ruff==0.16.0",
-    "zizmor==1.28.0; python_version >= '3.10'",
+    "ruff==0.16.4",
+    "zizmor==1.29.0; python_version >= '3.10'",
 ]
 
 [build-system]
