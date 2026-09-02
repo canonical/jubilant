@@ -36,8 +36,6 @@ The library does not introduce any new security risks beyond directly running Ju
 
 Jubilant does not use any cryptographic technology, hashing, or digital signatures. All cryptographic operations (TLS, credential storage, API authentication) are handled by the Juju CLI and the Juju controller.
 
-There is correspondingly nothing to configure for data in transit or at rest. Jubilant opens no network connections, so the TLS protecting a controller connection is the CLI's to enable and configure. Nothing is stored persistently: the temporary files described under [Product architecture](#product-architecture) are the only disk writes, and each is removed when the call returns.
-
 ## Configuring and operating
 
 ### Hardening guidelines
