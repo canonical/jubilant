@@ -59,7 +59,7 @@ For security-relevant events (login failures, credential errors, controller acce
 
 Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's `stdout` and `stderr`, so any value the Juju CLI itself echoes there would be exposed.
 
-In a test suite, everything Jubilant emits goes through the `jubilant` logger, so that handler is the only control point: raise its level to capture less, or configure no handler at all to opt out entirely. The `jubilant` command-line tool is different, and attaches its own handler to the root logger at a level set by `-q`/`-v`. There are no alerts to configure and no masking beyond the temporary files above, so a test is responsible for keeping secrets out of its own log messages, and for not printing `CLIError` tracebacks or `debug_log()` output somewhere the output is kept: neither passes through the logger.
+In a test suite, everything Jubilant emits goes through the `jubilant` logger, so that handler is the only control point: raise its level to capture less, or configure no handler at all to opt out entirely. The `jubilant` command-line tool is different, and attaches its own handler to the root logger at a level set by `-q`/`-v`. There are no alerts to configure and no masking beyond the temporary files above, so a test is responsible for keeping secrets out of its own log messages, and for not printing a `CLIError` traceback or `debug_log()` output somewhere the output is kept: neither passes through the logger.
 
 ## Decommissioning
 
