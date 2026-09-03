@@ -59,6 +59,10 @@ For security-relevant events (login failures, credential errors, controller acce
 
 Secret and credential values are written to temporary files rather than CLI arguments, so they do not appear in Jubilant's logs. The exception is `CLIError`, raised on a Juju CLI failure: its traceback includes the CLI's `stdout` and `stderr`, so any value the Juju CLI itself echoes there would be exposed.
 
+In a test suite, everything Jubilant emits goes through the `jubilant` logger. Raise its level to capture less, or remove the handler to opt out. The `jubilant` command-line tool is different, and attaches its own handler to the root logger at a level set by `-q`/`-v`.
+
+There are no alerts to configure and no masking beyond the temporary files described above. Each test is responsible for keeping secrets out of log messages, and for not printing a `CLIError` traceback or `debug_log()` output somewhere the output is kept — both bypass the `jubilant` logger.
+
 ## Decommissioning
 
 Removing Jubilant from a project requires no special decommissioning steps. Remove `jubilant` from your `pyproject.toml` and re-lock dependencies. Jubilant stores no credentials, configuration, or logs of its own. Any Juju environments provisioned during testing should be destroyed using the Juju CLI (`juju destroy-controller`, `juju destroy-model`) independently of removing Jubilant.
@@ -70,6 +74,8 @@ Jubilant follows [semantic versioning](https://semver.org/). Security updates ar
 **Receiving security updates.** Restrict the version of `jubilant` in `pyproject.toml` in a way that allows picking up new compatible releases every time that you re-lock dependencies. For example, `jubilant~=1.2` allows upgrades to 1.3, 1.4, and so on, while staying on the 1.x line.
 
 **Detecting available updates.** Configure Dependabot or Renovate in your charm repository so that security updates are surfaced automatically as pull requests. Re-lock dependencies when prompted so that the charm tests run with the latest version.
+
+**Scheduling and postponing updates.** An update reaches you when you re-lock, so re-lock regularly rather than when someone notices a new version. Pinning to an exact version, or turning off the automated proposals above, postpones updates indefinitely. Jubilant runs with the credentials of whoever runs the tests, and against real controllers, so a machine or CI runner on a known-vulnerable version stays exposed until you re-lock.
 
 **Verifying an update.** Security releases are announced via [GitHub Security Advisories](https://github.com/canonical/jubilant/security/advisories) and as GitHub release notes. Verify that the installed version matches a published release by running `pip show jubilant` or `uv pip show jubilant` in the test environment.
 
