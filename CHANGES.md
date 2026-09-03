@@ -1,3 +1,14 @@
+# 1.13.0 - 31 Aug 2026
+
+## Features
+
+* Expose wait to CLI (#374)
+
+## Documentation
+
+* Extract howto guides from the tutorial (#383)
+* Update `juju.wait` doc string; update title of `run-juju-cli-command` how-to page; update `juju.cli` example (#396)
+
 # 1.12.0 - 30 Jul 2026
 
 ## Features
