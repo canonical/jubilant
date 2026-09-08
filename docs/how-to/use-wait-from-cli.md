@@ -30,13 +30,13 @@ integration = [
 
 You can run it from the root of that project with `uv`:
 
-```
+```text
 uv run --group integration jubilant wait --help
 ```
 
 You can also run it as a standalone CLI:
 
-```
+```text
 uvx --from 'jubilant>=1.13.0' jubilant wait --help
 ```
 
@@ -48,8 +48,9 @@ The `ready` and `--error` CLI arguments are passed as Python expressions, differ
 
 For example, this CLI invocation:
 
-```
-jubilant wait 'jubilant.all_active(status, "myapp")' --error 'jubilant.any_error(status)'
+```text
+jubilant wait 'jubilant.all_active(status, "myapp")' \
+    --error 'jubilant.any_error(status)'
 ```
 
 is equivalent to the following Python call:
@@ -65,7 +66,7 @@ juju.wait(
 
 By default, the CLI uses the `juju` binary on your `PATH` and operates on the current Juju model. To override either of these, use `--juju-cli-bin` and `--model`:
 
-```
+```text
 jubilant wait 'jubilant.all_active(status)' \
     --juju-cli-bin /snap/bin/juju \
     --model mymodel
@@ -77,7 +78,7 @@ See first: {external+operator:ref}`Configure Jubilant logs <write-integration-te
 
 By default, `uvx jubilant wait` follows brief logging mode:
 
-```
+```text
 $ jubilant wait 'jubilant.all_active(status)'
 
 2026-09-08 01:31:43,040 [snappass-test] status: active (snappass started)
@@ -86,7 +87,8 @@ $ jubilant wait 'jubilant.all_active(status)'
 ```
 
 Use `--quiet` to suppress all output except errors:
-```
+
+```text
 $ jubilant wait 'jubilant.all_blocked(status)' --timeout 2.0 --quiet
 
 2026-09-08 01:33:47,550 Wait timed out after 2.0 seconds
@@ -94,7 +96,7 @@ $ jubilant wait 'jubilant.all_blocked(status)' --timeout 2.0 --quiet
 
 Or `--verbose` to enable verbose logging mode:
 
-```
+```text
 $ jubilant wait 'jubilant.all_active(status)' --verbose
 
 2026-09-08 01:34:25,406 INFO jubilant.wait [snappass-test] status: active (snappass started)
@@ -131,7 +133,7 @@ $ jubilant wait 'jubilant.all_active(status)' --verbose
 
 The `--delay`, `--timeout`, and `--successes` arguments match the corresponding parameters on [`Juju.wait`](jubilant.Juju.wait). For example:
 
-```
+```text
 jubilant wait 'jubilant.all_active(status)' \
     --delay 2 \
     --timeout 600 \
