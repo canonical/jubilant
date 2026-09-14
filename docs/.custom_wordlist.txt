@@ -7,5 +7,6 @@ pytest's
 reimplementation
 teardown
 traceback
+uv
 websocket
 zizmor
