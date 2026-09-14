@@ -299,7 +299,6 @@ html_js_files = [
 intersphinx_mapping = {
     "juju": ("https://documentation.ubuntu.com/juju/3.6/", None),
     "operator": ("https://canonical.com/juju/docs/ops/latest/", None),
-    "python": ("https://docs.python.org/3", None),
 }
 
 

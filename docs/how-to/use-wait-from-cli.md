@@ -5,44 +5,27 @@ myst:
 ---
 
 (use_wait_from_cli)=
-# How to use `Juju.wait` from CLI
+# How to use `Juju.wait` from the command line
 
 See first: {ref}`use_a_custom_wait_condition`
 
-Jubilant provides an entrypoint to run [`wait`](jubilant.Juju.wait) from the CLI.
-
-```{note}
-This is only available from Jubilant v1.13.0 onwards.
-```
+Jubilant provides an entrypoint to run [`Juju.wait`](jubilant.Juju.wait) from the CLI.
 
 ## Install and run the CLI
 
-If your project defines Jubilant in a dependency group:
-
-```toml
-# pyproject.toml
-[dependency-groups]
-# Dependencies of integration tests
-integration = [
-    "jubilant>=1.13,<2"
-]
-```
-
-You can run it from the root of that project with `uv`:
+Install the CLI with `uv`:
 
 ```text
-uv run --group integration jubilant wait --help
+uv tool install jubilant
 ```
 
-You can also run it as a standalone CLI:
+General usage:
 
 ```text
-uvx --from 'jubilant>=1.13.0' jubilant wait --help
+jubilant wait
+    [--error ERROR]
+    ready
 ```
-
-The rest of this guide will not show the `uv` parts in the sample commands. Please use the suitable one for your setup.
-
-## Ready and error expressions
 
 The `ready` and `--error` CLI arguments are passed as Python expressions, different from how [`Juju.wait`](jubilant.Juju.wait) is used in code. Those expressions have access to three variables: `jubilant` (the [`jubilant`](jubilant) module), `juju` (the [`jubilant.Juju`](jubilant.Juju) instance), and `status` (the [`jubilant.Status`](jubilant.Status) object).
 
@@ -62,21 +45,25 @@ juju.wait(
 )
 ```
 
-## Setting the Juju binary and model
+```{tip}
+You can also run the CLI without installing it using `uvx`:
 
-By default, the CLI uses the `juju` binary on your `PATH` and operates on the current Juju model. To override either of these, use `--juju-cli-bin` and `--model`:
-
-```text
-jubilant wait 'jubilant.all_active(status)' \
-    --juju-cli-bin /snap/bin/juju \
-    --model mymodel
+    uvx jubilant wait --help
 ```
+
+To upgrade the CLI:
+
+```
+uv tool upgrade jubilant
+```
+
+See more: [uv | Tools](https://docs.astral.sh/uv/concepts/tools)
 
 ## Configure logging modes
 
 See first: {external+operator:ref}`Configure Jubilant logs <write-integration-tests-for-a-charm-configure-jubilant-logs>`
 
-By default, `uvx jubilant wait` follows brief logging mode:
+By default, `jubilant wait` follows brief logging mode:
 
 ```text
 $ jubilant wait 'jubilant.all_active(status)'
@@ -89,7 +76,7 @@ $ jubilant wait 'jubilant.all_active(status)'
 Use `--quiet` to suppress all output except errors:
 
 ```text
-$ jubilant wait 'jubilant.all_blocked(status)' --timeout 2.0 --quiet
+$ jubilant wait 'jubilant.all_active(status)' --timeout 2.0 --quiet
 
 2026-09-08 01:33:47,550 Wait timed out after 2.0 seconds
 ```
@@ -129,29 +116,41 @@ $ jubilant wait 'jubilant.all_active(status)' --verbose
 2026-09-08 01:34:27,856 INFO jubilant.cli Ready condition succeeded 3 times (jubilant.all_active(status))
 ```
 
-## Other arguments
+## `jubilant wait` CLI reference
 
-The `--delay`, `--timeout`, and `--successes` arguments match the corresponding parameters on [`Juju.wait`](jubilant.Juju.wait). For example:
+Usage:
 
 ```text
-jubilant wait 'jubilant.all_active(status)' \
-    --delay 2 \
-    --timeout 600 \
-    --successes 5
+jubilant wait
+    [-h]
+    [--delay DELAY]
+    [--error ERROR]
+    [--successes SUCCESSES]
+    [--timeout TIMEOUT]
+    [--juju-cli-bin JUJU_CLI_BIN]
+    [--model MODEL]
+    [--quiet | --verbose]
+    ready
+
+positional arguments:
+  ready                 Python expression for the ready condition
+
+options:
+  -h, --help            show this help message and exit
+  --delay DELAY         delay in seconds between status calls (default: 1.0)
+  --error ERROR         Python expression for the error condition (default: None)
+  --successes SUCCESSES
+                        number of times `ready` must evaluate to true for the wait to succeed
+                        (default: 3)
+  --timeout TIMEOUT     overall timeout in seconds (default: 180.0)
+  --juju-cli-bin JUJU_CLI_BIN
+                        path to the Juju CLI binary
+  --model MODEL         the Juju model to operate on, otherwise use the current Juju model
+  --quiet               suppress all output except errors
+  --verbose             increase verbosity
 ```
 
-is equivalent to the following Python call:
-
-```python
-juju.wait(
-    lambda status: jubilant.all_active(status),
-    delay=2.0,
-    timeout=600.0,
-    successes=5,
-)
-```
-
-## Exit codes
+The `jubilant wait` CLI returns the following exit codes:
 
 | Code | Meaning |
 | --- | --- |
