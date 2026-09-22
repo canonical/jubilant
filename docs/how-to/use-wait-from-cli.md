@@ -9,7 +9,9 @@ myst:
 
 See first: {ref}`use_a_custom_wait_condition`
 
-Jubilant provides an entrypoint to run [`Juju.wait`](jubilant.Juju.wait) from the CLI.
+Jubilant provides an entrypoint to run [`Juju.wait`](jubilant.Juju.wait) from the CLI. It was introduced as a replacement for `juju wait-for`, which will be removed from Juju 4.
+
+See more: [juju wait-for removed](https://canonical.com/juju/docs/juju-cli/3.6/howto/upgrade-your-juju-deployment-from-36-to-40/#juju-wait-for-removed-scripts-ci-must-change)
 
 ## Install and run the CLI
 
@@ -19,15 +21,17 @@ Install the CLI with `uv`:
 uv tool install jubilant
 ```
 
+See more: [uv | Tools](https://docs.astral.sh/uv/concepts/tools)
+
 General usage:
 
 ```text
 jubilant wait
-    [--error ERROR]
-    ready
+    [--error <ERROR>]
+    <READY>
 ```
 
-The `ready` and `--error` CLI arguments are passed as Python expressions, different from how [`Juju.wait`](jubilant.Juju.wait) is used in code. Those expressions have access to three variables: `jubilant` (the [`jubilant`](jubilant) module), `juju` (the [`jubilant.Juju`](jubilant.Juju) instance), and `status` (the [`jubilant.Status`](jubilant.Status) object).
+The `READY` and `ERROR` CLI arguments are passed as Python expressions, different from how [`Juju.wait`](jubilant.Juju.wait) is used in code. Those expressions have access to three variables: `jubilant` (the [`jubilant`](jubilant) module), `juju` (the [`jubilant.Juju`](jubilant.Juju) instance), and `status` (the [`jubilant.Status`](jubilant.Status) object).
 
 For example, this CLI invocation:
 
@@ -41,9 +45,11 @@ is equivalent to the following Python call:
 ```python
 juju.wait(
     lambda status: jubilant.all_active(status, 'myapp'),
-    error=jubilant.any_error,
+    error=lambda status: jubilant.any_error(status),
 )
 ```
+
+In code, `error` is a callable accepting `status` so you can write `error=jubilant.any_error`.
 
 ```{tip}
 You can also run the CLI without installing it using `uvx`:
@@ -56,8 +62,6 @@ To upgrade the CLI:
 ```
 uv tool upgrade jubilant
 ```
-
-See more: [uv | Tools](https://docs.astral.sh/uv/concepts/tools)
 
 ## Configure logging modes
 
