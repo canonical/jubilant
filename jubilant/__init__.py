@@ -14,7 +14,7 @@ from ._all_any import (
     any_maintenance,
     any_waiting,
 )
-from ._juju import CLIError, ConfigValue, Juju, WaitError
+from ._juju import CLIError, ConfigValue, ConstraintValue, Juju, WaitError
 from ._task import Task, TaskError
 from ._test_helpers import temp_model
 from ._version import Version
@@ -26,6 +26,7 @@ from .unittypes import UnitInfo
 __all__ = [
     'CLIError',
     'ConfigValue',
+    'ConstraintValue',
     'Juju',
     'ModelInfo',
     'RevealedSecret',
@@ -55,4 +56,4 @@ __all__ = [
     'unittypes',
 ]
 
-__version__ = '1.13.0'
+__version__ = '1.14.0'
