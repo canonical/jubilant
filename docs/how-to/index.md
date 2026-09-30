@@ -36,5 +36,5 @@ Run `Juju.wait` using a standalone tool.
 ```{toctree}
 :maxdepth: 1
 
-Use wait from CLI <use-wait-from-cli>
+Use Juju.wait from the command line <use-wait-from-cli>
 ```
