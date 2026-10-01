@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
 
         # We could store the coverage report from the regular run, but this is cheap to do
         # and keeps this isolated.
@@ -38,7 +38,7 @@ jobs:
           pip install flake8 pylint -r requirements.txt --break-system-packages
 
       - name: TICS GitHub Action
-        uses: tiobe/tics-github-action@333078bc527399e5916a166bd1a3a788be5a01a9  # v3.12.0
+        uses: tiobe/tics-github-action@06afa6781ba53ab58efbe766d41d84febad1f683  # v4.0.0
         with:
           mode: qserver
           viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
