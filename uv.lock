@@ -322,7 +322,7 @@ requires-dist = [{ name = "pyyaml", specifier = "==6.*" }]
 dev = [
     { name = "codespell", marker = "python_full_version >= '3.9'", specifier = "==2.4.3" },
     { name = "cryptography", specifier = ">=43.0.0" },
-    { name = "ops", specifier = "==3.8.1" },
+    { name = "ops", specifier = "==3.8.2" },
     { name = "pyright", specifier = "==1.1.411" },
     { name = "pytest", specifier = "==9.1.1" },
     { name = "pytest-cov", specifier = "==7.1.0" },
@@ -354,16 +354,16 @@ wheels = [
 
 [[package]]
 name = "ops"
-version = "3.8.1"
+version = "3.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "pyyaml" },
     { name = "websocket-client" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/65/a5263057209f94836ae27949dd9905a24a258fd6835e3fc359ecd7a3a05d/ops-3.8.1.tar.gz", hash = "sha256:fc420a77dea9bc36093ce1ae9f1f98825c3945bc027b4a859c67faa96798fca3", size = 609576, upload-time = "2026-07-30T02:58:53.313Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/85/0a/6e5730c50c1737b505ccd0d7bc3c53c625745a75aae9faa2fe635ea7a473/ops-3.8.2.tar.gz", hash = "sha256:a516e76a76fdfd4a37f26f2b9956c332b56bda72014c8565ceb4f6deb137407f", size = 610712, upload-time = "2026-08-31T04:37:49.011Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/f2/051eb0c0e394fd3ceb57b39b016a816429040d27c569aa84078960c53a1a/ops-3.8.1-py3-none-any.whl", hash = "sha256:6da38925e40ee4d72f9c5a9bf3e3228d18f0d25fa7ae9894b9c2f34b43771159", size = 215655, upload-time = "2026-07-30T02:58:48.713Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/4c/ddaef2a0f8d208aed071087b61e6984bb8507cf202c965025446cf4cce8a/ops-3.8.2-py3-none-any.whl", hash = "sha256:dcead2241d17921441123425072dd6adddf5f337dc6d6fd2b3ba1fd60a0af822", size = 215761, upload-time = "2026-08-31T04:37:45.153Z" },
 ]
 
 [[package]]
