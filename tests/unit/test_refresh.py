@@ -50,6 +50,7 @@ def test_all_args(run: mocks.Run):
         'bin=/path',
         '--revision',
         '42',
+        '--switch',
         '--storage',
         'data=tmpfs,1G',
         '--trust',
@@ -65,6 +66,7 @@ def test_all_args(run: mocks.Run):
         path='/path/to/app.charm',
         resources={'bin': '/path'},
         revision=42,
+        switch=True,
         storage={'data': 'tmpfs,1G'},
         trust=True,
     )
