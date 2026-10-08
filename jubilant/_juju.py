@@ -1081,7 +1081,7 @@ class Juju:
         path: str | pathlib.Path | None = None,
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
-        switch: bool = False,
+        switch: str | pathlib.Path | None = None,
         storage: Mapping[str, str] | None = None,
         trust: bool = False,
     ):
@@ -1097,7 +1097,8 @@ class Juju:
             resources: Specify named resources to use for deployment, for example:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
-            switch: If true, allow refreshing to a different charm.
+            switch: Crossgrade to a different charm, given as a Charmhub name or a local
+               path, for example, `postgresql`.
             storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
@@ -1120,8 +1121,8 @@ class Juju:
                     args.extend(['--resource', f'{k}={v}'])
             if revision is not None:
                 args.extend(['--revision', str(revision)])
-            if switch:
-                args.append('--switch')
+            if switch is not None:
+                args.extend(['--switch', str(switch)])
             if storage is not None:
                 for k, v in storage.items():
                     args.extend(['--storage', f'{k}={v}'])

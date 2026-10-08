@@ -51,6 +51,7 @@ def test_all_args(run: mocks.Run):
         '--revision',
         '42',
         '--switch',
+        'postgresql',
         '--storage',
         'data=tmpfs,1G',
         '--trust',
@@ -66,11 +67,16 @@ def test_all_args(run: mocks.Run):
         path='/path/to/app.charm',
         resources={'bin': '/path'},
         revision=42,
-        switch=True,
+        switch='postgresql',
         storage={'data': 'tmpfs,1G'},
         trust=True,
     )
 
+def test_switch(run: mocks.Run):
+    run.handle(['juju', 'refresh', 'xyz', '--switch', 'postgresql'])
+    juju = jubilant.Juju()
+
+    juju.refresh('xyz', switch='postgresql')
 
 def test_path(run: mocks.Run):
     run.handle(['juju', 'refresh', 'xyz', '--path', './foo'])
