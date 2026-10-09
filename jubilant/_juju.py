@@ -1104,7 +1104,14 @@ class Juju:
         """
         args = ['refresh', app]
 
-        with self._deploy_tempdir(path, resources) as (path, resources):
+        with self._deploy_tempdir(path if path is not None else switch, resources) as (
+            temp_charm,
+            resources,
+        ):
+            if path is not None:
+                path = temp_charm
+            elif switch is not None:
+                switch = temp_charm
             if base is not None:
                 args.extend(['--base', base])
             if channel is not None:
