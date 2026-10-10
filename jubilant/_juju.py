@@ -1318,6 +1318,7 @@ class Juju:
         container: str | None = None,
         host_key_checks: bool = True,
         scp_options: Iterable[str] = (),
+        ssh_key: str | pathlib.Path | None = None,
     ) -> None:
         """Securely transfer files within a model.
 
@@ -1327,6 +1328,10 @@ class Juju:
             container: Name of container for Kubernetes charms. Defaults to the charm container.
             host_key_checks: Set to false to disable host key checking (insecure).
             scp_options: ``scp`` client options, for example ``['-r', '-C']``.
+                From Juju 4.1, ``-i`` doesn't apply to the connection to the controller.
+                Use *ssh_key* for that.
+            ssh_key: Path to an SSH private key to authenticate with the controller's SSH server.
+                Requires Juju 4.1 or later.
         """
         # Need this check because str is also an iterable of str.
         if isinstance(scp_options, str):
@@ -1337,6 +1342,8 @@ class Juju:
             args.extend(['--container', container])
         if not host_key_checks:
             args.append('--no-host-key-checks')
+        if ssh_key is not None:
+            args.extend(['--ssh-key', str(ssh_key)])
         args.append('--')
         args.extend(scp_options)
 
@@ -1494,6 +1501,7 @@ class Juju:
         host_key_checks: bool = True,
         ssh_options: Iterable[str] = (),
         user: str | None = None,
+        ssh_key: str | pathlib.Path | None = None,
     ) -> str:
         """Executes a command using SSH on a machine or container and returns its standard output.
 
@@ -1507,7 +1515,11 @@ class Juju:
             container: Name of container for Kubernetes charms. Defaults to the charm container.
             host_key_checks: Set to false to disable host key checking (insecure).
             ssh_options: OpenSSH client options, for example ``['-i', '/path/to/private.key']``.
+                From Juju 4.1, ``-i`` doesn't apply to the connection to the controller.
+                Use *ssh_key* for that.
             user: User account to make connection with. Defaults to ``ubuntu`` account.
+            ssh_key: Path to an SSH private key to authenticate with the controller's SSH server.
+                Requires Juju 4.1 or later.
         """
         # Need this check because str is also an iterable of str.
         if isinstance(ssh_options, str):
@@ -1518,6 +1530,8 @@ class Juju:
             cli_args.extend(['--container', container])
         if not host_key_checks:
             cli_args.append('--no-host-key-checks')
+        if ssh_key is not None:
+            cli_args.extend(['--ssh-key', str(ssh_key)])
         if user is not None:
             cli_args.append(f'{user}@{target}')
         else:

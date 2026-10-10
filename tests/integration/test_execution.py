@@ -118,25 +118,33 @@ def test_exec_error_machine_on_k8s(juju: jubilant.Juju):
         juju.exec('echo foo', machine=0)
 
 
-def test_ssh(juju: jubilant.Juju):
+def test_ssh(juju: jubilant.Juju, ssh_key: str | None):
     # The 'testdb' charm doesn't have any containers, so use 'snappass-test'.
     juju.deploy('snappass-test')
     juju.wait(lambda status: jubilant.all_active(status, 'snappass-test'))
 
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/containers')
+    output = juju.ssh('snappass-test/0', 'ls', '/charm/containers', ssh_key=ssh_key)
     assert output.split() == ['redis', 'snappass']
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='snappass')
+    output = juju.ssh(
+        'snappass-test/0', 'ls', '/charm/container', container='snappass', ssh_key=ssh_key
+    )
     assert 'pebble' in output.split()
-    output = juju.ssh('snappass-test/0', 'ls', '/charm/container', container='redis')
+    output = juju.ssh(
+        'snappass-test/0', 'ls', '/charm/container', container='redis', ssh_key=ssh_key
+    )
     assert 'pebble' in output.split()
 
 
-def test_scp(juju: jubilant.Juju):
-    juju.scp('snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py', 'charm.py')
+def test_scp(juju: jubilant.Juju, ssh_key: str | None):
+    juju.scp(
+        'snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py',
+        'charm.py',
+        ssh_key=ssh_key,
+    )
     charm_src = pathlib.Path('charm.py').read_text()
     assert 'class Snappass' in charm_src
 
-    juju.scp('snappass-test/0:/etc/passwd', 'passwd', container='redis')
+    juju.scp('snappass-test/0:/etc/passwd', 'passwd', container='redis', ssh_key=ssh_key)
     passwd = pathlib.Path('passwd').read_text()
     assert 'redis:' in passwd
 
@@ -144,11 +152,12 @@ def test_scp(juju: jubilant.Juju):
     with tempfile.NamedTemporaryFile('w+') as fsrc, tempfile.NamedTemporaryFile('w+') as fdst:
         fsrc.write('roundtrip')
         fsrc.flush()
-        juju.scp(fsrc.name, 'snappass-test/0:/tmp/roundtrip.py')
-        juju.scp('snappass-test/0:/tmp/roundtrip.py', fdst.name)
+        juju.scp(fsrc.name, 'snappass-test/0:/tmp/roundtrip.py', ssh_key=ssh_key)
+        juju.scp('snappass-test/0:/tmp/roundtrip.py', fdst.name, ssh_key=ssh_key)
         assert pathlib.Path(fdst.name).read_text() == 'roundtrip'
 
 
-def test_cli_input(juju: jubilant.Juju):
-    stdout = juju.cli('ssh', '--container', 'charm', 'testdb/0', 'cat', stdin='foo')
+def test_cli_input(juju: jubilant.Juju, ssh_key: str | None):
+    key_args = ['--ssh-key', ssh_key] if ssh_key is not None else []
+    stdout = juju.cli('ssh', *key_args, '--container', 'charm', 'testdb/0', 'cat', stdin='foo')
     assert stdout == 'foo'
