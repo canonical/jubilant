@@ -35,6 +35,37 @@ def test_deploy(juju: jubilant.Juju):
     assert jubilant.all_agents_idle(status, 'snappass-test')
 
 
+def test_refresh_switch_to_charmhub(juju: jubilant.Juju, tmp_path):
+    # Download the existing Charmhub charm to a local .charm file.
+    local_charm = tmp_path / 'snappass-test.charm'
+    juju.cli(
+        'download',
+        'snappass-test',
+        '--filepath',
+        str(local_charm),
+        include_model=False,
+    )
+    assert local_charm.is_file()
+
+    # Switch from Charmhub to the local charm.
+    juju.refresh('snappass-test', switch=local_charm)
+    juju.wait(
+        lambda status: (
+            'snappass-test' in status.apps and status.apps['snappass-test'].charm_origin == 'local'
+        )
+    )
+
+    # Switch back to Charmhub.
+    juju.refresh('snappass-test', switch='snappass-test')
+    juju.wait(
+        lambda status: (
+            jubilant.all_active(status, 'snappass-test')
+            and status.apps['snappass-test'].charm_origin == 'charmhub'
+            and status.apps['snappass-test'].charm_name == 'snappass-test'
+        )
+    )
+
+
 def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.add_unit('snappass-test')
     juju.wait(
