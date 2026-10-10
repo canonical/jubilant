@@ -19,6 +19,23 @@ $ make all
 To contribute a code change, write your fix or feature, add tests and docs, then run `make all` before you push and create a PR. Once you create a PR, GitHub will also run the integration tests, which takes several minutes.
 
 
+## Developing in a workshop
+
+If you'd rather not install the tools on your host, the `dev` [Workshop](https://ubuntu.com/workshop) in `.workshop/` is a container with `uv`, `make`, Jubilant's development dependencies, and the [Pi](https://pi.dev) coding agent:
+
+```
+$ sudo snap install workshop --classic
+$ workshop launch dev
+$ workshop run dev all
+```
+
+The `all`, `format`, `lint`, and `unit` actions run the `make` targets with the same names. Extra arguments to `unit` are passed to `pytest`, so `workshop run dev unit -k test_defaults` is the same as `make unit ARGS='-k test_defaults'`. An argument containing whitespace won't survive: the `make` recipe expands `$(ARGS)` unquoted, so `-k 'test_a and not test_b'` reaches `pytest` as four arguments whether you go through the workshop or run `make` yourself. The workshop keeps its virtual environment outside the project directory, so it doesn't share or overwrite the `.venv` on your host.
+
+The `pi` action runs Pi in the workshop, with access to the project directory but not the rest of your host. Pi's settings and credentials are kept in a mount, so they survive `workshop refresh`.
+
+There's no integration test action, because the integration tests need a Juju controller. Run them on your host.
+
+
 ## Pull requests
 
 Changes are proposed as [pull requests on GitHub](https://github.com/canonical/jubilant/pulls).

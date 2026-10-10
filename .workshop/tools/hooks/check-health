@@ -1,0 +1,8 @@
+# A failed apt-get or uv sync is otherwise invisible until someone runs an
+# action.
+if command -v make >/dev/null 2>&1 &&
+    test -x /home/workshop/.venvs/jubilant/bin/ruff; then
+    workshopctl set-health okay
+else
+    workshopctl set-health error
+fi

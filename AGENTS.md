@@ -16,6 +16,8 @@ make unit ARGS='-k test_defaults'                    # Test by name pattern
 make help                   # Run to see all available commands
 ```
 
+The `dev` Workshop in `.workshop/` has the same tooling in a container: `workshop run dev all` (or `format`, `lint`, `unit`) runs the matching `make` target. See CONTRIBUTING.md.
+
 ## Code and Documentation Style
 
 - **Line length**: 99 characters
