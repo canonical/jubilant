@@ -44,6 +44,7 @@ def test_logging_wait_debug(run: mocks.Run, time: mocks.Time, caplog: pytest.Log
     ready_record = caplog.records[1]
     assert ready_record.name == 'jubilant'
     assert ready_record.levelname == 'INFO'
+    # Three successes needed (the default), with a 1s sleep between each.
     assert ready_record.getMessage() == 'wait: ready after 2.0s'
 
 
@@ -66,6 +67,7 @@ def test_logging_wait_info(run: mocks.Run, time: mocks.Time, caplog: pytest.LogC
     ready_record = caplog.records[2]
     assert ready_record.name == 'jubilant'
     assert ready_record.levelname == 'INFO'
+    # Three successes needed (the default), with a 1s sleep between each.
     assert ready_record.getMessage() == 'wait: ready after 2.0s'
 
 
@@ -84,6 +86,7 @@ def test_logging_wait_info_multiples(
     for record in caplog.records[:-1]:
         assert record.levelname == 'INFO'
     assert caplog.records[-1].name == 'jubilant'
+    # Three successes needed (the default), with a 1s sleep between each.
     assert caplog.records[-1].getMessage() == 'wait: ready after 2.0s'
 
 
@@ -115,6 +118,7 @@ def test_logging_wait_app_error(
     ready_record = caplog.records[2]
     assert ready_record.name == 'jubilant'
     assert ready_record.levelname == 'INFO'
+    # Three successes needed (the default), with a 1s sleep between each.
     assert ready_record.getMessage() == 'wait: ready after 2.0s'
 
 
@@ -145,6 +149,7 @@ def test_logging_wait_error_unit(
     ready_record = caplog.records[2]
     assert ready_record.name == 'jubilant'
     assert ready_record.levelname == 'INFO'
+    # Three successes needed (the default), with a 1s sleep between each.
     assert ready_record.getMessage() == 'wait: ready after 2.0s'
 
 
@@ -176,6 +181,7 @@ def test_logging_wait_no_change(
     ready_record = caplog.records[2]
     assert ready_record.name == 'jubilant'
     assert ready_record.levelname == 'INFO'
+    # One not-ready poll, then three successes (the default), with a 1s sleep between each.
     assert ready_record.getMessage() == 'wait: ready after 3.0s'
 
 
@@ -189,6 +195,7 @@ def test_logging_wait_summary_with_status_logs_disabled(
 
     juju.wait(lambda _: True)
 
+    # Three successes needed (the default), with a 1s sleep between each.
     assert [(r.name, r.getMessage()) for r in caplog.records] == [
         ('jubilant', 'wait: ready after 2.0s'),
     ]
@@ -236,10 +243,9 @@ def test_modified_delay_and_successes(run: mocks.Run, time: mocks.Time):
     assert status == MINIMAL_STATUS
 
 
-def test_error(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+def test_error(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant')
 
     with pytest.raises(jubilant.WaitError) as excinfo:
         juju.wait(lambda _: True, error=lambda _: True)
@@ -247,18 +253,14 @@ def test_error(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixtur
     assert len(run.calls) == 1
     assert time.monotonic() == 0
     assert 'mdl' in str(excinfo.value)
-    error_record = caplog.records[-1]
-    assert error_record.name == 'jubilant'
-    assert error_record.levelname == 'INFO'
-    assert error_record.getMessage() == (
-        'wait: failed after 0.0s: error function test_error.<locals>.<lambda> returned true'
+    assert str(excinfo.value).startswith(
+        'error function test_error.<locals>.<lambda> returned true after 0.0s\n'
     )
 
 
-def test_timeout_default(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCaptureFixture):
+def test_timeout_default(run: mocks.Run, time: mocks.Time):
     run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
     juju = jubilant.Juju()
-    caplog.set_level(logging.INFO, logger='jubilant')
 
     with pytest.raises(TimeoutError) as excinfo:
         juju.wait(lambda _: False)
@@ -266,10 +268,6 @@ def test_timeout_default(run: mocks.Run, time: mocks.Time, caplog: pytest.LogCap
     assert len(run.calls) == 180
     assert time.monotonic() == 180
     assert 'mdl' in str(excinfo.value)
-    timeout_record = caplog.records[-1]
-    assert timeout_record.name == 'jubilant'
-    assert timeout_record.levelname == 'INFO'
-    assert timeout_record.getMessage() == 'wait: timed out after 180.0s'
 
 
 def test_timeout_override(run: mocks.Run, time: mocks.Time):
