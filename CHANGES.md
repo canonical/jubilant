@@ -1,3 +1,21 @@
+# 1.14.0 - 29 Sep 2026
+
+## Features
+
+* Export `ConstraintValue` type alias publicly (#416)
+
+## Documentation
+
+* Cover the remaining SEC0030 sub-requirements (#399)
+
+## Chores
+
+* Switch docs to latest Google tag (#415)
+
+## CI
+
+* Swap `attest-build-provenance` for `actions/attest` (#411)
+
 # 1.13.0 - 31 Aug 2026
 
 ## Features

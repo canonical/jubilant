@@ -28,3 +28,13 @@ Run Juju commands that aren't yet defined in Jubilant.
 
 Run Juju CLI commands <run-juju-cli-commands>
 ```
+
+## Using `Juju.wait` from the command line
+
+Run `Juju.wait` using a standalone tool.
+
+```{toctree}
+:maxdepth: 1
+
+Use Juju.wait from the command line <use-wait-from-cli>
+```
