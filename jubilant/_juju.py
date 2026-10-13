@@ -1331,7 +1331,8 @@ class Juju:
                 From Juju 4.1, ``-i`` doesn't apply to the connection to the controller.
                 Use *ssh_key* for that.
             ssh_key: Path to an SSH private key to authenticate with the controller's SSH server.
-                Requires Juju 4.1 or later.
+                The matching public key must be added to the model first, using
+                :meth:`add_ssh_key`. Requires Juju 4.1 or later.
         """
         # Need this check because str is also an iterable of str.
         if isinstance(scp_options, str):
@@ -1519,7 +1520,8 @@ class Juju:
                 Use *ssh_key* for that.
             user: User account to make connection with. Defaults to ``ubuntu`` account.
             ssh_key: Path to an SSH private key to authenticate with the controller's SSH server.
-                Requires Juju 4.1 or later.
+                The matching public key must be added to the model first, using
+                :meth:`add_ssh_key`. Requires Juju 4.1 or later.
         """
         # Need this check because str is also an iterable of str.
         if isinstance(ssh_options, str):

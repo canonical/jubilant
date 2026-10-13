@@ -28,7 +28,8 @@ def test_exec(juju: jubilant.Juju):
 
 
 def test_ssh(juju: jubilant.Juju, private_key_file: str, ssh_key: str | None):
-    # -i is for Juju < 4.1, which connects to the machine directly.
+    # -i is for the connection to the machine. On Juju < 4.1, that's a direct connection.
+    # From Juju 4.1, that's the final hop.
     ssh_options = ['-i', private_key_file]
     output = juju.ssh('ubuntu/0', 'echo', 'UNIT', ssh_options=ssh_options, ssh_key=ssh_key)
     assert output == 'UNIT\n'
@@ -53,7 +54,8 @@ def test_scp_directory(
     (src_dir / 'a.txt').write_text('A')
     (src_dir / 'b.txt').write_text('B')
 
-    # -i is for Juju < 4.1, which connects to the machine directly.
+    # -i is for the connection to the machine. On Juju < 4.1, that's a direct connection.
+    # From Juju 4.1, that's the final hop.
     scp_options = ['-r', '-i', private_key_file]
 
     # Local directory to remote

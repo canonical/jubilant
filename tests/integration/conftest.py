@@ -59,7 +59,7 @@ def private_key_file(juju: jubilant.Juju) -> Generator[str]:
 
 @pytest.fixture(scope='module')
 def ssh_key(request: pytest.FixtureRequest, juju_version: jubilant.Version) -> str | None:
-    """Module-scoped pytest fixture that returns the path to pass as ``ssh_key``, if needed.
+    """Module-scoped pytest fixture that returns a path to pass as ``ssh_key``, if needed by Juju.
 
     From Juju 4.1, ``juju ssh`` and ``juju scp`` connect through the controller's SSH server,
     which requires a key registered in the model, including for Kubernetes models.
