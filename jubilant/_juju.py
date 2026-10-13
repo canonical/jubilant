@@ -1705,6 +1705,10 @@ class Juju:
 
             logging.getLogger('jubilant.wait').setLevel('WARNING')
 
+        How long the wait took is logged to the ``jubilant`` logger at INFO level when the wait
+        succeeds, so it is still logged with the status logs disabled. If the wait fails, the
+        :class:`WaitError` message includes how long it took.
+
         Args:
             ready: Callable that takes a :class:`Status` object and returns ``True`` when the wait
                 should be considered ready. It needs to return ``True`` *successes* times in a row
@@ -1762,11 +1766,16 @@ class Juju:
 
             if error is not None and error(status):
                 name = getattr(error, '__qualname__', repr(error))
-                raise WaitError(f'error function {name} returned true\n{status}')
+                elapsed = time.monotonic() - start
+                raise WaitError(
+                    f'error function {name} returned true after {elapsed:.1f}s\n{status}'
+                )
 
             if ready(status):
                 success_count += 1
                 if success_count >= successes:
+                    elapsed = time.monotonic() - start
+                    logger.info('wait: ready after %.1fs', elapsed)
                     return status
             else:
                 success_count = 0
