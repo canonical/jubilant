@@ -26,6 +26,8 @@ def test_all_args(run: mocks.Run):
         '--container',
         'redis',
         '--no-host-key-checks',
+        '--ssh-key',
+        '/path/to/private.key',
         '--',
         '-r',
         '-C',
@@ -34,7 +36,21 @@ def test_all_args(run: mocks.Run):
     ])
     juju = jubilant.Juju(cli_binary='/bin/juju')
 
-    juju.scp('SRC', 'DST', container='redis', host_key_checks=False, scp_options=['-r', '-C'])
+    juju.scp(
+        'SRC',
+        'DST',
+        container='redis',
+        host_key_checks=False,
+        ssh_key=pathlib.Path('/path/to/private.key'),
+        scp_options=['-r', '-C'],
+    )
+
+
+def test_ssh_key(run: mocks.Run):
+    run.handle(['/bin/juju', 'scp', '--ssh-key', '/path/to/private.key', '--', 'SRC', 'DST'])
+    juju = jubilant.Juju(cli_binary='/bin/juju')
+
+    juju.scp('SRC', 'DST', ssh_key=pathlib.Path('/path/to/private.key'))
 
 
 def test_path_source(run: mocks.Run):
