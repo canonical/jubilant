@@ -1,0 +1,12 @@
+# The default `.venv` would clash with the host's in the mounted project
+# directory. Workshop's SDK guidance is ~/.profile for the workshop user's own
+# variables; this hook runs uv itself, so it needs the variable in scope as
+# well.
+export UV_PROJECT_ENVIRONMENT=/home/workshop/.venvs/jubilant
+cat <<EOF >> ~/.profile
+
+export UV_PROJECT_ENVIRONMENT=$UV_PROJECT_ENVIRONMENT
+EOF
+
+# Install Jubilant and its development dependencies.
+uv sync --locked
