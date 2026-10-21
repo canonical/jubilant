@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: Use Juju.wait from the Command-Line Interface.
+    description: Use Jubilant's command line interface to wait for status conditions, as an alternative to the 'Juju.wait' method.
 ---
 
 (use_wait_from_cli)=
