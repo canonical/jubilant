@@ -5,3 +5,6 @@ jubilant.egg-info
 .coverage
 .report
 *.charm
+
+# Workshop
+.workshop.lock

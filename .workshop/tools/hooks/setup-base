@@ -1,0 +1,4 @@
+# make is the command runner for the workshop's actions, and isn't in the base
+# image.
+apt-get update -qq
+apt-get install -yqq make
