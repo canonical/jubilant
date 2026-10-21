@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: Jubilant is a Python library that wraps the Juju CLI. It has a type-annotated API that maps 1:1 to Juju commands. Use it for charm integration tests.
+---
+
 # Jubilant
 
 ```{toctree}
