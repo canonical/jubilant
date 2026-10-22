@@ -1,5 +1,5 @@
 .. meta::
-   :description: Reference documentation for the 'jubilant.statustypes' module — dataclasses for Juju statuses.
+   :description: Reference documentation for the 'jubilant.statustypes' module — dataclasses that contain parsed information about Juju statuses.
 
 jubilant.statustypes
 ====================

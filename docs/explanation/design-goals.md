@@ -1,7 +1,7 @@
 ---
 myst:
   html_meta:
-    description: The design goals behind Jubilant — the API and Juju version support.
+    description: The design goals behind Jubilant — it matches Juju CLI, provides a simple API, and supports Juju 3 onwards.
 ---
 
 # Design goals
