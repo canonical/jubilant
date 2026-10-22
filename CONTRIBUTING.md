@@ -77,7 +77,7 @@ We use [MyST Markdown](https://mystmd.org/) for most pages and arrange the pages
 
 To contribute, first fork this repo, then edit the relevant source files:
 
-- Tutorial - [`/docs/tutorial`](./docs/tutorial)
+- Tutorial - [`/docs/tutorial/getting-started.md`](./docs/tutorial/getting-started.md)
 - How-to guides - [`/docs/how-to`](./docs/how-to)
 - Reference - Automatically generated from Python docstrings
 - Explanation - [`/docs/explanation`](./docs/explanation)
