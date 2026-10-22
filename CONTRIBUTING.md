@@ -71,6 +71,8 @@ The published docs at [canonical.com/juju/docs/jubilant](https://canonical.com/j
 
 The docs are based on Canonical's [Sphinx Stack](https://github.com/canonical/sphinx-stack). To upgrade Sphinx Stack, see [Update the new Sphinx Stack](https://documentation.ubuntu.com/sphinx-stack/latest/how-to/update-sphinx-stack/new-sphinx-stack/). The Jubilant maintainers handle this.
 
+Sphinx Stack provides [`docs/conf.py`](./docs/conf.py), which we've customised with project metadata (as expected). We've also added config that goes beyond the provisions of Sphinx Stack. Search for `[BEYOND SPHINX STACK]` in `docs/conf.py`.
+
 ### Contributing docs
 
 We use [MyST Markdown](https://mystmd.org/) for most pages and arrange the pages according to [Diátaxis](https://diataxis.fr/). Make sure to follow the [Charm Tech documentation style guide](https://github.com/canonical/charm-tech/blob/main/style/docs.md).
