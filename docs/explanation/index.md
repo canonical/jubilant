@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: Learn about Jubilant's design and security posture.
+---
+
 # Explanation
 
 These guides explain how Jubilant works and how it's developed.

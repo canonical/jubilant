@@ -1,3 +1,9 @@
+---
+myst:
+  html_meta:
+    description: Reference documentation for Jubilant's Python API.
+---
+
 # Reference
 
 ```{toctree}
