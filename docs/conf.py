@@ -303,7 +303,7 @@ intersphinx_mapping = {
 
 
 # [BEYOND SPHINX STACK]
-# The following Ops-specific config goes beyond the provisions of Sphinx Stack.
+# The following project-specific config goes beyond the provisions of Sphinx Stack.
 
 # Options for sphinx.ext.autodoc
 

@@ -7,7 +7,7 @@ Jubilant uses [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies a
 After that, clone the Jubilant codebase and use `make all` to run various checks and the unit tests:
 
 ```
-$ git clone https://github.com/canonical/jubilant
+$ git clone https://github.com/canonical/jubilant  # Or your fork
 Cloning into 'jubilant'...
 ...
 $ cd jubilant
@@ -63,6 +63,34 @@ We consider Jubilant too small a project to use scopes, so we don't use them.
 Note that the commit messages to the PR's branch do not need to follow the conventional commit format, as these will be squashed into a single commit to `main` using the PR title as the commit message.
 
 To help us review your changes, please rebase your pull request onto the `main` branch before you request a review. If you need to bring in the latest changes from `main` after the review has started, please use a merge commit.
+
+
+## Documentation
+
+The published docs at [canonical.com/juju/docs/jubilant](https://canonical.com/juju/docs/jubilant/) are automatically built from the top-level `docs` directory.
+
+The docs are based on Canonical's [Sphinx Stack](https://github.com/canonical/sphinx-stack). To upgrade Sphinx Stack, see [Update the new Sphinx Stack](https://documentation.ubuntu.com/sphinx-stack/latest/how-to/update-sphinx-stack/new-sphinx-stack/). The Jubilant maintainers handle this.
+
+Sphinx Stack provides [`docs/conf.py`](./docs/conf.py), which we've customised with project metadata (as expected). We've also added config that goes beyond the provisions of Sphinx Stack. Search for `[BEYOND SPHINX STACK]` in `docs/conf.py`.
+
+### Contributing docs
+
+We use [MyST Markdown](https://mystmd.org/) for most pages and arrange the pages according to [Diátaxis](https://diataxis.fr/). Make sure to follow the [Charm Tech documentation style guide](https://github.com/canonical/charm-tech/blob/main/style/docs.md).
+
+To contribute, first fork this repo, then edit the relevant source files:
+
+- Tutorial - [`/docs/tutorial/getting-started.md`](./docs/tutorial/getting-started.md)
+- How-to guides - [`/docs/how-to`](./docs/how-to)
+- Reference - Automatically generated from Python docstrings
+- Explanation - [`/docs/explanation`](./docs/explanation)
+
+Next, build the documentation locally to check that everything looks right:
+
+- `make -C docs run` - Build the docs and serve them locally. The docs automatically rebuild whenever you edit a file.
+- `make -C docs spelling` - Check spelling in the doc source files.
+- `make -C docs help` - List all doc commands.
+
+Finally, [propose your changes using a pull request](#pull-requests). When you create the pull request, our documentation host (Read the Docs) automatically builds a preview of the docs. To open the preview, look for a PR check called `docs/readthedocs.com:canonical-juju-jubilant`, which links to the preview.
 
 
 ## Doing a release
