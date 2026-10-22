@@ -90,7 +90,7 @@ Next, build the documentation locally to check that everything looks right:
 - `make -C docs spelling` - Check spelling in the doc source files.
 - `make -C docs help` - List all doc commands.
 
-Finally, [propose your changes using a pull request](#pull-requests). When you create the pull request, our documentation host (Read the Docs) automatically builds a preview of the docs. To open the preview, look for a PR check called "docs/readthedocs.com:canonical-juju-jubilant", which links to the preview.
+Finally, [propose your changes using a pull request](#pull-requests). When you create the pull request, our documentation host (Read the Docs) automatically builds a preview of the docs. To open the preview, look for a PR check called `docs/readthedocs.com:canonical-juju-jubilant`, which links to the preview.
 
 
 ## Doing a release
