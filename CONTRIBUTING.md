@@ -7,7 +7,7 @@ Jubilant uses [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies a
 After that, clone the Jubilant codebase and use `make all` to run various checks and the unit tests:
 
 ```
-$ git clone https://github.com/canonical/jubilant
+$ git clone https://github.com/canonical/jubilant  # Or your fork
 Cloning into 'jubilant'...
 ...
 $ cd jubilant
