@@ -67,7 +67,7 @@ To help us review your changes, please rebase your pull request onto the `main` 
 
 ## Documentation
 
-The published docs at [canonical.com/juju/docs/jubilant](https://canonical.com/juju/docs/jubilant/) are built automatically from the top-level `docs` directory.
+The published docs at [canonical.com/juju/docs/jubilant](https://canonical.com/juju/docs/jubilant/) are automatically built from the top-level `docs` directory.
 
 The docs are based on Canonical's [Sphinx Stack](https://github.com/canonical/sphinx-stack). To upgrade Sphinx Stack, see [Update the new Sphinx Stack](https://documentation.ubuntu.com/sphinx-stack/latest/how-to/update-sphinx-stack/new-sphinx-stack/). The Jubilant maintainers handle this.
 
