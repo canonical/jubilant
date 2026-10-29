@@ -50,6 +50,8 @@ def test_all_args(run: mocks.Run):
         'bin=/path',
         '--revision',
         '42',
+        '--switch',
+        'postgresql',
         '--storage',
         'data=tmpfs,1G',
         '--trust',
@@ -65,8 +67,24 @@ def test_all_args(run: mocks.Run):
         path='/path/to/app.charm',
         resources={'bin': '/path'},
         revision=42,
+        switch='postgresql',
         storage={'data': 'tmpfs,1G'},
         trust=True,
+    )
+
+
+def test_switch(run: mocks.Run):
+    run.handle(['juju', 'refresh', 'xyz', '--switch', 'postgresql'])
+    juju = jubilant.Juju()
+
+    juju.refresh('xyz', switch='postgresql')
+
+    assert run.calls[0].args == (
+        'juju',
+        'refresh',
+        'xyz',
+        '--switch',
+        'postgresql',
     )
 
 
@@ -126,3 +144,22 @@ def test_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     )
 
     assert num_calls == 1
+
+
+def test_switch_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args[:3] == ['juju', 'refresh', 'myapp']
+        assert args[3] == '--switch'
+        assert '/snap/juju/common' in args[4]
+        assert args[4].endswith('/_temp.charm')
+        assert pathlib.Path(args[4]).read_text() == 'CH'
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    charm = tmp_path / 'my.charm'
+    charm.write_text('CH')
+
+    juju = jubilant.Juju()
+    juju.refresh('myapp', switch=charm)
