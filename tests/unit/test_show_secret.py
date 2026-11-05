@@ -1,7 +1,10 @@
 import json
 
+import pytest
+
 import jubilant
 from tests.unit.fake_secrets import (
+    MULTIPLE_OWNER_SECRETS,
     SINGLE_SECRET,
     SINGLE_SECRET_REVEALED,
     SINGLE_SECRET_REVEALED_JUJU35,
@@ -101,6 +104,42 @@ def test_get_secret_with_revision(run: mocks.Run):
     juju = jubilant.Juju()
 
     juju.show_secret('example-charm-secret', revision=2)
+
+
+def test_get_secret_with_multiple_owners_no_owner_specified(run: mocks.Run):
+    run.handle(
+        ['juju', 'show-secret', 'example-charm-secret', '--format', 'json'],
+        stdout=json.dumps(MULTIPLE_OWNER_SECRETS),
+    )
+    juju = jubilant.Juju()
+
+    response = juju.show_secret('example-charm-secret')
+    assert response.uri == 'secret:d1ehcifmp25c76e01vhg'
+    assert response.owner == 'example-charm/0'
+
+
+def test_get_secret_with_multiple_owners_owner_specified(run: mocks.Run):
+    run.handle(
+        ['juju', 'show-secret', 'example-charm-secret', '--format', 'json'],
+        stdout=json.dumps(MULTIPLE_OWNER_SECRETS),
+    )
+    juju = jubilant.Juju()
+
+    response = juju.show_secret('example-charm-secret', owner='example-charm/1')
+    assert response.uri == 'secret:d0vdtqnmp25c762e7jug'
+    assert response.owner == 'example-charm/1'
+    assert response.revision == 2
+
+
+def test_get_secret_with_multiple_owners_owner_not_found(run: mocks.Run):
+    run.handle(
+        ['juju', 'show-secret', 'example-charm-secret', '--format', 'json'],
+        stdout=json.dumps(MULTIPLE_OWNER_SECRETS),
+    )
+    juju = jubilant.Juju()
+
+    with pytest.raises(ValueError, match="no secret with owner 'mongodb/2'"):
+        juju.show_secret('example-charm-secret', owner='mongodb/2')
 
 
 def test_get_secret_with_access(run: mocks.Run):
