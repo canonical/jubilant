@@ -52,9 +52,6 @@ ConstraintValue = bool | int | float | str
 class _FirstSecret:
     """Type of the sentinel used for the default value of show_secret's *owner* parameter."""
 
-    def __repr__(self) -> str:
-        return '<first secret sentinel>'
-
 
 _first_secret = _FirstSecret()
 """Sentinel meaning "the first secret" for the default value of show_secret's *owner* parameter."""
