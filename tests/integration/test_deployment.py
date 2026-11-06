@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pathlib
 import urllib.request
 
 import pytest
@@ -33,6 +34,44 @@ def test_deploy(juju: jubilant.Juju):
     # Wait for all unit agents to be idle (and ensure all_agents_idle works).
     status = juju.wait(jubilant.all_agents_idle)
     assert jubilant.all_agents_idle(status, 'snappass-test')
+
+
+def test_refresh_switch_to_charmhub(juju: jubilant.Juju, tmp_path: pathlib.Path):
+    # Download the Charmhub charm to a path accessible to Juju Snap.
+    charm_dir = pathlib.Path.home() / 'snap' / 'juju' / 'common'
+    charm_dir.mkdir(parents=True, exist_ok=True)
+    local_charm: pathlib.Path = charm_dir / f'{tmp_path.name}.charm'
+
+    try:
+        juju.cli(
+            'download',
+            'snappass-test',
+            '--filepath',
+            str(local_charm),
+            include_model=False,
+        )
+        assert local_charm.is_file()
+
+        # Switch from Charmhub to the local charm.
+        juju.refresh('snappass-test', switch=local_charm)
+        juju.wait(
+            lambda status: (
+                'snappass-test' in status.apps
+                and status.apps['snappass-test'].charm_origin == 'local'
+            )
+        )
+
+        # Switch back to Charmhub.
+        juju.refresh('snappass-test', switch='snappass-test')
+        juju.wait(
+            lambda status: (
+                jubilant.all_active(status, 'snappass-test')
+                and status.apps['snappass-test'].charm_origin == 'charmhub'
+                and status.apps['snappass-test'].charm_name == 'snappass-test'
+            )
+        )
+    finally:
+        local_charm.unlink(missing_ok=True)
 
 
 def test_add_and_remove_unit(juju: jubilant.Juju):
