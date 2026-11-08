@@ -1,6 +1,8 @@
 import datetime
 import json
 
+import pytest
+
 import jubilant
 
 
@@ -62,6 +64,13 @@ def test_show_secret(juju: jubilant.Juju):
     )
     assert secret.created == secret.updated
     assert not hasattr(secret, 'content')
+
+    secret = juju.show_secret('sec1', owner='<model>')
+    assert secret.owner == '<model>'
+    assert secret.name == 'sec1'
+
+    with pytest.raises(ValueError):
+        juju.show_secret('sec1', owner='noowner')
 
     secret = juju.show_secret('sec1', reveal=True)
     assert secret.content == {'username': 'usr', 'password': 'hunter2'}

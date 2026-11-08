@@ -1485,6 +1485,9 @@ class Juju:
                 Juju may return multiple secrets with different owners when the
                 identifier is a label, use this to disambiguate. If not specified,
                 the first secret Juju returns is used.
+
+        Raises:
+            ValueError: if a secret with the given owner doesn't exist
         """
         args = ['show-secret', identifier, '--format', 'json']
         if reveal:

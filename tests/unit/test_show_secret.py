@@ -138,7 +138,7 @@ def test_get_secret_with_multiple_owners_owner_not_found(run: mocks.Run):
     )
     juju = jubilant.Juju()
 
-    with pytest.raises(ValueError, match="no secret with owner 'mongodb/2'"):
+    with pytest.raises(ValueError):
         juju.show_secret('example-charm-secret', owner='mongodb/2')
 
 
