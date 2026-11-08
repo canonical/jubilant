@@ -29,7 +29,8 @@ updates:
   # ===================================================================
   - package-ecosystem: "uv"
     directory: "/"
-    # Docs dependencies are updated by Sphinx Stack updates instead.
+    # Docs dependencies are not updated automatically. Run `make -C docs update`
+    # to see how they differ from the Sphinx starter pack's requirements.
     exclude-paths:
       - "docs/**"
     schedule:
