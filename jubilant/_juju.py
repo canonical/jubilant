@@ -49,17 +49,6 @@ ConstraintValue = bool | int | float | str
 """The possible types a constraint value can be (model, bootstrap or deployment constraint)."""
 
 
-class _FirstSecret:
-    """Type of the sentinel used for the default value of show_secret's *owner* parameter."""
-
-    def __repr__(self) -> str:
-        return '<first secret sentinel>'
-
-
-_first_secret = _FirstSecret()
-"""Sentinel meaning "the first secret" for the default value of show_secret's *owner* parameter."""
-
-
 class Juju:
     """Instantiate this class to run Juju commands.
 
@@ -1438,7 +1427,7 @@ class Juju:
         reveal: Literal[True],
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | _FirstSecret = _first_secret,
+        owner: str | None = None,
     ) -> RevealedSecret: ...
 
     @overload
@@ -1449,7 +1438,7 @@ class Juju:
         reveal: Literal[False] = False,
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | _FirstSecret = _first_secret,
+        owner: str | None = None,
     ) -> Secret: ...
 
     @overload
@@ -1460,7 +1449,7 @@ class Juju:
         reveal: Literal[False] = False,
         revision: None = None,
         revisions: Literal[True],
-        owner: str | _FirstSecret = _first_secret,
+        owner: str | None = None,
     ) -> Secret: ...
 
     def show_secret(
@@ -1470,7 +1459,7 @@ class Juju:
         reveal: bool = False,
         revision: int | None = None,
         revisions: bool = False,
-        owner: str | _FirstSecret = _first_secret,
+        owner: str | None = None,
     ) -> Secret | RevealedSecret:
         """Get the content of a secret.
 
@@ -1487,7 +1476,7 @@ class Juju:
                 the first secret Juju returns is used.
 
         Raises:
-            ValueError: if a secret with the given owner doesn't exist
+            ValueError: if a secret with the given owner doesn't exist.
         """
         args = ['show-secret', identifier, '--format', 'json']
         if reveal:
@@ -1498,7 +1487,7 @@ class Juju:
             args.extend(['--revision', str(revision)])
         stdout = self.cli(*args)
         output = json.loads(stdout)
-        if owner is _first_secret:
+        if owner is None:
             found = next(iter(output.items()))
         else:
             found = next(
