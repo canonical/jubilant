@@ -29,6 +29,9 @@ updates:
   # ===================================================================
   - package-ecosystem: "uv"
     directory: "/"
+    # Docs dependencies are updated when we manually upgrade Sphinx Stack.
+    exclude-paths:
+      - "docs/**"
     schedule:
       interval: "monthly"
     labels:
