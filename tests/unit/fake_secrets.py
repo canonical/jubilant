@@ -61,6 +61,23 @@ SINGLE_SECRET_REVEALED_JUJU35 = {
     }
 }
 
+MULTIPLE_OWNER_SECRETS = {
+    'd1ehcifmp25c76e01vhg': {
+        'revision': 1,
+        'owner': 'example-charm/0',
+        'label': 'example-charm-secret',
+        'created': '2025-06-26T09:43:38Z',
+        'updated': '2025-06-26T09:43:38Z',
+    },
+    'd0vdtqnmp25c762e7jug': {
+        'revision': 2,
+        'owner': 'example-charm/1',
+        'label': 'example-charm-secret',
+        'created': '2025-06-27T09:43:38Z',
+        'updated': '2025-06-27T09:43:38Z',
+    },
+}
+
 SINGLE_SECRET_REVISIONS = {
     'd1ehcifmp25c76e01vhg': {
         'revision': 2,
