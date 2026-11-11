@@ -94,7 +94,7 @@ class Task:
         """Whether the action was successful."""
         return self.status == 'completed' and self.return_code == 0
 
-    def raise_on_failure(self):
+    def raise_on_failure(self) -> None:
         """If task was not successful, raise a :class:`TaskError`."""
         if not self.success:
             raise TaskError(self)
