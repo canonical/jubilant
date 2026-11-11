@@ -101,6 +101,8 @@ select = [
     "PERF",
     # pyflakes-docstrings
     "D",
+    # flake8-annotations
+    "ANN",
 ]
 ignore = [
     # Function argument `x` is shadowing a Python builtin
@@ -114,7 +116,16 @@ ignore = [
 
     # Return the condition `x` directly
     "SIM103",
+
+    # Missing return type annotation for special method
+    "ANN204",
+
+    # Dynamically typed expressions (typing.Any) are disallowed
+    "ANN401",
 ]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -142,6 +153,9 @@ builtins-ignorelist = ["id", "min", "map", "range", "type", "input", "format"]
     "S307",
     # Line too long
     "E501",
+    # Missing return type annotation for public/private function
+    "ANN201",
+    "ANN202",
 ]
 
 [tool.pyright]

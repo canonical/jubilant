@@ -411,7 +411,7 @@ class Juju:
         attach_storage: str | Iterable[str] | None = None,
         num_units: int = 1,
         to: str | Iterable[str] | None = None,
-    ):
+    ) -> None:
         """Add one or more units to a deployed application.
 
         Args:
@@ -1083,7 +1083,7 @@ class Juju:
         revision: int | None = None,
         storage: Mapping[str, str] | None = None,
         trust: bool = False,
-    ):
+    ) -> None:
         """Refresh (upgrade) an application's charm.
 
         Args:
