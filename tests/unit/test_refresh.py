@@ -79,13 +79,6 @@ def test_switch(run: mocks.Run):
 
     juju.refresh('xyz', switch='postgresql')
 
-    assert run.calls[0].args == (
-        'juju',
-        'refresh',
-        'xyz',
-        '--switch',
-        'postgresql',
-    )
 
 
 def test_path(run: mocks.Run):

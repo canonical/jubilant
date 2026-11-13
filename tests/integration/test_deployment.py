@@ -36,11 +36,11 @@ def test_deploy(juju: jubilant.Juju):
     assert jubilant.all_agents_idle(status, 'snappass-test')
 
 
-def test_refresh_switch_to_charmhub(juju: jubilant.Juju, tmp_path: pathlib.Path):
-    # Download the Charmhub charm to a path accessible to Juju Snap.
+def test_refresh_switch_to_charmhub(juju: jubilant.Juju):
+    # Download the Charmhub charm to a path accessible to the Juju snap.
     charm_dir = pathlib.Path.home() / 'snap' / 'juju' / 'common'
     charm_dir.mkdir(parents=True, exist_ok=True)
-    local_charm: pathlib.Path = charm_dir / f'{tmp_path.name}.charm'
+    local_charm: pathlib.Path = charm_dir / 'snappass-test.charm'
 
     try:
         juju.cli(

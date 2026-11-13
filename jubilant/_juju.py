@@ -1098,7 +1098,7 @@ class Juju:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
             switch: Crossgrade to a different charm, given as a Charmhub name or a local
-               path, for example, `postgresql`.
+                path, for example, ``'postgresql'``.
             storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
