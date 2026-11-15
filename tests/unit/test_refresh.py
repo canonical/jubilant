@@ -80,7 +80,6 @@ def test_switch(run: mocks.Run):
     juju.refresh('xyz', switch='postgresql')
 
 
-
 def test_path(run: mocks.Run):
     run.handle(['juju', 'refresh', 'xyz', '--path', './foo'])
     juju = jubilant.Juju()
