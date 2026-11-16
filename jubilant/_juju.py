@@ -1462,7 +1462,7 @@ class Juju:
         Secret labels are not unique: for example, each unit of an application can own a
         secret with the same label. Older versions of Juju return all matching secrets
         when *identifier* is a label, in which case this method returns the first one.
-        Newer versions of Juju raise an error if a label matches more than one secret.
+        Current versions of Juju raise an error if a label matches more than one secret.
         To get a specific secret reliably, use its URI.
 
         Args:
