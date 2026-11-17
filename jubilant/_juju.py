@@ -1427,7 +1427,6 @@ class Juju:
         reveal: Literal[True],
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | None = None,
     ) -> RevealedSecret: ...
 
     @overload
@@ -1438,7 +1437,6 @@ class Juju:
         reveal: Literal[False] = False,
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | None = None,
     ) -> Secret: ...
 
     @overload
@@ -1449,7 +1447,6 @@ class Juju:
         reveal: Literal[False] = False,
         revision: None = None,
         revisions: Literal[True],
-        owner: str | None = None,
     ) -> Secret: ...
 
     def show_secret(
@@ -1459,9 +1456,14 @@ class Juju:
         reveal: bool = False,
         revision: int | None = None,
         revisions: bool = False,
-        owner: str | None = None,
     ) -> Secret | RevealedSecret:
         """Get the content of a secret.
+
+        Secret labels are not unique: for example, each unit of an application can own a
+        secret with the same label. Older versions of Juju return all matching secrets
+        when *identifier* is a label, in which case this method returns the first one.
+        Current versions of Juju raise an error if a label matches more than one secret.
+        To get a specific secret reliably, use its URI.
 
         Args:
             identifier: Name or URI of the secret to return.
@@ -1470,13 +1472,6 @@ class Juju:
                 the latest revision is revealed.
             revisions: Whether to include all revisions of the secret. Mutually
                 exclusive with *reveal* and *revision*.
-            owner: Owner of the secret to return, for example ``mongodb/2``. Because
-                Juju may return multiple secrets with different owners when the
-                identifier is a label, use this to disambiguate. If not specified,
-                the first secret Juju returns is used.
-
-        Raises:
-            ValueError: if a secret with the given owner doesn't exist.
         """
         args = ['show-secret', identifier, '--format', 'json']
         if reveal:
@@ -1487,17 +1482,7 @@ class Juju:
             args.extend(['--revision', str(revision)])
         stdout = self.cli(*args)
         output = json.loads(stdout)
-        if owner is None:
-            found = next(iter(output.items()))
-        else:
-            found = next(
-                ((uri, obj) for uri, obj in output.items() if obj.get('owner') == owner),
-                None,
-            )
-            if found is None:
-                owners = sorted(str(obj.get('owner')) for obj in output.values())
-                raise ValueError(f'no secret with owner {owner!r}; owners returned are: {owners}')
-        uri_from_juju, obj = found
+        uri_from_juju, obj = next(iter(output.items()))
         secret = {'uri': uri_from_juju, **obj}
         if reveal:
             return RevealedSecret._from_dict(secret)
