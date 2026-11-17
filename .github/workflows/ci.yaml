@@ -82,12 +82,12 @@ jobs:
         run: |
           # 4.1/stable does not exist yet, so it is only included for non-stable risks.
           if [ "$EVENT_NAME" = "schedule" ]; then
-            CHANNELS='["3/stable", "3/edge", "4.0/stable", "4.0/edge", "4.1/edge"]'
+            CHANNELS='["3/stable", "3.6/edge", "4.0/stable", "4.0/edge", "4.1/edge"]'
           elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             if [ "$INPUT_CHANNEL" = "stable" ]; then
               CHANNELS='["3/stable", "4.0/stable"]'
             else
-              CHANNELS="[\"3/$INPUT_CHANNEL\", \"4.0/$INPUT_CHANNEL\", \"4.1/$INPUT_CHANNEL\"]"
+              CHANNELS="[\"3.6/$INPUT_CHANNEL\", \"4.0/$INPUT_CHANNEL\", \"4.1/$INPUT_CHANNEL\"]"
             fi
           else
             CHANNELS='["3/stable", "4.0/stable"]'
