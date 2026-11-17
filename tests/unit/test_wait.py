@@ -1,5 +1,7 @@
 import json
 import logging
+import subprocess
+from typing import Any, NoReturn
 
 import pytest
 
@@ -290,3 +292,59 @@ def test_timeout_zero(time: mocks.Time):
 
     assert time.monotonic() == 0
     assert 'mdl' not in str(excinfo.value)
+
+
+def test_timeout_bounds_status_call(run: mocks.Run, time: mocks.Time):
+    run.handle(['juju', 'status', '--format', 'json'], stdout=MINIMAL_JSON)
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError):
+        juju.wait(lambda _: False, timeout=3)
+
+    # Each status call gets only the time left until the overall deadline.
+    assert [call.timeout for call in run.calls] == [3, 2, 1]
+
+
+def test_timeout_status_call_hangs(monkeypatch: pytest.MonkeyPatch, time: mocks.Time):
+    timeouts: list[float | None] = []
+
+    def hanging_run(args: list[str], **kwargs: Any) -> NoReturn:
+        # Simulate "juju status" hanging (for example, an unreachable controller) until
+        # subprocess.run kills it at the timeout it was given.
+        timeouts.append(kwargs['timeout'])
+        time.sleep(kwargs['timeout'])
+        raise subprocess.TimeoutExpired(args, kwargs['timeout'])
+
+    monkeypatch.setattr('subprocess.run', hanging_run)
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError) as excinfo:
+        juju.wait(lambda _: False, timeout=2)
+
+    assert timeouts == [2]
+    assert time.monotonic() == 2
+    assert str(excinfo.value) == 'wait timed out after 2s'
+
+
+def test_timeout_status_call_hangs_after_status(monkeypatch: pytest.MonkeyPatch, time: mocks.Time):
+    calls = 0
+
+    def run_then_hang(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        # The first status call succeeds; the next one hangs until its timeout.
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return subprocess.CompletedProcess(args, 0, stdout=MINIMAL_JSON, stderr='')
+        time.sleep(kwargs['timeout'])
+        raise subprocess.TimeoutExpired(args, kwargs['timeout'])
+
+    monkeypatch.setattr('subprocess.run', run_then_hang)
+    juju = jubilant.Juju()
+
+    with pytest.raises(TimeoutError) as excinfo:
+        juju.wait(lambda _: False, timeout=5)
+
+    assert calls == 2
+    assert time.monotonic() == 5
+    # The status from before the hang is still included in the error.
+    assert 'mdl' in str(excinfo.value)
