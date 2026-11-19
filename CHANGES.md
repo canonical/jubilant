@@ -1,3 +1,35 @@
+# 1.15.0 - 20 Nov 2026
+
+## Features
+
+* Report how long wait took when it succeeds or the error callable fires (#419)
+* Add ssh_key argument to Juju.ssh and Juju.scp (#430)
+* Support switch option in refresh (#433)
+
+## Fixes
+
+* Add show_secret owner parameter with "first secret" default (#454)
+* Remove show_secret owner parameter (#467)
+* Bound Juju.wait status calls by the remaining timeout (#466)
+
+## Documentation
+
+* Add how-to use wait from CLI (#413)
+* Mention jubilant-backports for Juju 2.9 support (#421)
+* Add HTML meta descriptions to all pages (#437)
+* Cover documentation in contributing guide (#438)
+
+## Chores
+
+* Add a dev workshop (#432)
+* Switch pre-commit to `language: system` (#439)
+* Enable ruff flake8-annotations (ANN) rules (#462)
+
+## CI
+
+* Exclude docs from dependabot uv updates (#455)
+* Use Juju 3.6 track for dispatch and scheduled ci.yaml (#468)
+
 # 1.14.0 - 29 Sep 2026
 
 ## Features
