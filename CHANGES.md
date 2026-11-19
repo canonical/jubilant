@@ -8,8 +8,6 @@
 
 ## Fixes
 
-* Add show_secret owner parameter with "first secret" default (#454)
-* Remove show_secret owner parameter (#467)
 * Bound Juju.wait status calls by the remaining timeout (#466)
 
 ## Documentation
@@ -18,12 +16,6 @@
 * Mention jubilant-backports for Juju 2.9 support (#421)
 * Add HTML meta descriptions to all pages (#437)
 * Cover documentation in contributing guide (#438)
-
-## Chores
-
-* Add a dev workshop (#432)
-* Switch pre-commit to `language: system` (#439)
-* Enable ruff flake8-annotations (ANN) rules (#462)
 
 ## CI
 
