@@ -1081,6 +1081,7 @@ class Juju:
         path: str | pathlib.Path | None = None,
         resources: Mapping[str, str] | None = None,
         revision: int | None = None,
+        switch: str | pathlib.Path | None = None,
         storage: Mapping[str, str] | None = None,
         trust: bool = False,
     ) -> None:
@@ -1096,12 +1097,21 @@ class Juju:
             resources: Specify named resources to use for deployment, for example:
                 ``{'bin': '/path/to/some/binary'}``.
             revision: Charmhub revision number to deploy.
+            switch: Crossgrade to a different charm, given as a Charmhub name or a local
+                path, for example, ``'postgresql'``.
             storage: Constraints for named storage(s), for example, ``{'data': 'tmpfs,1G'}``.
             trust: If true, allows charm to run hooks that require access to cloud credentials.
         """
         args = ['refresh', app]
 
-        with self._deploy_tempdir(path, resources) as (path, resources):
+        with self._deploy_tempdir(path if path is not None else switch, resources) as (
+            temp_charm,
+            resources,
+        ):
+            if path is not None:
+                path = temp_charm
+            elif switch is not None:
+                switch = temp_charm
             if base is not None:
                 args.extend(['--base', base])
             if channel is not None:
@@ -1118,6 +1128,8 @@ class Juju:
                     args.extend(['--resource', f'{k}={v}'])
             if revision is not None:
                 args.extend(['--revision', str(revision)])
+            if switch is not None:
+                args.extend(['--switch', str(switch)])
             if storage is not None:
                 for k, v in storage.items():
                     args.extend(['--storage', f'{k}={v}'])
@@ -1427,7 +1439,6 @@ class Juju:
         reveal: Literal[True],
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | None = None,
     ) -> RevealedSecret: ...
 
     @overload
@@ -1438,7 +1449,6 @@ class Juju:
         reveal: Literal[False] = False,
         revision: int | None = None,
         revisions: Literal[False] = False,
-        owner: str | None = None,
     ) -> Secret: ...
 
     @overload
@@ -1449,7 +1459,6 @@ class Juju:
         reveal: Literal[False] = False,
         revision: None = None,
         revisions: Literal[True],
-        owner: str | None = None,
     ) -> Secret: ...
 
     def show_secret(
@@ -1459,9 +1468,14 @@ class Juju:
         reveal: bool = False,
         revision: int | None = None,
         revisions: bool = False,
-        owner: str | None = None,
     ) -> Secret | RevealedSecret:
         """Get the content of a secret.
+
+        Secret labels are not unique: for example, each unit of an application can own a
+        secret with the same label. Older versions of Juju return all matching secrets
+        when *identifier* is a label, in which case this method returns the first one.
+        Current versions of Juju raise an error if a label matches more than one secret.
+        To get a specific secret reliably, use its URI.
 
         Args:
             identifier: Name or URI of the secret to return.
@@ -1470,13 +1484,6 @@ class Juju:
                 the latest revision is revealed.
             revisions: Whether to include all revisions of the secret. Mutually
                 exclusive with *reveal* and *revision*.
-            owner: Owner of the secret to return, for example ``mongodb/2``. Because
-                Juju may return multiple secrets with different owners when the
-                identifier is a label, use this to disambiguate. If not specified,
-                the first secret Juju returns is used.
-
-        Raises:
-            ValueError: if a secret with the given owner doesn't exist.
         """
         args = ['show-secret', identifier, '--format', 'json']
         if reveal:
@@ -1487,17 +1494,7 @@ class Juju:
             args.extend(['--revision', str(revision)])
         stdout = self.cli(*args)
         output = json.loads(stdout)
-        if owner is None:
-            found = next(iter(output.items()))
-        else:
-            found = next(
-                ((uri, obj) for uri, obj in output.items() if obj.get('owner') == owner),
-                None,
-            )
-            if found is None:
-                owners = sorted(str(obj.get('owner')) for obj in output.values())
-                raise ValueError(f'no secret with owner {owner!r}; owners returned are: {owners}')
-        uri_from_juju, obj = found
+        uri_from_juju, obj = next(iter(output.items()))
         secret = {'uri': uri_from_juju, **obj}
         if reveal:
             return RevealedSecret._from_dict(secret)
@@ -1738,8 +1735,9 @@ class Juju:
                 should raise an error (:class:`WaitError`).
             delay: Delay in seconds between status calls.
             timeout: Overall timeout in seconds; :class:`TimeoutError` is raised if this
-                is reached. If not specified, uses the *wait_timeout* specified when the
-                instance was created.
+                is reached, including when a status call is still running at the deadline.
+                If not specified, uses the *wait_timeout* specified when the instance was
+                created.
             successes: Number of times *ready* must return ``True`` for the wait to succeed.
 
         Raises:
@@ -1758,7 +1756,13 @@ class Juju:
         while time.monotonic() - start < timeout:
             prev_status = status
 
-            stdout, _ = self._cli('status', '--format', 'json', log=False)
+            # Bound the status call by the time left, so that a hung "juju status" (for
+            # example, when the controller is unreachable) can't overrun the overall timeout.
+            remaining = timeout - (time.monotonic() - start)
+            try:
+                stdout, _ = self._cli('status', '--format', 'json', log=False, timeout=remaining)
+            except subprocess.TimeoutExpired:
+                break
             result = json.loads(stdout)
             status = Status._from_dict(result)
 
