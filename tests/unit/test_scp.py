@@ -164,3 +164,37 @@ def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
     assert (dest / 'c.txt').read_text() == 'C'
 
     assert num_calls == 1
+
+
+def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args == ['juju', 'scp', '--', 'target:/var/log/source.log', mock.ANY]
+        pathlib.Path(args[4]).write_text('REMOTE')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('target:/var/log/source.log', str(tmp_path))
+
+    assert [p.name for p in tmp_path.iterdir()] == ['source.log']
+    assert (tmp_path / 'source.log').read_text() == 'REMOTE'
+
+
+def test_dst_existing_dir_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args == ['juju', 'scp', '--', '-r', 'ubuntu@target:/source/', mock.ANY]
+        temp_path = pathlib.Path(args[5])
+        temp_path.mkdir()
+        (temp_path / 'c.txt').write_text('C')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('ubuntu@target:/source/', str(tmp_path), scp_options=['-r'])
+
+    assert [p.name for p in tmp_path.iterdir()] == ['source']
+    assert (tmp_path / 'source' / 'c.txt').read_text() == 'C'
