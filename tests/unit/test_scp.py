@@ -169,7 +169,8 @@ def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
 def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     def mock_run(args: list[str], **_: Any):
         assert args == ['juju', 'scp', '--', 'target:/var/log/source.log', mock.ANY]
-        pathlib.Path(args[4]).write_text('REMOTE')
+        # Simulate scp copying the file into the temporary directory.
+        (pathlib.Path(args[4]) / 'source.log').write_text('REMOTE')
         return subprocess.CompletedProcess(args, 0, '', '')
 
     monkeypatch.setattr('subprocess.run', mock_run)
@@ -182,18 +183,40 @@ def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path
     assert (tmp_path / 'source.log').read_text() == 'REMOTE'
 
 
-def test_dst_existing_dir_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+def test_dst_existing_dir_glob_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     def mock_run(args: list[str], **_: Any):
-        assert args == ['juju', 'scp', '--', '-r', 'ubuntu@target:/source/', mock.ANY]
-        temp_path = pathlib.Path(args[5])
-        temp_path.mkdir()
-        (temp_path / 'c.txt').write_text('C')
+        assert args == ['juju', 'scp', '--', 'target:/tmp/x*.log', mock.ANY]
+        # Simulate scp expanding the glob on the remote side.
+        (pathlib.Path(args[4]) / 'x1.log').write_text('1')
+        (pathlib.Path(args[4]) / 'x2.log').write_text('2')
         return subprocess.CompletedProcess(args, 0, '', '')
 
     monkeypatch.setattr('subprocess.run', mock_run)
     monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
 
     juju = jubilant.Juju()
+    juju.scp('target:/tmp/x*.log', str(tmp_path))
+
+    assert sorted(p.name for p in tmp_path.iterdir()) == ['x1.log', 'x2.log']
+    assert (tmp_path / 'x1.log').read_text() == '1'
+    assert (tmp_path / 'x2.log').read_text() == '2'
+
+
+def test_dst_existing_dir_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args == ['juju', 'scp', '--', '-r', 'ubuntu@target:/source/', mock.ANY]
+        # Simulate scp copying the directory into the temporary directory.
+        source_dir = pathlib.Path(args[5]) / 'source'
+        source_dir.mkdir()
+        (source_dir / 'c.txt').write_text('C')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('ubuntu@target:/source/', str(tmp_path), scp_options=['-r'])
+    # Copying again over the first copy works, as it does with scp.
     juju.scp('ubuntu@target:/source/', str(tmp_path), scp_options=['-r'])
 
     assert [p.name for p in tmp_path.iterdir()] == ['source']

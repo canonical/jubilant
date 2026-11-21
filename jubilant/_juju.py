@@ -1382,21 +1382,28 @@ class Juju:
                 args.append(temp)
                 args.append(destination)
                 self.cli(*args)
+            elif pathlib.Path(destination).is_dir():
+                # Remote source, existing local directory. Copy into the temporary directory,
+                # so that scp picks the names, as it does for a glob, then copy those across.
+                args.append(source)
+                args.append(str(temp_dir))
+                self.cli(*args)
+                for path in temp_dir.iterdir():
+                    target = pathlib.Path(destination) / path.name
+                    if path.is_dir():
+                        shutil.copytree(path, target, dirs_exist_ok=True)
+                    else:
+                        shutil.copy(path, target)
             else:
-                # Remote source, local destination
+                # Remote source, new local path
                 temp = str(temp_dir / '_temp')
                 args.append(source)
                 args.append(temp)
                 self.cli(*args)
-                # Like scp, copy into an existing local directory under the source's name,
-                # rather than the name of the temporary copy.
-                target = pathlib.Path(destination)
-                if target.is_dir():
-                    target /= pathlib.PurePosixPath(source.split(':', 1)[1]).name
                 if pathlib.Path(temp).is_dir():
-                    shutil.copytree(temp, target)
+                    shutil.copytree(temp, destination)
                 else:
-                    shutil.copy(temp, target)
+                    shutil.copy(temp, destination)
 
     def secrets(self, *, owner: str | None = None) -> list[Secret]:
         """Get all secrets in the model.
