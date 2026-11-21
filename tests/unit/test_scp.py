@@ -53,6 +53,21 @@ def test_ssh_key(run: mocks.Run):
     juju.scp('SRC', 'DST', ssh_key=pathlib.Path('/path/to/private.key'))
 
 
+def test_connection_options(run: mocks.Run):
+    run.handle([
+        '/bin/juju',
+        'scp',
+        '--direct',
+        '--proxy',
+        '--',
+        'SRC',
+        'DST',
+    ])
+    juju = jubilant.Juju(cli_binary='/bin/juju')
+
+    juju.scp('SRC', 'DST', direct=True, proxy=True)
+
+
 def test_path_source(run: mocks.Run):
     run.handle(['/bin/juju', 'scp', '--', 'SRC', 'DST'])
     juju = jubilant.Juju(cli_binary='/bin/juju')
