@@ -159,8 +159,10 @@ def test_scp(juju: jubilant.Juju, ssh_key: str | None):
 
 def test_ssh_direct(juju: jubilant.Juju, juju_version: jubilant.Version):
     if juju_version.tuple < (4, 1, 0):
-        pytest.skip('--direct requires Juju 4.1 or later')
+        pytest.skip('--direct requires the Juju 4.1 CLI or later')
 
+    # On K8s, --direct goes through the Kubernetes API rather than the controller's
+    # SSH server, so unlike the other ssh tests this one doesn't need ssh_key.
     output = juju.ssh(
         'snappass-test/0', 'ls', '/charm/container', container='snappass', direct=True
     )
@@ -169,8 +171,10 @@ def test_ssh_direct(juju: jubilant.Juju, juju_version: jubilant.Version):
 
 def test_scp_direct(juju: jubilant.Juju, juju_version: jubilant.Version, tmp_path: pathlib.Path):
     if juju_version.tuple < (4, 1, 0):
-        pytest.skip('--direct requires Juju 4.1 or later')
+        pytest.skip('--direct requires the Juju 4.1 CLI or later')
 
+    # On K8s, --direct goes through the Kubernetes API rather than the controller's
+    # SSH server, so unlike the other ssh tests this one doesn't need ssh_key.
     juju.scp('snappass-test/0:/etc/passwd', tmp_path / 'passwd', container='redis', direct=True)
     assert 'redis:' in (tmp_path / 'passwd').read_text()
 
