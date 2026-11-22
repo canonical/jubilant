@@ -67,6 +67,13 @@ def test_proxy(run: mocks.Run):
     juju.scp('SRC', 'DST', proxy=True)
 
 
+def test_direct_and_proxy(run: mocks.Run):
+    run.handle(['/bin/juju', 'scp', '--direct', '--proxy', '--', 'SRC', 'DST'])
+    juju = jubilant.Juju(cli_binary='/bin/juju')
+
+    juju.scp('SRC', 'DST', direct=True, proxy=True)
+
+
 def test_path_source(run: mocks.Run):
     run.handle(['/bin/juju', 'scp', '--', 'SRC', 'DST'])
     juju = jubilant.Juju(cli_binary='/bin/juju')

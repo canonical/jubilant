@@ -103,3 +103,11 @@ def test_proxy(run: mocks.Run):
 
     output = juju.ssh('ubuntu/0', 'echo', 'foo', proxy=True)
     assert output == 'foo\n'
+
+
+def test_direct_and_proxy(run: mocks.Run):
+    run.handle(['juju', 'ssh', '--direct', '--proxy', 'ubuntu/0', 'echo', 'foo'], stdout='foo\n')
+    juju = jubilant.Juju()
+
+    output = juju.ssh('ubuntu/0', 'echo', 'foo', direct=True, proxy=True)
+    assert output == 'foo\n'
