@@ -28,8 +28,7 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     credential = {'credentials': {'aws': {'mycred': {'auth-type': 'access-key'}}}}
     juju.add_credential('aws', credential, controller='cc')
 
-    assert len(mock_file.writes) == 1
-    assert 'auth-type: access-key' in mock_file.writes[0]
+    assert 'auth-type: access-key' in mock_file.content
 
 
 def test_all_args(run: mocks.Run):

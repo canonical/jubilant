@@ -45,8 +45,7 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     definition = {'clouds': {'mycloud': {'type': 'lxd', 'endpoint': '1.2.3.4'}}}
     juju.update_cloud('mycloud', definition, client=True)
 
-    assert len(mock_file.writes) == 1
-    assert 'type: lxd' in mock_file.writes[0]
+    assert 'type: lxd' in mock_file.content
 
 
 def test_all_args(run: mocks.Run):

@@ -14,7 +14,7 @@ def test_normal(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     secret_uri = juju.add_secret('my-secret', {'username': 'admin'})
 
     assert secret_uri.startswith('secret:')
-    assert mock_file.writes == ['username: admin\n']
+    assert mock_file.content == 'username: admin\n'
 
 
 def test_with_info(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
@@ -26,5 +26,4 @@ def test_with_info(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
 
     juju.add_secret('my-secret', {'username': 'admin'}, info='A description.')
 
-    assert len(mock_file.writes) == 1
-    assert mock_file.writes[0] == 'username: admin\n'
+    assert mock_file.content == 'username: admin\n'
