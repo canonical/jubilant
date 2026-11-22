@@ -1341,8 +1341,8 @@ class Juju:
             destination: Destination for file, in format ``[<user>@]<target>[:<path>]``.
             container: Name of container for Kubernetes charms. Defaults to the charm container.
             direct: Set to true to connect directly to the target rather than through the
-                controller's SSH server. Requires Juju 4.1 or later, where connecting through
-                the controller is the default.
+                controller's SSH server. Requires the Juju 4.1 CLI or later, where connecting
+                through the controller is the default.
             host_key_checks: Set to false to disable host key checking (insecure).
             proxy: Set to true to proxy the connection through the controller machine's
                 OpenSSH server. With Juju 4.1 or later, this only applies if *direct* is true.
@@ -1546,8 +1546,8 @@ class Juju:
             args: Arguments of the command.
             container: Name of container for Kubernetes charms. Defaults to the charm container.
             direct: Set to true to connect directly to the target rather than through the
-                controller's SSH server. Requires Juju 4.1 or later, where connecting through
-                the controller is the default.
+                controller's SSH server. Requires the Juju 4.1 CLI or later, where connecting
+                through the controller is the default.
             host_key_checks: Set to false to disable host key checking (insecure).
             proxy: Set to true to proxy the connection through the controller machine's
                 OpenSSH server. With Juju 4.1 or later, this only applies if *direct* is true.
