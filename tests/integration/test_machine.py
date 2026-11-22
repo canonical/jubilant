@@ -48,7 +48,11 @@ def test_ssh_proxy(
     direct = juju_version.tuple >= (4, 1, 0)
     if direct:
         request.applymarker(
-            pytest.mark.xfail(reason='https://github.com/juju/juju/issues/23913', strict=True)
+            pytest.mark.xfail(
+                reason='https://github.com/juju/juju/issues/23913',
+                raises=jubilant.CLIError,
+                strict=True,
+            )
         )
 
     output = juju.ssh(
