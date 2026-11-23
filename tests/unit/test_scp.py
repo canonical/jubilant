@@ -168,9 +168,10 @@ def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
 
 def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     def mock_run(args: list[str], **_: Any):
+        # Juju gets a file path in the temporary directory, which works for Kubernetes too.
         assert args == ['juju', 'scp', '--', 'target:/var/log/source.log', mock.ANY]
-        # Simulate scp copying the file into the temporary directory.
-        (pathlib.Path(args[4]) / 'source.log').write_text('REMOTE')
+        assert pathlib.Path(args[4]).name == 'source.log'
+        pathlib.Path(args[4]).write_text('REMOTE')
         return subprocess.CompletedProcess(args, 0, '', '')
 
     monkeypatch.setattr('subprocess.run', mock_run)
@@ -186,7 +187,8 @@ def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path
 def test_dst_existing_dir_glob_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     def mock_run(args: list[str], **_: Any):
         assert args == ['juju', 'scp', '--', 'target:/tmp/x*.log', mock.ANY]
-        # Simulate scp expanding the glob on the remote side.
+        # Juju gets the temporary directory itself, and scp expands the glob remotely.
+        assert pathlib.Path(args[4]).is_dir()
         (pathlib.Path(args[4]) / 'x1.log').write_text('1')
         (pathlib.Path(args[4]) / 'x2.log').write_text('2')
         return subprocess.CompletedProcess(args, 0, '', '')
@@ -205,8 +207,9 @@ def test_dst_existing_dir_glob_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path
 def test_dst_existing_dir_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
     def mock_run(args: list[str], **_: Any):
         assert args == ['juju', 'scp', '--', '-r', 'ubuntu@target:/source/', mock.ANY]
-        # Simulate scp copying the directory into the temporary directory.
-        source_dir = pathlib.Path(args[5]) / 'source'
+        # Simulate scp copying the directory to the path it was given.
+        source_dir = pathlib.Path(args[5])
+        assert source_dir.name == 'source'
         source_dir.mkdir()
         (source_dir / 'c.txt').write_text('C')
         return subprocess.CompletedProcess(args, 0, '', '')

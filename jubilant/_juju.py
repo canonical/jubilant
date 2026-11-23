@@ -1383,17 +1383,17 @@ class Juju:
                 args.append(destination)
                 self.cli(*args)
             elif pathlib.Path(destination).is_dir():
-                # Remote source, existing local directory. Copy into the temporary directory,
-                # so that scp picks the names, as it does for a glob, then copy those across.
+                # Remote source, existing local directory. Juju copies files from a Kubernetes
+                # container itself and can't copy into a directory, so name the file in the
+                # temporary directory. A glob needs scp to pick the names, which only works
+                # for machines. Then copy whatever landed in the temporary directory across.
+                remote_path = source.split(':', 1)[1]
+                name = pathlib.PurePosixPath(remote_path).name
+                is_glob = any(c in remote_path for c in '*?[')
                 args.append(source)
-                args.append(str(temp_dir))
+                args.append(str(temp_dir / name) if name and not is_glob else str(temp_dir))
                 self.cli(*args)
-                for path in temp_dir.iterdir():
-                    target = pathlib.Path(destination) / path.name
-                    if path.is_dir():
-                        shutil.copytree(path, target, dirs_exist_ok=True)
-                    else:
-                        shutil.copy(path, target)
+                shutil.copytree(temp_dir, pathlib.Path(destination), dirs_exist_ok=True)
             else:
                 # Remote source, new local path
                 temp = str(temp_dir / '_temp')
