@@ -46,6 +46,7 @@ def test_with_yaml_dict(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     juju.update_cloud('mycloud', definition, client=True)
 
     assert 'type: lxd' in mock_file.content
+    assert mock_file.flushed == mock_file.content
 
 
 def test_all_args(run: mocks.Run):

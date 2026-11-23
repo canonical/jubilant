@@ -9,6 +9,7 @@ def test_basic(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     juju.update_secret('my-secret', {'username': 'admin'})
 
     assert mock_file.content == 'username: admin\n'
+    assert mock_file.flushed == mock_file.content
 
 
 def test_new_name(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
