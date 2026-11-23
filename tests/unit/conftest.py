@@ -32,6 +32,7 @@ def mock_file(monkeypatch: pytest.MonkeyPatch) -> Generator[mocks.NamedTemporary
     file_mock = mocks.NamedTemporaryFile()
     monkeypatch.setattr('tempfile.NamedTemporaryFile', file_mock)
     yield file_mock
+    assert file_mock.flushed == file_mock.content, 'temp file not flushed'
 
 
 @pytest.fixture(scope='function', autouse=True)

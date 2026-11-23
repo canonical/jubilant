@@ -225,4 +225,3 @@ def test_params(run: mocks.Run, mock_file: mocks.NamedTemporaryFile):
     )
     assert task.success
     assert yaml.safe_load(mock_file.content) == {'foo': 1, 'bar': ['ab', 'cd']}
-    assert mock_file.flushed == mock_file.content
