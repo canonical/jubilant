@@ -116,15 +116,15 @@ class TemporaryDirectory:
 class NamedTemporaryFile:
     """Mock for tempfile.NamedTemporaryFile.
 
-    Captures any writes to the file. *content* is everything written so far,
-    and each flush records the content written at that point in *flushed*.
-    Assert on those rather than on the individual writes or the number of
+    Captures any writes to the file. Each call to write adds to the *writes*
+    list, and each flush records the content written so far in *flushed*.
+    Assert on *content* and *flushed* rather than *writes* or the number of
     flushes: how often PyYAML calls write and flush depends on whether it has
     its C extension.
     """
 
     def __init__(self):
-        self._writes: list[str] = []
+        self.writes: list[str] = []
         self.flushed: str = ''
         self.name = 'path/to/temp_file_name'
 
@@ -141,10 +141,10 @@ class NamedTemporaryFile:
     @property
     def content(self) -> str:
         """Everything written to the file so far."""
-        return ''.join(self._writes)
+        return ''.join(self.writes)
 
     def write(self, data: str) -> None:
-        self._writes.append(data)
+        self.writes.append(data)
 
     def flush(self) -> None:
         self.flushed = self.content
