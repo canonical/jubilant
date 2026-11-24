@@ -157,6 +157,28 @@ def test_scp(juju: jubilant.Juju, ssh_key: str | None):
         assert pathlib.Path(fdst.name).read_text() == 'roundtrip'
 
 
+def test_ssh_direct(juju: jubilant.Juju, juju_version: jubilant.Version):
+    if juju_version.tuple < (4, 1, 0):
+        pytest.skip('--direct requires the Juju 4.1 CLI or later')
+
+    # On K8s, --direct goes through the Kubernetes API rather than the controller's
+    # SSH server, so unlike the other ssh tests this one doesn't need ssh_key.
+    output = juju.ssh(
+        'snappass-test/0', 'ls', '/charm/container', container='snappass', direct=True
+    )
+    assert 'pebble' in output.split()
+
+
+def test_scp_direct(juju: jubilant.Juju, juju_version: jubilant.Version, tmp_path: pathlib.Path):
+    if juju_version.tuple < (4, 1, 0):
+        pytest.skip('--direct requires the Juju 4.1 CLI or later')
+
+    # On K8s, --direct goes through the Kubernetes API rather than the controller's
+    # SSH server, so unlike the other ssh tests this one doesn't need ssh_key.
+    juju.scp('snappass-test/0:/etc/passwd', tmp_path / 'passwd', container='redis', direct=True)
+    assert 'redis:' in (tmp_path / 'passwd').read_text()
+
+
 def test_cli_input(juju: jubilant.Juju, ssh_key: str | None):
     key_args = ['--ssh-key', ssh_key] if ssh_key is not None else []
     stdout = juju.cli('ssh', *key_args, '--container', 'charm', 'testdb/0', 'cat', stdin='foo')

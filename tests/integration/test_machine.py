@@ -38,6 +38,34 @@ def test_ssh(juju: jubilant.Juju, private_key_file: str, ssh_key: str | None):
     assert output == 'MACHINE\n'
 
 
+def test_ssh_proxy(
+    juju: jubilant.Juju,
+    juju_version: jubilant.Version,
+    private_key_file: str,
+    request: pytest.FixtureRequest,
+):
+    # From Juju 4.1, --proxy only applies with --direct.
+    direct = juju_version.tuple >= (4, 1, 0)
+    if direct:
+        request.applymarker(
+            pytest.mark.xfail(
+                reason='https://github.com/juju/juju/issues/23913',
+                raises=jubilant.CLIError,
+                strict=True,
+            )
+        )
+
+    output = juju.ssh(
+        'ubuntu/0',
+        'echo',
+        'PROXY',
+        direct=direct,
+        proxy=True,
+        ssh_options=['-i', private_key_file],
+    )
+    assert output == 'PROXY\n'
+
+
 def test_add_and_remove_unit(juju: jubilant.Juju):
     juju.add_unit('ubuntu')
     juju.wait(lambda status: jubilant.all_active(status) and len(status.apps['ubuntu'].units) == 2)

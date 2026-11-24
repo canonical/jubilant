@@ -1328,7 +1328,9 @@ class Juju:
         destination: str | pathlib.Path,
         *,
         container: str | None = None,
+        direct: bool = False,
         host_key_checks: bool = True,
+        proxy: bool = False,
         scp_options: Iterable[str] = (),
         ssh_key: str | pathlib.Path | None = None,
     ) -> None:
@@ -1338,7 +1340,12 @@ class Juju:
             source: Source of file, in format ``[[<user>@]<target>:]<path>``.
             destination: Destination for file, in format ``[<user>@]<target>[:<path>]``.
             container: Name of container for Kubernetes charms. Defaults to the charm container.
+            direct: Set to true to connect directly to the target rather than through the
+                controller's SSH server. Requires the Juju 4.1 CLI or later, where connecting
+                through the controller is the default.
             host_key_checks: Set to false to disable host key checking (insecure).
+            proxy: Set to true to proxy the connection through the controller machine's
+                OpenSSH server. With Juju 4.1 or later, this only applies if *direct* is true.
             scp_options: ``scp`` client options, for example ``['-r', '-C']``.
                 From Juju 4.1, ``-i`` doesn't apply to the connection to the controller.
                 Use *ssh_key* for that.
@@ -1353,8 +1360,12 @@ class Juju:
         args = ['scp']
         if container is not None:
             args.extend(['--container', container])
+        if direct:
+            args.append('--direct')
         if not host_key_checks:
             args.append('--no-host-key-checks')
+        if proxy:
+            args.append('--proxy')
         if ssh_key is not None:
             args.extend(['--ssh-key', str(ssh_key)])
         args.append('--')
@@ -1517,7 +1528,9 @@ class Juju:
         command: str,
         *args: str,
         container: str | None = None,
+        direct: bool = False,
         host_key_checks: bool = True,
+        proxy: bool = False,
         ssh_options: Iterable[str] = (),
         user: str | None = None,
         ssh_key: str | pathlib.Path | None = None,
@@ -1532,7 +1545,12 @@ class Juju:
                 ``juju.ssh('mysql/0', 'echo foo', ...)``.
             args: Arguments of the command.
             container: Name of container for Kubernetes charms. Defaults to the charm container.
+            direct: Set to true to connect directly to the target rather than through the
+                controller's SSH server. Requires the Juju 4.1 CLI or later, where connecting
+                through the controller is the default.
             host_key_checks: Set to false to disable host key checking (insecure).
+            proxy: Set to true to proxy the connection through the controller machine's
+                OpenSSH server. With Juju 4.1 or later, this only applies if *direct* is true.
             ssh_options: OpenSSH client options, for example ``['-i', '/path/to/private.key']``.
                 From Juju 4.1, ``-i`` doesn't apply to the connection to the controller.
                 Use *ssh_key* for that.
@@ -1548,8 +1566,12 @@ class Juju:
         cli_args = ['ssh']
         if container is not None:
             cli_args.extend(['--container', container])
+        if direct:
+            cli_args.append('--direct')
         if not host_key_checks:
             cli_args.append('--no-host-key-checks')
+        if proxy:
+            cli_args.append('--proxy')
         if ssh_key is not None:
             cli_args.extend(['--ssh-key', str(ssh_key)])
         if user is not None:

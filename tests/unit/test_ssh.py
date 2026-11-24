@@ -87,3 +87,27 @@ def test_type_error():
 
     with pytest.raises(TypeError):
         juju.ssh('ubuntu/0', 'ls', ssh_options='invalid')
+
+
+def test_direct(run: mocks.Run):
+    run.handle(['juju', 'ssh', '--direct', 'ubuntu/0', 'echo', 'foo'], stdout='foo\n')
+    juju = jubilant.Juju()
+
+    output = juju.ssh('ubuntu/0', 'echo', 'foo', direct=True)
+    assert output == 'foo\n'
+
+
+def test_proxy(run: mocks.Run):
+    run.handle(['juju', 'ssh', '--proxy', 'ubuntu/0', 'echo', 'foo'], stdout='foo\n')
+    juju = jubilant.Juju()
+
+    output = juju.ssh('ubuntu/0', 'echo', 'foo', proxy=True)
+    assert output == 'foo\n'
+
+
+def test_direct_and_proxy(run: mocks.Run):
+    run.handle(['juju', 'ssh', '--direct', '--proxy', 'ubuntu/0', 'echo', 'foo'], stdout='foo\n')
+    juju = jubilant.Juju()
+
+    output = juju.ssh('ubuntu/0', 'echo', 'foo', direct=True, proxy=True)
+    assert output == 'foo\n'
