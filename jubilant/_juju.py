@@ -1741,10 +1741,10 @@ class Juju:
             successes: Number of times *ready* must return ``True`` for the wait to succeed.
 
         Raises:
-            TimeoutError: If the *timeout* is reached. A string representation
-                of the last status, if any, is added as an exception note.
-            WaitError: If the *error* callable returns ``True``. A string representation
-                of the last status is added as an exception note.
+            TimeoutError: If the *timeout* is reached. The exception message includes how long
+                the wait took, and a string representation of the last status, if any.
+            WaitError: If the *error* callable returns ``True``. The exception message includes
+                how long the wait took and a string representation of the last status.
         """
         if timeout is None:
             timeout = self.wait_timeout
