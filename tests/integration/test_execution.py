@@ -135,7 +135,7 @@ def test_ssh(juju: jubilant.Juju, ssh_key: str | None):
     assert 'pebble' in output.split()
 
 
-def test_scp(juju: jubilant.Juju, ssh_key: str | None):
+def test_scp(juju: jubilant.Juju, ssh_key: str | None, tmp_path: pathlib.Path):
     juju.scp(
         'snappass-test/0:agents/unit-snappass-test-0/charm/src/charm.py',
         'charm.py',
@@ -147,6 +147,10 @@ def test_scp(juju: jubilant.Juju, ssh_key: str | None):
     juju.scp('snappass-test/0:/etc/passwd', 'passwd', container='redis', ssh_key=ssh_key)
     passwd = pathlib.Path('passwd').read_text()
     assert 'redis:' in passwd
+
+    # Remote file into an existing local directory, which scp copies into
+    juju.scp('snappass-test/0:/etc/passwd', str(tmp_path), container='redis', ssh_key=ssh_key)
+    assert 'redis:' in (tmp_path / 'passwd').read_text()
 
     # Test a round trip
     with tempfile.NamedTemporaryFile('w+') as fsrc, tempfile.NamedTemporaryFile('w+') as fdst:

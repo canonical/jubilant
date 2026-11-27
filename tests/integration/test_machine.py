@@ -79,6 +79,39 @@ def test_scp_directory(
     assert (dst_dir / 'a.txt').read_text() == 'A'
     assert (dst_dir / 'b.txt').read_text() == 'B'
 
+    # Remote directory into an existing local directory, which scp copies into
+    existing_dir = tmp_path / 'existing'
+    existing_dir.mkdir()
+    juju.scp(
+        'ubuntu/0:/tmp/mydir',
+        str(existing_dir),
+        scp_options=scp_options,
+        ssh_key=ssh_key,
+    )
+
+    assert (existing_dir / 'mydir' / 'a.txt').read_text() == 'A'
+    assert (existing_dir / 'mydir' / 'b.txt').read_text() == 'B'
+
+    # Copying again over the first copy works, as it does with scp
+    juju.scp(
+        'ubuntu/0:/tmp/mydir',
+        str(existing_dir),
+        scp_options=scp_options,
+        ssh_key=ssh_key,
+    )
+    assert (existing_dir / 'mydir' / 'a.txt').read_text() == 'A'
+
+    # A glob is expanded on the remote side, and scp picks the local names
+    glob_dir = tmp_path / 'glob'
+    glob_dir.mkdir()
+    juju.scp(
+        'ubuntu/0:/tmp/mydir/*.txt',
+        str(glob_dir),
+        scp_options=scp_options,
+        ssh_key=ssh_key,
+    )
+    assert sorted(p.name for p in glob_dir.iterdir()) == ['a.txt', 'b.txt']
+
 
 def test_model_constraints(juju: jubilant.Juju):
     initial_constraints = juju.model_constraints()

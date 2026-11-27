@@ -164,3 +164,63 @@ def test_dst_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
     assert (dest / 'c.txt').read_text() == 'C'
 
     assert num_calls == 1
+
+
+def test_dst_existing_dir_file_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        # Juju gets a file path in the temporary directory, which works for Kubernetes too.
+        assert args == ['juju', 'scp', '--', 'target:/var/log/source.log', mock.ANY]
+        assert pathlib.Path(args[4]).name == 'source.log'
+        pathlib.Path(args[4]).write_text('REMOTE')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('target:/var/log/source.log', str(tmp_path))
+
+    assert [p.name for p in tmp_path.iterdir()] == ['source.log']
+    assert (tmp_path / 'source.log').read_text() == 'REMOTE'
+
+
+def test_dst_existing_dir_glob_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args == ['juju', 'scp', '--', 'target:/tmp/x*.log', mock.ANY]
+        # Juju gets the temporary directory itself, and scp expands the glob remotely.
+        assert pathlib.Path(args[4]).is_dir()
+        (pathlib.Path(args[4]) / 'x1.log').write_text('1')
+        (pathlib.Path(args[4]) / 'x2.log').write_text('2')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('target:/tmp/x*.log', str(tmp_path))
+
+    assert sorted(p.name for p in tmp_path.iterdir()) == ['x1.log', 'x2.log']
+    assert (tmp_path / 'x1.log').read_text() == '1'
+    assert (tmp_path / 'x2.log').read_text() == '2'
+
+
+def test_dst_existing_dir_dir_tempdir(monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path):
+    def mock_run(args: list[str], **_: Any):
+        assert args == ['juju', 'scp', '--', '-r', 'ubuntu@target:/source/', mock.ANY]
+        # Simulate scp copying the directory to the path it was given.
+        source_dir = pathlib.Path(args[5])
+        assert source_dir.name == 'source'
+        source_dir.mkdir()
+        (source_dir / 'c.txt').write_text('C')
+        return subprocess.CompletedProcess(args, 0, '', '')
+
+    monkeypatch.setattr('subprocess.run', mock_run)
+    monkeypatch.setattr('shutil.which', lambda _: '/snap/bin/juju')  # type: ignore
+
+    juju = jubilant.Juju()
+    juju.scp('ubuntu@target:/source/', str(tmp_path), scp_options=['-r'])
+    # Copying again over the first copy works, as it does with scp.
+    juju.scp('ubuntu@target:/source/', str(tmp_path), scp_options=['-r'])
+
+    assert [p.name for p in tmp_path.iterdir()] == ['source']
+    assert (tmp_path / 'source' / 'c.txt').read_text() == 'C'
